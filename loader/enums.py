@@ -13,9 +13,12 @@ class BuildingType(Enum):
 
 # 建筑子类型枚举 (根据建筑类型细分)
 class ResourceSubType(Enum):
-    MINE = "Mine"              # 矿场
-    REFINERY = "Refinery"      # 提炼厂
-    FARM = "Farm"              # 农场
+    ADAMANTIUM = "Adamantium"
+    PLASTEEL = "Plasteel"
+    CERAMITE = "Ceramite"
+    PROMETHIUM = "Promethium"
+    PROMETHAZINE = "Promethazine"
+    FARM = "Farm"           
 
 class GeneralSubType(Enum):
     HABITATION = "Habitation"  # 居民点 (包括城市、教堂、大教堂)
@@ -48,9 +51,16 @@ class RockyPlanetSubtype(Enum):
     OCEAN = "Ocean"
     FROZEN = "Frozen"
 
-class ModifierType(Enum):
+class Modifier(Enum):
     PRODUCTION = "Production"  # 单位时间产出
     COST = "Cost"  # 单位时间消耗
     MAINTENANCE = "Maintenance"  # 单位耐久度消耗
     ADD = "Add"  # 一次性增加
     USE = "Use"  # 一次性扣除
+
+class Target(Enum):
+    PLANET = "Planet"
+    BUILDING = "Building"
+    FLEET = "Fleet"
+    TOTAL_RESOURCES = "Total Resources"
+    CHARACTER = "Character"  # 若后续有角色相关的事件主体可使用该枚举值

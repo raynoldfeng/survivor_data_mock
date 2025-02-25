@@ -10,7 +10,23 @@ class WorldDataMapper:
             'type': row['type'],
             'subtype': row['subtype'],
             'occur': float(row['occur']),
-            'desc_id': row['desc_id']
+            'desc_id': row['desc_id'],
+            'adamantium_slot': int(row['adamantium_slot']),
+            'adamantium_slot_adjustment': row['adamantium_slot_adjustment'],
+            'plasteel_slot': int(row['plasteel_slot']),
+            'plasteel_slot_adjustment': row['plasteel_slot_adjustment'],
+            'ceramite_slot': int(row['ceramite_slot']),
+            'ceramite_slot_adjustment': row['ceramite_slot_adjustment'],
+            'promethium_slot': int(row['promethium_slot']),
+            'promethium_slot_adjustment': row['promethium_slot_adjustment'],
+            'agriculture_slot': int(row['agriculture_slot']),
+            'agriculture_slot_adjustment': row['agriculture_slot_adjustment'],
+            'promethazine_slot': int(row['promethazine_slot']),
+            'promethazine_slot_adjustment': row['promethazine_slot_adjustment'],
+            'general_slot': int(row['general_slot']),
+            'general_slot_adjustment': row['general_slot_adjustment'],
+            'defense_slot': int(row['defense_slot']),
+            'defense_slot_adjustment': row['defense_slot_adjustment']
         }
 
     @staticmethod
@@ -42,7 +58,6 @@ class World:
         self.resource_slots = self._generate_resource_slots()
         self.actual_initial_buildings = self._generate_initial_buildings()
         self.exploration_rewards = self._calculate_exploration_rewards()
-        self.is_explored = False
 
     def _generate_resource_slots(self):
         resource_slots = {}
@@ -57,8 +72,12 @@ class World:
         return resource_slots
 
     def _parse_adjustment(self, adjustment_str):
-        parts = adjustment_str.split('~')
-        return int(parts[0]), int(parts[1])
+        if '~' in adjustment_str:
+            parts = adjustment_str.split('~')
+            return int(parts[0]), int(parts[1])
+        else:
+            num = int(adjustment_str)
+            return num, num
 
     def _generate_initial_buildings(self):
         actual_buildings = []
@@ -81,12 +100,6 @@ class World:
                     quantity = float(quantity_range)
                 rewards.append((reward['resource_id'], quantity))
         return rewards
-
-    def explore_world(self):
-        if self.is_explored:
-            return self.exploration_rewards
-        self.is_explored = True
-        return self.exploration_rewards
 
 def load_world_info(file_path):
     world_info_data = {}
