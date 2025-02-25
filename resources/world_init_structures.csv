@@ -1,0 +1,16 @@
+id,init_structure,init_structure_probabilities_1,init_structure_probabilities_2
+world.gaseous.none,,0.0,0.0
+world.rocky.lava,building.resource.mine.level1,0.05,0.01
+world.rocky.lava,building.resource.mine.level1,0.05,0.01
+world.rocky.lava,building.resource.refinery.level1,0.05,0.01
+world.rocky.death,,0.0,0.0
+world.rocky.woodland,building.general.habitation.level1,0.05,0.01
+world.rocky.woodland,building.general.workshop.level1,0.05,0.01
+world.rocky.woodland,building.general.laboratory.level1,0.05,0.01
+world.rocky.woodland,building.general.habitation.level1,0.05,0.01
+world.rocky.desert,building.resource.mine.level1,0.05,0.01
+world.rocky.desert,building.resource.mine.level1,0.05,0.01
+world.rocky.desert,building.resource.mine.level1,0.05,0.01
+world.rocky.ocean,building.resource.refinery.level1,0.03,0.0
+world.rocky.frozen,building.resource.refinery.level1,0.1,0.01
+world.asteroid.none,,0.0,0.0

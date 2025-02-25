@@ -1,0 +1,16 @@
+id,name,type,desc,acquire
+resource.adamantium,resource.adamantium.name,Primary,resource.adamantium.desc,resource.adamantium.acquire
+resource.plasteel,resource.plasteel.name,Primary,resource.plasteel.desc,resource.plasteel.acquire
+resource.ceramite,resource.ceramite.name,Primary,resource.ceramite.desc,resource.ceramite.acquire
+resource.promethium,resource.promethium.name,Primary,resource.promethium.desc,resource.promethium.acquire
+resource.agriculture,resource.agriculture.name,Primary,resource.agriculture.desc,resource.agriculture.acquire
+resource.promethazine,resource.promethazine.name,Primary,resource.promethazine.desc,resource.promethazine.acquire
+resource.population,resource.population.name,Secondary,resource.population.desc,resource.population.acquire
+resource.faith,resource.faith.name,Secondary,resource.faith.desc,resource.faith.acquire
+resource.chemicals,resource.chemicals.name,Secondary,resource.chemicals.desc,resource.chemicals.acquire
+resource.components,resource.components.name,Secondary,resource.components.desc,resource.components.acquire
+resource.weaponry,resource.weaponry.name,Secondary,resource.weaponry.desc,resource.weaponry.acquire
+resource.xenotech,resource.xenotech.name,Secondary,resource.xenotech.desc,resource.xenotech.acquire
+resource.relics,resource.relics.name,Rare,resource.relics.desc,resource.relics.acquire
+resource.stcfragments,resource.stcfragments.name,Rare,resource.stcfragments.desc,resource.stcfragments.acquire
+resource.noctilith,resource.noctilith.name,Rare,resource.noctilith.desc,resource.noctilith.acquire
