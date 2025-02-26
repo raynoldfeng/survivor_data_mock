@@ -54,13 +54,12 @@ class RockyPlanetSubtype(Enum):
 class Modifier(Enum):
     PRODUCTION = "Production"  # 单位时间产出
     COST = "Cost"  # 单位时间消耗
-    MAINTENANCE = "Maintenance"  # 单位耐久度消耗
-    ADD = "Add"  # 一次性增加
-    USE = "Use"  # 一次性扣除
+    INCREASE = "Increrase"  # 一次性增加
+    REDUCE = "Reduce"  # 一次性扣除
 
 class Target(Enum):
     PLANET = "Planet"
     BUILDING = "Building"
     FLEET = "Fleet"
-    TOTAL_RESOURCES = "Total Resources"
+    RESOURCES = "Resources"
     CHARACTER = "Character"  # 若后续有角色相关的事件主体可使用该枚举值

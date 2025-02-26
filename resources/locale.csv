@@ -137,7 +137,7 @@ text_id,en,cn,ru
 "building.psychic_barrier.desc","A defensive barrier constructed by psychics or special materials.","由灵能者或特殊材料构建的防御屏障","Оборонительный барьер, построенный псиониками или специальными материалами."
 "building.ground_fortress.name","Ground Fortress","地面堡垒","Наземная крепость"
 "building.ground_fortress.desc","A sturdy ground defense facility that can deploy a small number of troops.","坚固的地面防御设施，可部署少量军队","Прочное наземное оборонительное сооружение, способное разместить небольшое количество войск."
-
+"--------event_splitter---------",,,
 "event.mineral_enrichment.name","Mineral Enrichment","矿脉富集","Обогащение минералов"
 "event.unexpected_gain.name","Unexpected Gain","意外的收获","Неожиданный выигрыш"
 "event.production_optimization.name","Production Optimization","生产线优化","Оптимизация производства"

@@ -1,7 +1,8 @@
 from .imports import *
 from .enums import *
 
-class EventPhase:
+
+class EventPhase():
     def __init__(self, phase_id, previous_phase, next_phase_success, next_phase_failure, text_id, duration):
         self.phase_id = phase_id
         self.previous_phase = previous_phase
@@ -12,16 +13,26 @@ class EventPhase:
 
 
 class EventOption:
-    def __init__(self, option_id, judgment_object, value, below, equal, greater):
+    def __init__(self, option_id, judgment_object, value, below, equal, greater, result_id):
         self.option_id = option_id
         self.judgment_object = judgment_object
         self.value = value
         self.below = below
         self.equal = equal
         self.greater = greater
+        self.result_id = result_id
 
 
-class Event:
+class EventResult:
+    def __init__(self, result_id, resource_type_id, modifier, quantity, duration):
+        self.result_id = result_id
+        self.resource_type_id = resource_type_id
+        self.modifier = modifier
+        self.quantity = float(quantity)
+        self.duration = duration
+
+
+class EventConfig:
     def __init__(self, event_id, event_name_id, trigger_probability, trigger_text_id, initial_phase, target):
         self.event_id = event_id
         self.event_name_id = event_name_id
@@ -31,6 +42,7 @@ class Event:
         self.target = target
         self.phases = {}
         self.options = {}
+        self.results = {}
 
     def add_phase(self, phase):
         self.phases[phase.phase_id] = phase
@@ -40,11 +52,17 @@ class Event:
             self.options[phase_id] = {}
         self.options[phase_id][option.option_id] = option
 
+    def add_result(self, result):
+        if result.result_id not in self.results:
+            self.results[result.result_id] = []
+        self.results[result.result_id].append(result)
+
 
 def load_events_from_csv(**kwargs):
     event_info_file = kwargs.get('event_info')
     event_phases_file = kwargs.get('event_phases')
     event_options_file = kwargs.get('event_options')
+    event_results_file = kwargs.get('event_results')
     events = {}
 
     # 加载事件基本信息
@@ -53,13 +71,13 @@ def load_events_from_csv(**kwargs):
             reader = csv.DictReader(file)
             for row in reader:
                 event_id = row['event_id']
-                event = Event(
+                event = EventConfig(
                     event_id,
                     row['event_name_id'],
                     float(row['trigger_probability']),
                     row['trigger_text_id'],
                     row['initial_phase'],
-                    row['target']
+                    Target(row['target'])
                 )
                 events[event_id] = event
 
@@ -93,9 +111,24 @@ def load_events_from_csv(**kwargs):
                     float(row['value']),
                     row['below'].lower() == 'true',
                     row['equal'].lower() == 'true',
-                    row['greater'].lower() == 'true'
+                    row['greater'].lower() == 'true',
+                    row['result_id']
                 )
                 if event_id in events:
                     events[event_id].add_option(phase_id, option)
+
+    # 加载事件结果信息
+    if event_results_file:
+        with open(event_results_file, 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                result_id = row['result_id']
+                resource_type_id = row['resource_type_id']
+                modifier = Modifier(row["modifier"])
+                quantity = row['quantity']
+                duration = row['duration']
+                result = EventResult(result_id, resource_type_id, modifier, quantity, duration)
+                for event in events.values():
+                    event.add_result(result)
 
     return list(events.values())
