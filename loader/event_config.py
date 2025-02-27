@@ -1,8 +1,9 @@
+# loader/event_config.py
 from .imports import *
 from .enums import *
+import csv
 
-
-class EventPhase():
+class EventPhase:
     def __init__(self, phase_id, previous_phase, next_phase_success, next_phase_failure, text_id, duration):
         self.phase_id = phase_id
         self.previous_phase = previous_phase
@@ -10,18 +11,23 @@ class EventPhase():
         self.next_phase_failure = next_phase_failure
         self.text_id = text_id
         self.duration = duration
-
+        self.options = {}  # 存储option_id到EventOption的映射
 
 class EventOption:
-    def __init__(self, option_id, judgment_object, value, below, equal, greater, result_id):
+    def __init__(self, option_id, success_result_id, fail_result_id):
         self.option_id = option_id
-        self.judgment_object = judgment_object
-        self.value = value
-        self.below = below
-        self.equal = equal
-        self.greater = greater
-        self.result_id = result_id
+        self.success_result_id = success_result_id
+        self.fail_result_id = fail_result_id
+        self.challenges = []  # 存储多个EventChallenge实例
 
+class EventChallenge:
+    def __init__(self, challenge_id, resource_type, value, below, equal, greater):
+        self.challenge_id = challenge_id
+        self.resource_type = resource_type
+        self.value = float(value)
+        self.below = below.lower() == 'true'
+        self.equal = equal.lower() == 'true'
+        self.greater = greater.lower() == 'true'
 
 class EventResult:
     def __init__(self, result_id, resource_type_id, modifier, quantity, duration):
@@ -31,7 +37,6 @@ class EventResult:
         self.quantity = float(quantity)
         self.duration = duration
 
-
 class EventConfig:
     def __init__(self, event_id, event_name_id, trigger_probability, trigger_text_id, initial_phase, target):
         self.event_id = event_id
@@ -40,28 +45,26 @@ class EventConfig:
         self.trigger_text_id = trigger_text_id
         self.initial_phase = initial_phase
         self.target = target
-        self.phases = {}
-        self.options = {}
-        self.results = {}
+        self.phases = {}  # 存储phase_id到EventPhase的映射
+        self.results = {}  # 存储result_id到EventResult的映射
 
     def add_phase(self, phase):
         self.phases[phase.phase_id] = phase
 
     def add_option(self, phase_id, option):
-        if phase_id not in self.options:
-            self.options[phase_id] = {}
-        self.options[phase_id][option.option_id] = option
+        if phase_id in self.phases:
+            self.phases[phase_id].options[option.option_id] = option
 
     def add_result(self, result):
         if result.result_id not in self.results:
             self.results[result.result_id] = []
         self.results[result.result_id].append(result)
 
-
 def load_events_from_csv(**kwargs):
     event_info_file = kwargs.get('event_info')
     event_phases_file = kwargs.get('event_phases')
     event_options_file = kwargs.get('event_options')
+    event_challenges_file = kwargs.get('event_challenges')
     event_results_file = kwargs.get('event_results')
     events = {}
 
@@ -98,26 +101,42 @@ def load_events_from_csv(**kwargs):
                 if event_id in events:
                     events[event_id].add_phase(phase)
 
-    # 加载事件选项信息
+    # 加载选项信息
     if event_options_file:
         with open(event_options_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                event_id = row['event_id']
                 phase_id = row['phase_id']
                 option = EventOption(
                     row['option_id'],
-                    row['judgment_object'],
-                    float(row['value']),
-                    row['below'].lower() == 'true',
-                    row['equal'].lower() == 'true',
-                    row['greater'].lower() == 'true',
-                    row['result_id']
+                    row['success_result_id'],
+                    row['fail_result_id']
                 )
-                if event_id in events:
-                    events[event_id].add_option(phase_id, option)
+                for event in events.values():
+                    if phase_id in event.phases:
+                        event.add_option(phase_id, option)
+    # 加载挑战条件 (修正部分)
+    if event_challenges_file:
+        with open(event_challenges_file, 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                option_id = row['option_id']
+                challenge = EventChallenge(
+                    row['challenge_id'],
+                    row['resource_type'],
+                    row['value'],
+                    row['below'],
+                    row['equal'],
+                    row['greater']
+                )
+                # 找到对应的 EventOption 并添加挑战
+                for event in events.values():
+                    for phase in event.phases.values():
+                        if option_id in phase.options:
+                            phase.options[option_id].challenges.append(challenge)
 
-    # 加载事件结果信息
+
+    # 加载结果信息
     if event_results_file:
         with open(event_results_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)

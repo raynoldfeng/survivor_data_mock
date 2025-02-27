@@ -10,12 +10,18 @@ class World(BaseObject):
         self.actual_initial_buildings = actual_initial_buildings
         self.exploration_rewards = exploration_rewards
 
-class WorldManager(BaseObject):
-    def __init__(self, world_configs):
-        super().__init__()
-        self.world_configs = world_configs
-        self.world_instances = {}
+class WorldManager():
+    _instance = None
 
+    def __new__(cls, world_configs, game):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.world_configs = world_configs
+            cls._instance.world_instances = {}
+            cls._instance.game = game
+            cls._instance.game.world_manager = cls._instance
+        return cls._instance
+    
     def generate_worlds(self, num_worlds):
         world_ids = list(self.world_configs.keys())
         probabilities = [self.world_configs[world_id].info['occur'] for world_id in world_ids]
@@ -78,3 +84,14 @@ class WorldManager(BaseObject):
                     quantity = float(quantity_range)
                 rewards.append((reward['resource_id'], quantity))
         return rewards
+    
+    def pick(self):
+        """随机选择一个世界"""
+        if self.world_instances:
+            return random.choice(list(self._instance.world_instances.keys()))
+        return None
+    
+    def find_by_id(self, id):
+        if self.add_world_instance:
+            return self._instance.world_instances[id]
+        return None

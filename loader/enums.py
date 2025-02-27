@@ -58,8 +58,6 @@ class Modifier(Enum):
     REDUCE = "Reduce"  # 一次性扣除
 
 class Target(Enum):
-    PLANET = "Planet"
+    WORLD = "World"
     BUILDING = "Building"
-    FLEET = "Fleet"
-    RESOURCES = "Resources"
-    CHARACTER = "Character"  # 若后续有角色相关的事件主体可使用该枚举值
+    PLAYER = "Player"

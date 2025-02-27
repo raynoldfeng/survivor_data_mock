@@ -64,7 +64,7 @@ class BuildingConfig:
         current_id_parts[-1] = f"level{next_level}"
         return '.'.join(current_id_parts)
 
-    def get_upgrade_cost(self, all_buildings: Dict[str, 'Building']):
+    def get_upgrade_cost(self, all_buildings: Dict[str, 'BuildingConfig']):
         """获取升级所需的资源和数量"""
         next_level_id = self.get_next_level_id()
         next_level_building = all_buildings.get(next_level_id)
@@ -77,7 +77,7 @@ class BuildingConfig:
             return cost
         return {}
 
-    def can_upgrade(self, player_resources: Dict[str, float], all_buildings: Dict[str, 'Building']):
+    def can_upgrade(self, player_resources: Dict[str, float], all_buildings: Dict[str, 'BuildingConfig']):
         """判断是否可以升级"""
         upgrade_cost = self.get_upgrade_cost(all_buildings)
         for resource_id, quantity in upgrade_cost.items():
