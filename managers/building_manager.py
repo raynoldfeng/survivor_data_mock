@@ -1,4 +1,4 @@
-# building_manager.py
+# managers/building_manager.py
 from typing import Dict, List, Optional
 from loader.building_config import BuildingConfig
 from message_bus import MessageBus, MessageType
@@ -97,115 +97,6 @@ class BuildingManager():
             if building_id in building_ids:
                 building_ids.remove(building_id)
 
-    def build_building(self, player_id: str, world_id: str, building_id: str):
-        """处理建造建筑请求"""
-        player = self.game.player_manager.get_player_by_id(player_id)
-        world = self.game.world_manager.get_world_by_id(world_id)
-        building_config = self.get_building_config(building_id)
-
-        if not player or not world or not building_config:
-            return
-
-        # 检查资源是否足够
-        can_afford = True
-        for resource_id, modifier_dict in building_config.modifiers.items():
-            for modifier, quantity in modifier_dict.items():
-                if modifier == "USE":
-                    if player.resources.get(resource_id, 0) < quantity:
-                        can_afford = False
-                        break
-            if not can_afford:
-                break
-
-        if not can_afford:
-            # 发送资源不足消息
-            MessageBus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
-                "player_id": player_id,
-                "building_id": building_id,
-            }, self)
-            return
-
-        # 扣除资源
-        for resource_id, modifier_dict in building_config.modifiers.items():
-            for modifier, quantity in modifier_dict.items():
-                if modifier == "USE":
-                    MessageBus.post_message(MessageType.PLAYER_RESOURCE_CHANGE, {
-                        "player_id": player_id,
-                        "resource_id": resource_id,
-                        "modifier": "USE",
-                        "quantity": quantity,
-                        "duration": 0,
-                    }, self)
-
-        # 创建建筑实例
-        building_instance = BuildingInstance(building_config)
-        self._add_building_instance(building_instance, world_id)
-
-        # 发送建筑开始建造消息
-        MessageBus.post_message(MessageType.BUILDING_START, {
-            "building_id": building_instance.object_id,
-            "world_id": world_id,
-            "player_id": player_id
-        }, self)
-
-    def upgrade_building(self, player_id: str, building_id: str):
-        """处理升级建筑请求"""
-        player = self.game.player_manager.get_player_by_id(player_id)
-        building_instance = self.get_building_instance(building_id)
-
-        if not player or not building_instance:
-            return
-
-        # 获取下一级建筑配置
-        next_level_building_config = self.get_building_config(building_instance.building_config.next_level_id)
-        if not next_level_building_config:
-            return
-
-        # 检查资源是否足够
-        can_afford = True
-        for resource_id, modifier_dict in next_level_building_config.modifiers.items():
-            for modifier, quantity in modifier_dict.items():
-                if modifier == 'USE':
-                    if player.resources.get(resource_id, 0) < quantity:
-                        can_afford = False
-                        break
-            if not can_afford:
-                break
-
-        if not can_afford:
-            # 发送资源不足消息
-            MessageBus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
-                "player_id": player_id,
-                "building_id": building_id,
-            }, self)
-            return
-
-        # 扣除资源
-        for resource_id, modifier_dict in next_level_building_config.modifiers.items():
-            for modifier, quantity in modifier_dict.items():
-                if modifier == "USE":
-                    MessageBus.post_message(MessageType.PLAYER_RESOURCE_CHANGE, {
-                        "player_id": player_id,
-                        "resource_id": resource_id,
-                        "modifier": "USE",
-                        "quantity": quantity,
-                        "duration": 0,
-                    }, self)
-
-        # 创建升级实例
-        upgrade_instance = UpgradeInstance(building_instance.building_config, next_level_building_config)
-        self.upgrade_instances[upgrade_instance.object_id] = upgrade_instance
-
-        # 移除旧的建筑实例
-        self._remove_building_instance(building_id)
-
-        # 发送建筑开始升级消息
-        MessageBus.post_message(MessageType.BUILDING_UPGRADE_START, {
-            "old_building_id": building_id,
-            "new_building_id": upgrade_instance.object_id,  # UpgradeInstance 的 object_id
-            "player_id": player_id
-        }, self)
-
     def tick(self):
         """BuildingManager 的 tick 方法"""
 
@@ -236,10 +127,125 @@ class BuildingManager():
                 }, self)
                 del self.upgrade_instances[upgrade_id]
 
-        # 处理消息 (可选)
-        for message in MessageBus.get_messages(sender=self):
-            # 可以根据需要处理来自其他 Manager 的消息
-            pass
+        # 处理消息
+        for message in MessageBus.get_messages(type=MessageType.BUILDING_REQUEST):
+            self.handle_building_request(message.data)
+        for message in MessageBus.get_messages(type=MessageType.BUILDING_UPGRADE_REQUEST):
+            self.handle_upgrade_request(message.data)
+
+    def handle_building_request(self, data: Dict):
+        """处理建造请求"""
+        player_id = data["player_id"]
+        world_id = data["world_id"]
+        building_id = data["building_id"]
+
+        player = self.game.player_manager.get_player_by_id(player_id)
+        world = self.game.world_manager.get_world_by_id(world_id)
+        building_config = self.get_building_config(building_id)
+
+        if not player or not world or not building_config:
+            return
+
+        # 检查资源是否足够 (现在只检查，不扣除)
+        can_afford = True
+        for resource_id, modifier_dict in building_config.modifiers.items():
+            for modifier, quantity in modifier_dict.items():
+                if modifier == "USE":
+                    if player.resources.get(resource_id, 0) < quantity:
+                        can_afford = False
+                        break
+            if not can_afford:
+                break
+
+        if not can_afford:
+            # 发送资源不足消息
+            MessageBus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
+                "player_id": player_id,
+                "building_id": building_id,
+            }, self)
+            return
+
+        for resource_id, modifier_dict in building_config.modifiers.items():
+            for modifier, quantity in modifier_dict.items():
+                if modifier == "USE":
+                    MessageBus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+                        "target_id": player_id,
+                        "target_type": "Player",
+                        "resource_id": resource_id,
+                        "modifier": "REDUCE",  # 使用 "REDUCE" 修饰符
+                        "quantity": quantity,
+                        "duration": 0,  # 立即生效
+                    }, self)
+        # 创建建筑实例
+        building_instance = BuildingInstance(building_config)
+        self._add_building_instance(building_instance, world_id)
+
+        # 发送建筑开始建造消息
+        MessageBus.post_message(MessageType.BUILDING_START, {
+            "building_id": building_instance.object_id,
+            "world_id": world_id,
+            "player_id": player_id
+        }, self)
+
+    def handle_upgrade_request(self, data: Dict):
+        """处理升级请求"""
+        player_id = data["player_id"]
+        building_id = data["building_id"]
+
+        player = self.game.player_manager.get_player_by_id(player_id)
+        building_instance = self.get_building_instance(building_id)
+
+        if not player or not building_instance:
+            return
+
+        # 获取下一级建筑配置
+        next_level_building_config = self.get_building_config(building_instance.building_config.next_level_id)
+        if not next_level_building_config:
+            return
+
+        # 检查资源是否足够 (现在只检查，不扣除)
+        can_afford = True
+        for resource_id, modifier_dict in next_level_building_config.modifiers.items():
+            for modifier, quantity in modifier_dict.items():
+                if modifier == 'USE':
+                    if player.resources.get(resource_id, 0) < quantity:
+                        can_afford = False
+                        break
+            if not can_afford:
+                break
+
+        if not can_afford:
+            # 发送资源不足消息
+            MessageBus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
+                "player_id": player_id,
+                "building_id": building_id,
+            }, self)
+            return
+
+        for resource_id, modifier_dict in next_level_building_config.modifiers.items():
+            for modifier, quantity in modifier_dict.items():
+                if modifier == "USE":
+                    MessageBus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+                        "target_id": player_id,
+                        "target_type": "Player",
+                        "resource_id": resource_id,
+                        "modifier": "REDUCE",  # 使用 "REDUCE" 修饰符
+                        "quantity": quantity,
+                        "duration": 0,  # 立即生效
+                    }, self)
+        # 创建升级实例
+        upgrade_instance = UpgradeInstance(building_instance.building_config, next_level_building_config)
+        self.upgrade_instances[upgrade_instance.object_id] = upgrade_instance
+
+        # 移除旧的建筑实例
+        self._remove_building_instance(building_id)
+
+        # 发送建筑开始升级消息
+        MessageBus.post_message(MessageType.BUILDING_UPGRADE_START, {
+            "old_building_id": building_id,
+            "new_building_id": upgrade_instance.object_id,  # UpgradeInstance 的 object_id
+            "player_id": player_id
+        }, self)
 
     def apply_modifier(self, building_id: str, modifier: Modifier, attribute: str, quantity: float, duration: int):
         """应用修饰符到建筑 (由 ModifierManager 调用)"""

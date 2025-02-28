@@ -1,4 +1,4 @@
-# modifier_manager.py
+# managers/modifier_manager.py
 from typing import Dict, List, Tuple, Any
 from collections import defaultdict
 from loader.enums import Modifier
@@ -26,16 +26,6 @@ class ModifierManager():
         self.next_modifier_id += 1
         self.modifiers[target_id].append((modifier, target_type, attribute, quantity, duration, modifier_id))
 
-        # 发送添加修饰符的消息
-        MessageBus.post_message(MessageType.ADD_MODIFIER, {
-            "target_id": target_id,
-            "target_type": target_type,
-            "modifier": modifier,
-            "attribute": attribute,  # 修改为 attribute
-            "quantity": quantity,
-            "duration": duration,
-            "modifier_id": modifier_id
-        }, self)
 
     def remove_modifier(self, target_id: str, modifier_id: str):
         """移除修饰符"""
@@ -65,5 +55,33 @@ class ModifierManager():
 
         # 处理消息
         for message in MessageBus.get_messages(sender=self):
-            if message.type == MessageType.REMOVE_MODIFIER:
-                self.remove_modifier(message.data["target_id"], message.data["modifier_id"])
+            # if message.type == MessageType.REMOVE_MODIFIER: #移除
+            #     self.remove_modifier(message.data["target_id"], message.data["modifier_id"])
+            pass
+        # 新增：监听 MODIFIER_PLAYER_RESOURCE 消息
+        for message in MessageBus.get_messages(type=MessageType.MODIFIER_PLAYER_RESOURCE):
+            self.apply_player_resource_modifier(message.data)
+
+    def apply_player_resource_modifier(self, data: Dict):
+        """处理修改玩家资源的请求"""
+        target_id = data["target_id"]
+        resource_id = data["resource_id"]
+        modifier = data["modifier"]  # 应该是 "INCREASE" 或 "REDUCE"
+        quantity = data["quantity"]
+        # duration = data["duration"]  # 对于一次性修改，duration 为 0
+
+        player = self.game.player_manager.get_player_by_id(target_id)
+        if not player:
+            return
+
+        if modifier == "INCREASE":
+            player.modify_resource(resource_id, quantity)
+        elif modifier == "REDUCE":
+            player.modify_resource(resource_id, -quantity)  # 减少资源
+
+        # 发送资源变更确认消息
+        MessageBus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
+            "player_id": target_id,
+            "resource_id": resource_id,
+            "new_amount": player.get_resource_amount(resource_id),
+        }, self)

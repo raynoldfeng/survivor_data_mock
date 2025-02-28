@@ -9,51 +9,49 @@ class MessageType(Enum):
     EVENT_NEED_OPTION = 3
     EVENT_END = 4
     PLAYER_SELECT_EVENT_OPTION = 5
-    PLAYER_RESOURCE_CHANGE = 6
-    PLAYER_RESOURCE_CHANGED = 7
+    # PLAYER_RESOURCE_CHANGE = 6  # 移除，改为 MODIFIER_PLAYER_RESOURCE
+    PLAYER_RESOURCE_CHANGED = 7  # 保留，用于通知资源变更结果
     PLAYER_MOVE_FLEET = 8
-    PLAYER_FLEET_MOVED = 9
-    BUILDING_START = 10
-    BUILDING_COMPLETED = 11
-    BUILDING_UPGRADE_START = 12
-    BUILDING_UPGRADE_COMPLETED = 13
-    BUILDING_DESTROYED = 14
-    BUILDING_INSUFFICIENT_RESOURCES = 15
-    ADD_MODIFIER = 16
-    REMOVE_MODIFIER = 17
-    MODIFIER_APPLIED = 18
-    BUILDING_REQUEST = 19
-    BUILDING_UPGRADE_REQUEST = 20
+    PLAYER_SUBSPACE_JUMP = 9
+    PLAYER_FLEET_MOVED = 10
+    BUILDING_START = 11  # 保留，但现在只用于通知建筑开始建造/升级
+    BUILDING_COMPLETED = 12
+    BUILDING_UPGRADE_START = 13  # 保留，但现在只用于通知建筑开始升级
+    BUILDING_UPGRADE_COMPLETED = 14
+    BUILDING_DESTROYED = 15
+    BUILDING_INSUFFICIENT_RESOURCES = 16  # 保留
+    # ADD_MODIFIER = 17  # 移除，不再需要
+    # REMOVE_MODIFIER = 18  # 移除，不再需要
+    # MODIFIER_APPLIED = 19  # 移除，不再需要
+    BUILDING_REQUEST = 20
+    BUILDING_UPGRADE_REQUEST = 21
+    FLEET_MOVE_REQUEST = 22
+    FLEET_MOVEMENT_INTERRUPT = 23
+    FLEET_ARRIVE = 24
+    MODIFIER_PLAYER_RESOURCE = 25  # 新增：修改玩家资源
+    MODIFIER_BUILDING = 26 #新增：修改建筑
+
 
 class Message:
-    def __init__(self, type: MessageType, data: Dict[str, Any], sender: Any):
+    def __init__(self, type: MessageType, data: Dict[str, Any], sender: Any, delay: int = 0):
         self.type: MessageType = type
         self.data: Dict[str, Any] = data
         self.sender: Any = sender
         self.age: int = 0
+        self.delay: int = delay
 
 class MessageBus:
     _messages: List[Message] = []
-    MAX_AGE: int = 10  # 最大消息年龄 (可根据需要调整)
+    MAX_AGE: int = 10
 
     @classmethod
-    def post_message(cls, type: MessageType, data: Dict[str, Any], sender: Any):
-        """发布消息"""
-        cls._messages.append(Message(type, data, sender))
+    def post_message(cls, type: MessageType, data: Dict[str, Any], sender: Any, delay: int = 0):
+        cls._messages.append(Message(type, data, sender, delay))
 
     @classmethod
     def get_messages(cls, sender: Any = None, type: Optional[MessageType] = None) -> List[Message]:
-        """获取消息
-
-        Args:
-            sender: 消息发送者 (可选)。如果为 None，则获取所有发送者的消息。
-            type: 消息类型 (可选)。如果为 None，则获取所有类型的消息。
-
-        Returns:
-            符合条件的消息列表。
-        """
         if sender is None and type is None:
-            return cls._messages[:]  # 返回所有消息的副本
+            return cls._messages[:]
         elif sender is None:
             return [msg for msg in cls._messages if msg.type == type]
         elif type is None:
@@ -63,13 +61,6 @@ class MessageBus:
 
     @classmethod
     def remove_messages(cls, type: MessageType, sender: Any, **kwargs):
-        """移除特定类型的消息
-
-        Args:
-            type: 要移除的消息类型。
-            sender: 消息发送者。
-            **kwargs: 其他用于过滤消息的关键字参数 (例如 player_id, building_id 等)。
-        """
         cls._messages = [
             msg for msg in cls._messages
             if not (msg.type == type and msg.sender == sender and all(msg.data.get(k) == v for k, v in kwargs.items()))
@@ -77,7 +68,13 @@ class MessageBus:
 
     @classmethod
     def tick(cls):
-        """每个 tick 更新消息年龄，并删除过期的消息"""
+        new_messages = []
         for msg in cls._messages:
-            msg.age += 1
-        cls._messages = [msg for msg in cls._messages if msg.age <= cls.MAX_AGE]
+            if msg.delay > 0:
+                msg.delay -= 1
+                new_messages.append(msg)
+            else:
+                msg.age += 1
+                if msg.age <= cls.MAX_AGE:
+                    new_messages.append(msg)
+        cls._messages = new_messages

@@ -1,10 +1,10 @@
-# event_manager.py
+# managers/event_manager.py
 from typing import Dict, List, Optional
 from loader.enums import Target, Modifier
 from base_object import BaseObject
 from message_bus import MessageBus, MessageType  
+from .player_manager import Player
 from loader.event_config import EventConfig, EventPhase, EventOption, EventChallenge, EventResult
-from game import Game
 import random
 
 class Event(BaseObject):
@@ -23,7 +23,7 @@ class Event(BaseObject):
 class EventManager():
     _instance = None
 
-    def __new__(cls, event_configs: List[EventConfig], game: Game):
+    def __new__(cls, event_configs: List[EventConfig], game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.event_configs: List[EventConfig] = event_configs
@@ -93,12 +93,11 @@ class EventManager():
         """评估挑战是否成功"""
         target = None
         if event.target_type == Target.PLAYER:
-            target = PlayerManager.get_player_by_id(event.target_id)  # 假设有这个方法
+            target = self.game.player_manager.get_player_by_id(event.target_id)
         elif event.target_type == Target.WORLD:
-            target = WorldManager.get_world_by_id(event.target_id)  # 假设有这个方法
+            target = self.game.world_manager.get_world_by_id(event.target_id)
         elif event.target_type == Target.BUILDING:
-            target = BuildingManager.get_building_by_id(event.target_id)  # 假设有这个方法
-
+            target = self.game.building_manager.get_building_by_id(event.target_id)
         if not target:
             return False
 
