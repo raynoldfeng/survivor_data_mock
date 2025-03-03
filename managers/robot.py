@@ -2,9 +2,9 @@ from loader.locale import Locale
 from loader.enums import Target, BuildingType
 import random
 
-class Robot():  # 不再继承 Player
+class Robot():
     def __init__(self, player_id, game):
-        self.player_id = player_id  # 关联的 Player ID
+        self.player_id = player_id
         self.game = game
 
     def can_build_on_slot(self, planet, building_config):
@@ -137,7 +137,7 @@ class Robot():  # 不再继承 Player
         key_resource_buildings = [
             b for b in upgradeable_buildings
             if any("promethium" in modifier_dict or "energy" in modifier_dict
-                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.next_level_id).modifiers.values())
+                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.get_next_level_id()).modifiers.values())
         ]
         if key_resource_buildings:
             return random.choice(key_resource_buildings)
@@ -146,7 +146,7 @@ class Robot():  # 不再继承 Player
         resource_buildings = [
             b for b in upgradeable_buildings
             if any("PRODUCTION" in modifier_dict
-                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.next_level_id).modifiers.values())
+                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.get_next_level_id()).modifiers.values())
         ]
         if resource_buildings:
             return random.choice(resource_buildings)
@@ -154,7 +154,7 @@ class Robot():  # 不再继承 Player
         population_buildings =  [
             b for b in upgradeable_buildings
             if any("population" in modifier_dict
-                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.next_level_id).modifiers.values())
+                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.get_next_level_id()).modifiers.values())
         ]
         if population_buildings:
             return random.choice(population_buildings)
@@ -177,13 +177,7 @@ class Robot():  # 不再继承 Player
 
         # 战略位置 (简化：距离出生点越近，价值越高)
         player = self.game.player_manager.get_player_by_id(self.player_id)
-        if isinstance(player.fleet.location, str):
-            # 如果舰队在星球上，使用星球 ID 计算距离
-            distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.object_id)
-        else:
-            # 如果舰队在移动中，使用坐标计算距离
-            distance = self.game.rule_manager.calculate_distance(player.fleet.location, (planet.x, planet.y, planet.z))
-
+        distance = self.game.rule_manager.calculate_distance(player.fleet.location, (planet.x, planet.y, planet.z))
         strategic_value = 10 / (distance + 1)  # 避免除以零
 
         # 总价值
@@ -291,31 +285,28 @@ class Robot():  # 不再继承 Player
 
         if planet_to_explore:
             self.game.log.info(f"Robot {player.player_id} 考虑前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}...")
-            # 如果已经在移动中，则有一定概率中断当前移动 (模拟玩家改变主意)
-            if player.fleet.destination:
-                if random.random() < 0.3:  # 30% 的概率中断移动
-                    travel_method = "subspace_jump" if player.resources.get("promethium", 0) > 50 else "slow_travel" # 移动方式选择
-                    self.game.log.info(f"Robot {player.player_id} 决定中断当前移动，改为 {travel_method} 前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}！")
-                    return {
-                        "action": "move",
-                        "target_planet_id": planet_to_explore.object_id,
-                        "travel_method": travel_method,
-                        "player_id": player.player_id
-                    }
+            distance = self.game.rule_manager.calculate_distance(player.fleet.location, (planet_to_explore.x, planet_to_explore.y, planet_to_explore.z))
+            action_points_cost_slow = int(distance * self.game.rule_manager.ACTION_POINTS_PER_DISTANCE)
 
-            # 如果没有在移动中，或者没有选择中断移动，则选择移动方式
-            travel_method = "subspace_jump" if player.resources.get("promethium", 0) > 50 else "slow_travel" #移动方式选择
-            self.game.log.info(f"Robot {player.player_id} 选择 {travel_method} 前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}。")
-            return {
-                "action": "move",
-                "target_planet_id": planet_to_explore.object_id,
-                "travel_method": travel_method,
-                "player_id": player.player_id
-            }
+            if player.get_resource_amount("promethium") >= self.game.rule_manager.SUBSPACE_JUMP_COST:
+                travel_method = "subspace_jump"
+            elif player.action_points >= action_points_cost_slow:
+                travel_method = "slow_travel"
+            else:
+                travel_method = "none"  # 行动点不足，无法移动
+            
+            if travel_method != "none":
+                self.game.log.info(f"Robot {player.player_id} 选择 {travel_method} 前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}。")
+                return {
+                    "action": "move",
+                    "target_planet_id": planet_to_explore.object_id,
+                    "travel_method": travel_method,
+                    "player_id": player.player_id
+                }
 
         self.game.log.info(f"Robot {player.player_id} 没有找到合适的行动。")
         return {"action": "none", "player_id": player.player_id}
 
-    def tick(self, tick_counter):
+    def tick(self, game):
         """Robot 的 tick 方法，调用 think 并返回操作数据"""
         return self.think()

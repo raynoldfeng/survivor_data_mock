@@ -67,24 +67,27 @@ class ModifierManager():
                         new_modifier_list.append((modifier, target_type, attribute, quantity, duration, modifier_id))
             self.modifiers[target_id] = new_modifier_list
 
-    def apply_player_resource_modifier(self, message: Message): #修改
+    def apply_player_resource_modifier(self, message: Message):
         """处理修改玩家资源的请求"""
-
-        # player = self.game.player_manager.get_player_by_id(target_id) #修改
         player = self.game.player_manager.get_player_by_id(message.data["target_id"])
         if not player:
             return
 
         if message.data["modifier"] == "INCREASE":
-            player.modify_resource(message.data["resource_id"], message.data["quantity"])
+            # player.modify_resource(message.data["resource_id"], message.data["quantity"]) # 在player_manager里做
+            pass
         elif message.data["modifier"] == "REDUCE":
-            player.modify_resource(message.data["resource_id"], -message.data["quantity"])  # 减少资源
+            # player.modify_resource(message.data["resource_id"], -message.data["quantity"])  # 减少资源, 在player_manager里做
+            pass
 
         self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
             "player_id": message.data["target_id"],
             "resource_id": message.data["resource_id"],
-            "new_amount": player.get_resource_amount(message.data["resource_id"]),
+            # "new_amount": player.get_resource_amount(message.data["resource_id"]), # 不需要了, 在player_manager里做
+            "modifier":  message.data["modifier"],
+            "quantity": message.data["quantity"]
         }, self)
+        
     
     def handle_building_modifier(self, message: Message): #修改
         """处理建筑修改请求, 添加modifier"""

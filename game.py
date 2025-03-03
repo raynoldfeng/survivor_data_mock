@@ -52,4 +52,4 @@ class Game:
                         building_name = Locale.get_text(building_instance.building_config.name_id)
                         self.log.info(f"  - 建筑: {building_name}")
             '''
-            
+            time.sleep(5)

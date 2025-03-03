@@ -14,7 +14,7 @@ class Fleet:
         self.defense = 50
         self.location = None  # 始终是坐标 (tuple)
         self.destination = None  # 始终是坐标 (tuple)
-        self.travel_start_tick = 0
+        self.travel_start_round = 0
         self.travel_speed = 1.0
         self.travel_method = None
         self.landed_on = None  # 降落的星球 ID (如果是 None，表示没有降落)
@@ -34,7 +34,7 @@ class Player(BaseObject):
         self.upgrading_buildings = []
         self.action_points = 20  # 初始行动点数
         self.max_action_points = 100  # 行动点数上限
-        self.action_points_recovery_per_tick = 0.1
+        self.action_points_recovery_per_minute = 0.1  # 每分钟恢复的行动点数 (根据需要调整)
 
 
     def get_resource_amount(self, resource_id: str) -> float:
@@ -47,7 +47,7 @@ class Player(BaseObject):
             self.resources[resource_id] += amount
             self.resources[resource_id] = max(0.0, self.resources[resource_id])
 
-    def tick(self, tick_counter):
+    def tick(self, game):
         """
         普通 Player 的 tick 方法，暂时返回 None。
         未来可以通过用户输入或其他方式获取操作数据。
@@ -65,10 +65,11 @@ class PlayerManager():
             cls._instance.players: Dict[str, Player] = {}
             cls._instance.robots: Dict[str, Robot] = {}
             cls._instance.game.player_manager = cls._instance
-            cls._instance.tick_interval = 1
+            cls._instance.tick_interval = 1  # 每分钟tick一次 (根据您的基本tick间隔设置)
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_LAND, cls._instance.handle_land_request)
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_MOVEMENT_ALLOWED, cls._instance.handle_fleet_movement_allowed) #新增
+            cls._instance.game.message_bus.subscribe(MessageType.PLAYER_RESOURCE_CHANGED, cls._instance.handle_player_resource_changed) # 新增
         return cls._instance
 
     def create_player(self, resources: Dict[str, Resource], building_configs):
@@ -109,7 +110,7 @@ class PlayerManager():
             # 处理所有 Player 的 tick
             for player_id, player in self.players.items():
                 # 恢复行动点
-                player.action_points += player.action_points_recovery_per_tick
+                player.action_points += player.action_points_recovery_per_minute
                 player.action_points = min(player.action_points, player.max_action_points)
 
                 action_data = player.tick(
@@ -182,13 +183,14 @@ class PlayerManager():
 
     def handle_fleet_movement_allowed(self, message:Message):
         """
-        处理舰队移动允许的消息
+        处理舰队移动允许的消息, 现在这个消息只负责更新fleet状态
         """
         player = self.get_player_by_id(message.data["player_id"])
         if not player:
             return
         
         travel_method = message.data["travel_method"]
+        # cost = message.data["cost"] # 移除，不再需要cost
         destination = message.data["destination"]
 
         # 更新fleet状态
@@ -196,15 +198,15 @@ class PlayerManager():
         player.fleet.travel_method = travel_method
         if travel_method == "subspace_jump":
             player.fleet.location = destination
-            # 如果是亚空间跳跃，直接发送 FLEET_ARRIVE 消息。
-            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
-                "player_id": player.player_id,
-                "location": destination, #现在统一是坐标
-            }, self)
-            # 亚空间跳跃后，取消降落状态
             player.fleet.landed_on = None
         elif travel_method == "slow_travel":
-            player.fleet.travel_start_tick = self.game.tick_counter
+            if isinstance(player.fleet.location, str):
+                # 如果舰队在星球上，使用星球 ID
+                current_world = self.game.world_manager.get_world_by_id(player.fleet.location)
+                if not current_world:
+                    return
+                player.fleet.location = (current_world.x, current_world.y, current_world.z)
+            player.fleet.travel_start_round = self.game.tick_counter
 
     # def handle_land_request(self, player_id: str): #修改
     def handle_land_request(self, message: Message):
@@ -239,6 +241,25 @@ class PlayerManager():
         # PlayerManager 不再直接处理资源数量的修改，只负责应用 Modifier
         # 具体的资源增减由 Player.modify_resource() 处理
         pass
+    
+    def handle_player_resource_changed(self, message: Message):
+        """
+        处理玩家资源变化的消息 (由 ModifierManager 发送)
+        """
+        player = self.get_player_by_id(message.data["player_id"])
+        if not player:
+            return
+
+        resource_id = message.data["resource_id"]
+        modifier = message.data["modifier"]
+        quantity = message.data["quantity"]
+        # 根据修饰符类型修改资源
+        if modifier == "INCREASE":
+            player.modify_resource(resource_id, quantity)
+        elif modifier == "REDUCE":
+            player.modify_resource(resource_id, -quantity)
+
+        #  更新UI 或其他
 
     def pick(self):
         if self.players:
@@ -260,12 +281,8 @@ class PlayerManager():
             if distance <= player.fleet.travel_speed:
                 # 舰队到达目的地,发送移动消息和到达消息
                 player.fleet.location = player.fleet.destination
-                player.fleet.destination = None
+                player.fleet.destination = None # 在rule_manager里处理
                 player.fleet.travel_method = None
-                self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
-                    "player_id": player.player_id,
-                    "location": player.fleet.location,  # 目标坐标
-                }, self)
 
             else:
                 # 更新舰队位置 (按比例移动)
@@ -275,13 +292,3 @@ class PlayerManager():
                 new_z = player.fleet.location[2] + dz * ratio
                 # 更新位置
                 player.fleet.location = (new_x, new_y, new_z)
-                # 扣除资源消耗, 移动到rules_manager
-                # cost = self.game.rule_manager.calculate_slow_travel_cost(distance)
-                # self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
-                #     "target_id": player.player_id,
-                #     "target_type": "Player",
-                #     "resource_id": "promethium",
-                #     "modifier": "REDUCE",
-                #     "quantity": cost,
-                #     "duration": 0,
-                # }, self)

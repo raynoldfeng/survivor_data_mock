@@ -224,7 +224,7 @@ class BuildingManager():
             return
 
         # 获取下一级建筑配置
-        next_level_building_config = self.get_building_config(building_instance.building_config.next_level_id)
+        next_level_building_config = self.get_building_config(building_instance.building_config.get_next_level_id())
         if not next_level_building_config:
             return
 
