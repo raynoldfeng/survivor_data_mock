@@ -1,4 +1,3 @@
-# base_object.py
 class BaseObject:
     _object_id_counter = 0
     _objects = {}

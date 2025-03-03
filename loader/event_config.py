@@ -1,4 +1,3 @@
-# loader/event_config.py
 from .imports import *
 from .enums import *
 import csv

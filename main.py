@@ -1,4 +1,3 @@
-# main.py
 from loader.world_configs import load_world_configs
 from loader.resource import load_resources_from_csv
 from loader.building_config import load_buildings_from_csv
@@ -11,6 +10,7 @@ from managers.world_manager import WorldManager
 from managers.player_manager import PlayerManager
 from managers.rule_manager import RulesManager
 from managers.interaction_manager import InteractionManager
+from managers.message_bus import MessageBus
 from game import Game
 from logger import Log
 import logging
@@ -35,13 +35,17 @@ def main():
 
     game = Game()
 
+    # message_bus优先初始化
+    message_bus = MessageBus(game)
+    game.message_bus = message_bus
+
     world_manager = WorldManager(world_configs, game)
     event_manager = EventManager(event_configs, game)
     building_manager = BuildingManager(building_configs, game)
     player_manager = PlayerManager(game)
     modifier_manager = ModifierManager(game)
     rule_manager = RulesManager(game)
-    interaction_manager = InteractionManager(game)  # 新增：初始化 InteractionManager
+    interaction_manager = InteractionManager(game)
 
     game.building_manager = building_manager
     game.event_manager = event_manager
@@ -49,7 +53,8 @@ def main():
     game.world_manager = world_manager
     game.player_manager = player_manager
     game.rule_manager = rule_manager
-    game.interaction_manager = interaction_manager  # 新增：将 InteractionManager 添加到 Game 对象
+    game.interaction_manager = interaction_manager
+
 
     worlds = world_manager.generate_worlds(100)
 

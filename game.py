@@ -1,9 +1,8 @@
-# game.py
 from loader.locale import Locale
 from loader.enums import *
-from message_bus import MessageBus, MessageType
 from managers.robot import Robot
 from logger import Log
+import time
 
 class Game:
     def __init__(self):
@@ -14,9 +13,10 @@ class Game:
         self.player_manager = None
         self.rule_manager = None
         self.interaction_manager = None
-        self.current_round: int = 0
+        self.message_bus = None
         self.robot = None
         self.log = Log()
+        self.tick_counter = 0
 
     def add_robot(self, resources, building_configs):
         player = self.player_manager.create_player(resources, building_configs)
@@ -25,20 +25,18 @@ class Game:
 
     def run(self):
         while True:
-            self.current_round += 1
-            self.log.info(f"当前回合: {self.current_round}")
-            self.event_manager.tick()
-
-            # PlayerManager.tick() 会处理所有 Player (包括 Robot) 的操作
-            self.player_manager.tick()
-
-            self.building_manager.tick()
-            self.modifier_manager.tick()
-            self.rule_manager.tick()
-            self.interaction_manager.tick()  # 新增：调用 InteractionManager 的 tick
-            MessageBus.tick()
+            self.tick_counter += 1  # 增加总tick计数
+            self.log.info(f"当前tick: {self.tick_counter}")
+            self.event_manager.tick(self.tick_counter) 
+            self.player_manager.tick(self.tick_counter) 
+            self.building_manager.tick(self.tick_counter) 
+            self.modifier_manager.tick(self.tick_counter) 
+            self.rule_manager.tick(self.tick_counter) 
+            self.interaction_manager.tick(self.tick_counter) 
+            self.message_bus.tick(self.tick_counter)
 
             # 以下是为了管理员查看方便
+            '''    
             user_input = input("按回车键继续，输入 'r' 查看资源，输入 'p' 查看已探索星球及建筑：").strip().lower()
             if user_input == 'r':
                 self.log.info("当前资源：")
@@ -53,3 +51,5 @@ class Game:
                     for building_instance in self.building_manager.get_buildings_on_world(planet_id):
                         building_name = Locale.get_text(building_instance.building_config.name_id)
                         self.log.info(f"  - 建筑: {building_name}")
+            '''
+            

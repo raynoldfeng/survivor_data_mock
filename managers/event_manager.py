@@ -1,8 +1,7 @@
-# managers/event_manager.py
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Callable
 from loader.enums import Target, Modifier
 from base_object import BaseObject
-from message_bus import MessageBus, MessageType  
+from .message_bus import Message, MessageType
 from .player_manager import Player
 from loader.event_config import EventConfig, EventPhase, EventOption, EventChallenge, EventResult
 import random
@@ -34,6 +33,10 @@ class EventManager():
             }
             cls._instance.game = game
             cls._instance.game.event_manager = cls._instance
+            cls._instance.tick_interval = 30  # 每30分钟tick一次 (根据需要调整)
+
+            # 订阅消息
+            cls._instance.game.message_bus.subscribe(MessageType.PLAYER_SELECT_EVENT_OPTION, cls._instance.process_player_choice_callback)
         return cls._instance
 
     def generate_events(self):
@@ -56,37 +59,33 @@ class EventManager():
                     self.active_events[event.target_type][event.target_id] = event
 
                     # 发送事件开始消息
-                    MessageBus.post_message(MessageType.EVENT_BEGIN, {
+                    self.game.message_bus.post_message(MessageType.EVENT_BEGIN, {
                         "target_type": event.target_type,
                         "target_id": event.target_id,
                         "event_id": event.config.event_id,
                         "text_id": event.config.trigger_text_id,  # 事件触发文本
                     }, self)
 
-    def process_player_choice(self, player_id: str, choice: str):
+    def process_player_choice_callback(self, message: Message): #修改
         """处理玩家的选择"""
+        # event = self.active_events[Target.PLAYER].get(player_id) #移除
+        player_id = message.data["player_id"]
+        choice = message.data["choice"]
         event = self.active_events[Target.PLAYER].get(player_id)
         if not event:
-            # print("找不到玩家的事件") # 调试用
-            return  # 找不到事件，可能是延迟消息
+            return
 
         if event.ended:
-            # print("事件已结束") # 调试用
             return
 
         current_phase = event.current_phase
         if not current_phase:
-            # print("事件没有当前阶段") # 调试用
             return
 
         if choice not in current_phase.options:
-            # print("无效的选择") # 调试用
             return
 
         event.choices[current_phase.phase_id] = choice
-
-        # 移除 PLAYER_SELECT_EVENT_OPTION 消息，因为它已经被处理了
-        MessageBus.remove_messages(MessageType.PLAYER_SELECT_EVENT_OPTION, sender=self, player_id=player_id)
 
 
     def evaluate_challenges(self, event: Event, option: EventOption) -> bool:
@@ -128,28 +127,48 @@ class EventManager():
 
         target = None
         if event.target_type == Target.PLAYER:
-            target = PlayerManager.get_player_by_id(event.target_id)
+            target = self.game.player_manager.get_player_by_id(event.target_id)
         elif event.target_type == Target.WORLD:
-            target = WorldManager.get_world_by_id(event.target_id)
+            target = self.game.world_manager.get_world_by_id(event.target_id)
         elif event.target_type == Target.BUILDING:
-            target = BuildingManager.get_building_by_id(event.target_id)
+            target = self.game.building_manager.get_building_by_id(event.target_id)
 
         if not target:
             return
 
         for result in results:
-            # 根据 result.modifier 和 result.resource_type_id 应用效果
-            # 假设您有一个 ModifierManager 来处理 modifier
             if event.target_type == Target.PLAYER:
-                # 示例：如果是玩家，增加资源
-                MessageBus.post_message(MessageType.PLAYER_RESOURCE_CHANGE, {
-                    "player_id": target.player_id,
+                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+                    "target_id": target.player_id,  # 使用玩家 ID 作为 target_id
+                    "target_type": "Player",
                     "resource_id": result.resource_type_id,
                     "modifier": result.modifier,
                     "quantity": result.quantity,
                     "duration": result.duration,
                 }, self)
-            # 可以添加其他目标类型的处理
+            # 其他目标类型的处理 (例如，如果是 World 或 Building，可能需要发送其他类型的消息)
+            elif event.target_type == Target.WORLD:
+                # 假设您有一个 MODIFIER_WORLD 消息
+                self.game.message_bus.post_message(MessageType.MODIFIER_WORLD, {
+                    "target_id": target.object_id,
+                    "target_type": "World",
+                    "attribute": result.resource_type_id,  # 假设资源类型 ID 可以作为属性名
+                    "modifier": result.modifier,
+                    "quantity": result.quantity,
+                    "duration": result.duration,
+                }, self)
+            elif event.target_type == Target.BUILDING:
+                # 假设您有一个 MODIFIER_BUILDING 消息
+                self.game.message_bus.post_message(MessageType.MODIFIER_BUILDING, {
+                    "target_id": target.object_id,
+                    "target_type": "Building",
+                    "attribute": result.resource_type_id,  # 假设资源类型 ID 可以作为属性名
+                    "modifier": result.modifier,
+                    "quantity": result.quantity,
+                    "duration": result.duration,
+                    'building_config': target.building_config, # 传递building_config
+                    'building_instance':target # 传递instance
+                }, self)
 
     def update_event_state(self):
         """更新事件状态"""
@@ -158,15 +177,14 @@ class EventManager():
                 event.current_tick += 1
 
                 if not event.current_phase:
-                    # print("事件没有当前阶段") # 调试用
                     continue
 
-                # 检查阶段持续时间
-                if event.current_phase.duration != -1 and event.current_tick - event.phase_start_tick >= event.current_phase.duration:
+                # 检查阶段持续时间, 修改为tick判断
+                if event.current_phase.duration != -1 and event.current_tick - event.phase_start_tick >= event.current_phase.duration * self.tick_interval:
                     # 阶段超时，根据情况进入下一个阶段或结束事件
                     # 这里简化处理，直接结束事件
                     event.ended = True
-                    MessageBus.post_message(MessageType.EVENT_END, {
+                    self.game.message_bus.post_message(MessageType.EVENT_END, {
                         "target_type": event.target_type,
                         "target_id": event.target_id,
                         "event_id": event.config.event_id,
@@ -177,7 +195,7 @@ class EventManager():
                 # 如果当前阶段有选项，并且玩家还没有做出选择，发送消息请求选择
                 if event.current_phase.options and event.current_phase.phase_id not in event.choices:
                     if event.target_type == Target.PLAYER:
-                        MessageBus.post_message(MessageType.EVENT_NEED_OPTION, {
+                        self.game.message_bus.post_message(MessageType.EVENT_NEED_OPTION, {
                             "player_id": event.target_id,
                             "event_id": event.config.event_id,
                             "phase_id": event.current_phase.phase_id,
@@ -191,7 +209,6 @@ class EventManager():
                     option = event.current_phase.options.get(choice)
 
                     if not option:
-                        # print("无效的选择") # 调试用
                         continue
 
                     # 评估挑战
@@ -205,7 +222,7 @@ class EventManager():
                             event.current_phase = event.config.phases.get(event.current_phase.next_phase_success)
                             event.phase_start_tick = event.current_tick
                             # 发送事件阶段变更消息
-                            MessageBus.post_message(MessageType.EVENT_PHASE_CHANGE, {
+                            self.game.message_bus.post_message(MessageType.EVENT_PHASE_CHANGE, {
                                 "target_type": event.target_type,
                                 "target_id": event.target_id,
                                 "event_id": event.config.event_id,
@@ -216,7 +233,7 @@ class EventManager():
                         else:
                             # 没有下一个阶段，事件结束
                             event.ended = True
-                            MessageBus.post_message(MessageType.EVENT_END, {
+                            self.game.message_bus.post_message(MessageType.EVENT_END, {
                                 "target_type": event.target_type,
                                 "target_id": event.target_id,
                                 "event_id": event.config.event_id,
@@ -229,7 +246,7 @@ class EventManager():
                             event.current_phase = event.config.phases.get(event.current_phase.next_phase_failure)
                             event.phase_start_tick = event.current_tick
                             # 发送事件阶段变更消息
-                            MessageBus.post_message(MessageType.EVENT_PHASE_CHANGE, {
+                            self.game.message_bus.post_message(MessageType.EVENT_PHASE_CHANGE, {
                                 "target_type": event.target_type,
                                 "target_id": event.target_id,
                                 "event_id": event.config.event_id,
@@ -239,19 +256,17 @@ class EventManager():
                         else:
                             # 没有下一个阶段，事件结束
                             event.ended = True
-                            MessageBus.post_message(MessageType.EVENT_END, {
+                            self.game.message_bus.post_message(MessageType.EVENT_END, {
                                 "target_type": event.target_type,
                                 "target_id": event.target_id,
                                 "event_id": event.config.event_id,
                             }, self)
                             del self.active_events[target_type][target_id]
 
-    def tick(self):
-        """事件管理器的每个tick"""
-        self.generate_events()
-        self.update_event_state()
-
-        # 处理消息
-        for message in MessageBus.get_messages(sender=self):
-            if message.type == MessageType.PLAYER_SELECT_EVENT_OPTION:
-                self.process_player_choice(message.data["player_id"], message.data["choice"])
+    def tick(self, tick_counter):
+        """
+        修改后的tick方法，增加tick_counter参数, 并通过tick_interval控制频率
+        """
+        if tick_counter % self.tick_interval == 0:
+            self.generate_events()
+            self.update_event_state()

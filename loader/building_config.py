@@ -17,6 +17,7 @@ class BuildingConfig:
         self.defense_type = None
         self.defense_value: int = 0
         self.modifiers: Dict[str, Dict[Modifier, float]] = {}
+        self.slot_type: str = ""  # 新增：槽位类型
 
     @classmethod
     def from_csv_row(cls, row: Dict[str, str]) -> 'BuildingConfig':
@@ -43,6 +44,14 @@ class BuildingConfig:
         if resource_id not in building.modifiers:
             building.modifiers[resource_id] = {}
         building.modifiers[resource_id][modifier] = quantity
+
+        # 设置 slot_type
+        if building.type == BuildingType.RESOURCE:
+            building.slot_type = "resource"
+        elif building.type == BuildingType.GENERAL:
+            building.slot_type = "general"
+        elif building.type == BuildingType.DEFENSE:
+            building.slot_type = "defense"
 
         return building
 
