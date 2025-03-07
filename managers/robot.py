@@ -177,7 +177,7 @@ class Robot():
 
         # 战略位置 (简化：距离出生点越近，价值越高)
         player = self.game.player_manager.get_player_by_id(self.player_id)
-        distance = self.game.rule_manager.calculate_distance(player.fleet.location, (planet.x, planet.y, planet.z))
+        distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.location) #直接使用location
         strategic_value = 10 / (distance + 1)  # 避免除以零
 
         # 总价值
@@ -205,8 +205,7 @@ class Robot():
             if not planet:
                 continue
             else:
-                # 如果舰队在移动中，使用坐标计算距离
-                distance = self.game.rule_manager.calculate_distance(player.fleet.location, (planet.x, planet.y, planet.z))
+                distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.location) #直接使用location
 
             potential_value = self.evaluate_planet(planet)  # 评估星球价值
             score = potential_value / (distance + 1)  # 距离越近，价值越高
@@ -245,13 +244,36 @@ class Robot():
         player = self.game.player_manager.get_player_by_id(self.player_id)
         self.game.log.info(f"Robot {player.player_id} 开始思考...")
 
-        # 0. 处理事件
+        # 0. 检查舰队是否正在移动
+        if player.fleet.path:
+            self.game.log.info(f"Robot {player.player_id} 的舰队正在移动中，跳过本轮思考。")
+            return {"action": "none", "player_id": player.player_id}
+
+        # 1. 检查是否已到达星球接触面且未降落, 如果是, 则降落
+        if player.fleet.final_destination and not player.fleet.landed_on:
+            world = self.game.world_manager.get_world_at_location(player.fleet.final_destination)
+            if world:
+                self.game.log.info(f"Robot {player.player_id} 尝试降落在星球 {world.world_config.world_id} 上。")
+                return {
+                    "action": "land",
+                    "player_id": player.player_id,
+                    "world_id": world.object_id,  # 降落需要星球 ID
+                }
+
+        # 2. 检查是否已降落且未探索 (这部分逻辑可能不需要在 Robot 中，而是在 EventManager 中处理)
+        if player.fleet.landed_on:
+            world = self.game.world_manager.get_world_by_id(player.fleet.landed_on)
+            if world and world.object_id not in player.explored_planets:
+                self.game.log.info(f"Robot {player.player_id} 准备探索星球 {world.world_config.world_id}。")
+
+
+        # 3. 处理事件
         event_action = self.handle_event()
         if event_action:
             self.game.log.info(f"Robot {player.player_id} 选择处理事件: {event_action}")
             return event_action
 
-        # 1. 尝试升级
+        # 4. 尝试升级
         building_instance = self.select_building_to_upgrade()
         if building_instance:
             self.game.log.info(f"Robot {player.player_id} 选择升级建筑: {building_instance.building_config.name_id}")
@@ -261,7 +283,7 @@ class Robot():
                 "player_id": player.player_id
             }
 
-        # 2. 尝试建造
+        # 5. 尝试建造
         explored_planets = [self.game.world_manager.get_world_by_id(pid) for pid in player.explored_planets]
         available_planets = [p for p in explored_planets if p]
         if available_planets:
@@ -280,22 +302,17 @@ class Robot():
                         "player_id": player.player_id
                     }
 
-        # 3. 尝试探索/移动
+        # 6. 尝试探索/移动
         planet_to_explore = self.select_planet_to_explore()  # 获取最值得探索的星球
 
         if planet_to_explore:
-            self.game.log.info(f"Robot {player.player_id} 考虑前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}...")
-            distance = self.game.rule_manager.calculate_distance(player.fleet.location, (planet_to_explore.x, planet_to_explore.y, planet_to_explore.z))
-            action_points_cost_slow = int(distance * self.game.rule_manager.ACTION_POINTS_PER_DISTANCE)
-
+            self.game.log.info(f"Robot {player.player_id} 考虑前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id},坐标({planet_to_explore.location}...")
             if player.get_resource_amount("promethium") >= self.game.rule_manager.SUBSPACE_JUMP_COST:
                 travel_method = "subspace_jump"
-            elif player.action_points >= action_points_cost_slow:
-                travel_method = "slow_travel"
             else:
-                travel_method = "none"  # 行动点不足，无法移动
+                travel_method = "slow_travel"  # 没有足够的资源跃迁，则尝试slow_travel
             
-            if travel_method != "none":
+            if travel_method == "subspace_jump":
                 self.game.log.info(f"Robot {player.player_id} 选择 {travel_method} 前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}。")
                 return {
                     "action": "move",
@@ -303,6 +320,27 @@ class Robot():
                     "travel_method": travel_method,
                     "player_id": player.player_id
                 }
+            elif travel_method == "slow_travel":
+                # 尝试寻路
+               if travel_method == "slow_travel":
+                # 尝试寻路
+                start_location = player.fleet.location
+                end_location = planet_to_explore.location #直接使用location
+                path = self.game.pathfinder.find_path(start_location, end_location, target_type="world") #移除grid
+                if path:
+                    # 找到路径，设置路径和最终目标
+                    player.fleet.set_path(path)
+                    player.fleet.set_final_destination(planet_to_explore.object_id) #设置id, 而不是坐标
+                    self.game.log.info(f"Robot {player.player_id} 选择 {travel_method} 前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}，并找到了路径。")
+                    return {
+                        "action": "move",
+                        "target_planet_id": planet_to_explore.object_id,
+                        "travel_method": travel_method,
+                        "player_id": player.player_id
+                    }
+                else:
+                    self.game.log.warn(f"Robot {player.player_id} 无法找到前往星球 {planet_to_explore.object_id} 的路径。")
+                    return {"action": "none", "player_id": player.player_id}
 
         self.game.log.info(f"Robot {player.player_id} 没有找到合适的行动。")
         return {"action": "none", "player_id": player.player_id}

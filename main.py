@@ -9,11 +9,8 @@ from managers.modifier_manager import ModifierManager
 from managers.world_manager import WorldManager
 from managers.player_manager import PlayerManager
 from managers.rule_manager import RulesManager
-from managers.interaction_manager import InteractionManager
 from managers.message_bus import MessageBus
 from game import Game
-from logger import Log
-import logging
 
 def main():
     Locale.load_from_csv('resources/locale.csv')
@@ -45,7 +42,6 @@ def main():
     player_manager = PlayerManager(game)
     modifier_manager = ModifierManager(game)
     rule_manager = RulesManager(game)
-    interaction_manager = InteractionManager(game)
 
     game.building_manager = building_manager
     game.event_manager = event_manager
@@ -53,15 +49,11 @@ def main():
     game.world_manager = world_manager
     game.player_manager = player_manager
     game.rule_manager = rule_manager
-    game.interaction_manager = interaction_manager
 
 
-    worlds = world_manager.generate_worlds(100)
+    worlds = world_manager.generate_worlds(10)
 
     game.add_robot(resource_configs, building_configs)
-
-    # 初始化Log，可以设置日志级别和文件名
-    log = Log(level=logging.DEBUG)
 
     game.run()
 

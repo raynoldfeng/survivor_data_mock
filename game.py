@@ -1,8 +1,10 @@
 from loader.locale import Locale
 from loader.enums import *
 from managers.robot import Robot
+from path_finder import Pathfinder
 from logger import Log
-import time
+import logging
+from time import sleep
 
 class Game:
     def __init__(self):
@@ -12,11 +14,11 @@ class Game:
         self.world_manager = None
         self.player_manager = None
         self.rule_manager = None
-        self.interaction_manager = None
         self.message_bus = None
         self.robot = None
-        self.log = Log()
         self.tick_counter = 0
+        self.log = Log(level=logging.DEBUG, filename="log.txt")
+        self.pathfinder = Pathfinder(self) 
 
     def add_robot(self, resources, building_configs):
         player = self.player_manager.create_player(resources, building_configs)
@@ -31,8 +33,7 @@ class Game:
             self.player_manager.tick(self.tick_counter) 
             self.building_manager.tick(self.tick_counter) 
             self.modifier_manager.tick(self.tick_counter) 
-            self.rule_manager.tick(self.tick_counter) 
-            self.interaction_manager.tick(self.tick_counter) 
+            self.rule_manager.tick(self.tick_counter)
             self.message_bus.tick(self.tick_counter)
 
             # 以下是为了管理员查看方便
@@ -52,4 +53,4 @@ class Game:
                         building_name = Locale.get_text(building_instance.building_config.name_id)
                         self.log.info(f"  - 建筑: {building_name}")
             '''
-            time.sleep(5)
+            sleep(1)

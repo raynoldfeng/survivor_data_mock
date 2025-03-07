@@ -1,0 +1,822 @@
+2025-03-07 13:32:06,462 - WARNING - 初始星球6，坐标(-20, 25, -38), 边长6 舰队位置 (-28, 29, -31)
+2025-03-07 13:32:06,462 - INFO - 当前tick: 1
+2025-03-07 13:32:10,127 - INFO - Robot 90e13eb1-c36d-42c7-9573-b9d13d5fc0a5 开始思考...
+2025-03-07 13:32:10,128 - INFO - Robot 90e13eb1-c36d-42c7-9573-b9d13d5fc0a5 考虑前往类型为world.rocky.frozen的星球 6,坐标((-20, 25, -38)...
+2025-03-07 13:32:10,129 - INFO - Robot 90e13eb1-c36d-42c7-9573-b9d13d5fc0a5 选择 slow_travel 前往类型为world.rocky.frozen的星球 6，并找到了路径。
+2025-03-07 13:32:10,130 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '90e13eb1-c36d-42c7-9573-b9d13d5fc0a5', 'destination': (-20, 25, -38), 'location': (-28, 29, -31), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x101df9d30>
+2025-03-07 13:32:10,130 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '90e13eb1-c36d-42c7-9573-b9d13d5fc0a5', 'destination': (-20, 25, -38), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x101df9fd0>
+2025-03-07 13:32:45,025 - WARNING - 初始星球9，坐标(-43, 7, -4), 边长4 舰队位置 (-45, 7, 1)
+2025-03-07 13:32:45,026 - INFO - 当前tick: 1
+2025-03-07 13:32:46,680 - INFO - Robot 2c1077ad-e061-4126-8d12-589d4ec1fdcb 开始思考...
+2025-03-07 13:32:46,681 - INFO - Robot 2c1077ad-e061-4126-8d12-589d4ec1fdcb 考虑前往类型为world.gaseous.none的星球 9,坐标((-43, 7, -4)...
+2025-03-07 13:32:46,682 - INFO - Robot 2c1077ad-e061-4126-8d12-589d4ec1fdcb 选择 slow_travel 前往类型为world.gaseous.none的星球 9，并找到了路径。
+2025-03-07 13:32:46,682 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '2c1077ad-e061-4126-8d12-589d4ec1fdcb', 'destination': (-43, 7, -4), 'location': (-45, 7, 1), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1029b5d30>
+2025-03-07 13:32:46,682 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '2c1077ad-e061-4126-8d12-589d4ec1fdcb', 'destination': (-43, 7, -4), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1029b5fd0>
+2025-03-07 13:33:37,419 - ERROR - 舰队 2c1077ad-e061-4126-8d12-589d4ec1fdcb 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:33:40,241 - WARNING - 初始星球7，坐标(-31, 16, -16), 边长4 舰队位置 (-36, 21, -12)
+2025-03-07 13:33:40,241 - INFO - 当前tick: 1
+2025-03-07 13:33:45,453 - INFO - Robot c130a81a-1787-4bad-9130-5fb93f60a694 开始思考...
+2025-03-07 13:33:45,455 - INFO - Robot c130a81a-1787-4bad-9130-5fb93f60a694 考虑前往类型为world.rocky.desert的星球 7,坐标((-31, 16, -16)...
+2025-03-07 13:33:45,456 - INFO - Robot c130a81a-1787-4bad-9130-5fb93f60a694 选择 slow_travel 前往类型为world.rocky.desert的星球 7，并找到了路径。
+2025-03-07 13:33:45,456 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'c130a81a-1787-4bad-9130-5fb93f60a694', 'destination': (-31, 16, -16), 'location': (-36, 21, -12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1044edd30>
+2025-03-07 13:34:19,636 - WARNING - 初始星球1，坐标(-13, 7, -45), 边长6 舰队位置 (-9, 5, -52)
+2025-03-07 13:34:19,637 - INFO - 当前tick: 1
+2025-03-07 13:34:22,596 - INFO - Robot e3590526-27b8-4a43-8a6d-f7ad5674dcfe 开始思考...
+2025-03-07 13:34:22,598 - INFO - Robot e3590526-27b8-4a43-8a6d-f7ad5674dcfe 考虑前往类型为world.gaseous.none的星球 1,坐标((-13, 7, -45)...
+2025-03-07 13:34:22,599 - INFO - Robot e3590526-27b8-4a43-8a6d-f7ad5674dcfe 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:34:22,599 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'e3590526-27b8-4a43-8a6d-f7ad5674dcfe', 'destination': (-13, 7, -45), 'location': (-9, 5, -52), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a5dd30>
+2025-03-07 13:34:25,665 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'e3590526-27b8-4a43-8a6d-f7ad5674dcfe', 'destination': (-13, 7, -45), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x102a5dfd0>
+2025-03-07 13:34:28,182 - ERROR - 舰队 e3590526-27b8-4a43-8a6d-f7ad5674dcfe 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:34:31,590 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'cell': (-9, 5, -52), 'objects': ['e3590526-27b8-4a43-8a6d-f7ad5674dcfe', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x102a5dfd0>
+2025-03-07 13:34:32,596 - INFO - 当前tick: 2
+2025-03-07 13:34:37,005 - INFO - Robot e3590526-27b8-4a43-8a6d-f7ad5674dcfe 开始思考...
+2025-03-07 13:42:53,125 - WARNING - 初始星球1，坐标(-41, -13, 41), 边长3 舰队位置 (-38, -10, 45)
+2025-03-07 13:42:53,126 - INFO - 当前tick: 1
+2025-03-07 13:43:00,043 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:43:33,813 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:43:46,384 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:03,877 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:03,878 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:03,878 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:03,878 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:04,880 - INFO - 当前tick: 2
+2025-03-07 13:44:04,880 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:04,881 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:04,881 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:04,881 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:04,881 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:04,881 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:04,881 - INFO - 发布消息: id:6, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:05,887 - INFO - 当前tick: 3
+2025-03-07 13:44:05,887 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:05,887 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:05,888 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:05,888 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:05,888 - INFO - 发布消息: id:8, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:05,888 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:05,888 - INFO - 发布消息: id:9, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:06,890 - INFO - 当前tick: 4
+2025-03-07 13:44:06,890 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:06,891 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:06,891 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:06,891 - INFO - 发布消息: id:10, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:06,891 - INFO - 发布消息: id:11, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:06,891 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:06,891 - INFO - 发布消息: id:12, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:07,896 - INFO - 当前tick: 5
+2025-03-07 13:44:07,897 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:07,897 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:07,898 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:07,898 - INFO - 发布消息: id:13, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:07,898 - INFO - 发布消息: id:14, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:07,899 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:07,899 - INFO - 发布消息: id:15, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:08,902 - INFO - 当前tick: 6
+2025-03-07 13:44:08,902 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:08,902 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:08,902 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:08,903 - INFO - 发布消息: id:16, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:08,903 - INFO - 发布消息: id:17, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:08,903 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:08,903 - INFO - 发布消息: id:18, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:09,908 - INFO - 当前tick: 7
+2025-03-07 13:44:09,908 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:09,909 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:09,909 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:09,909 - INFO - 发布消息: id:19, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:09,909 - INFO - 发布消息: id:20, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:09,910 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:09,910 - INFO - 发布消息: id:21, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:10,911 - INFO - 当前tick: 8
+2025-03-07 13:44:10,912 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:10,912 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:10,912 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:10,912 - INFO - 发布消息: id:22, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:10,913 - INFO - 发布消息: id:23, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:10,913 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:10,913 - INFO - 发布消息: id:24, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:11,914 - INFO - 当前tick: 9
+2025-03-07 13:44:11,914 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 开始思考...
+2025-03-07 13:44:11,914 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 考虑前往类型为world.gaseous.none的星球 1,坐标((-41, -13, 41)...
+2025-03-07 13:44:11,915 - INFO - Robot 37e61cf4-548c-4e3b-8e4e-c603d278aeae 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 13:44:11,915 - INFO - 发布消息: id:25, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'location': (-38, -10, 45), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1042a9d30>
+2025-03-07 13:44:11,915 - INFO - 发布消息: id:26, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '37e61cf4-548c-4e3b-8e4e-c603d278aeae', 'destination': (-41, -13, 41), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:44:11,915 - ERROR - 舰队 37e61cf4-548c-4e3b-8e4e-c603d278aeae 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 13:44:11,915 - INFO - 发布消息: id:27, 类型=INTERSECTION_EVENT, 数据:{'cell': (-38, -10, 45), 'objects': ['37e61cf4-548c-4e3b-8e4e-c603d278aeae', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1042a9fd0>
+2025-03-07 13:45:29,333 - WARNING - 初始星球0，坐标(46, -5, -17), 边长6 舰队位置 (53, -16, -23)
+2025-03-07 13:45:29,334 - INFO - 当前tick: 1
+2025-03-07 13:45:29,334 - INFO - Robot 82a2c8ea-115a-4820-872a-2f9a2aa624e1 开始思考...
+2025-03-07 13:45:37,682 - INFO - Robot 82a2c8ea-115a-4820-872a-2f9a2aa624e1 考虑前往类型为world.gaseous.none的星球 0,坐标((46, -5, -17)...
+2025-03-07 13:45:37,684 - INFO - Robot 82a2c8ea-115a-4820-872a-2f9a2aa624e1 选择 slow_travel 前往类型为world.gaseous.none的星球 0，并找到了路径。
+2025-03-07 13:45:37,685 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '82a2c8ea-115a-4820-872a-2f9a2aa624e1', 'destination': (46, -5, -17), 'location': (53, -16, -23), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x102d29d30>
+2025-03-07 13:45:37,685 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '82a2c8ea-115a-4820-872a-2f9a2aa624e1', 'destination': (46, -5, -17), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x102d29fd0>
+2025-03-07 13:45:38,687 - INFO - 当前tick: 2
+2025-03-07 13:45:38,688 - INFO - Robot 82a2c8ea-115a-4820-872a-2f9a2aa624e1 开始思考...
+2025-03-07 13:52:49,437 - WARNING - 初始星球7，坐标(-40, -26, -28), 边长9 舰队位置 (-47, -12, -38)
+2025-03-07 13:52:49,438 - INFO - 当前tick: 1
+2025-03-07 13:52:53,017 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 开始思考...
+2025-03-07 13:52:53,019 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 考虑前往类型为world.gaseous.none的星球 7,坐标((-40, -26, -28)...
+2025-03-07 13:52:53,020 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 选择 slow_travel 前往类型为world.gaseous.none的星球 7，并找到了路径。
+2025-03-07 13:52:53,021 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140', 'destination': (-40, -26, -28), 'location': (-47, -12, -38), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:53,026 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140', 'destination': (-40, -26, -28), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x102a7dfd0>
+2025-03-07 13:52:54,032 - INFO - 当前tick: 2
+2025-03-07 13:52:54,032 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 开始思考...
+2025-03-07 13:52:54,032 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 尝试降落在星球 world.gaseous.none 上。
+2025-03-07 13:52:54,032 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:54,032 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:54,032 - INFO - 重试消息: id:3, 类型=PLAYER_FLEET_LAND, 重试次数=1
+2025-03-07 13:52:54,032 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:54,032 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:54,032 - INFO - 重试消息: id:3, 类型=PLAYER_FLEET_LAND, 重试次数=2
+2025-03-07 13:52:54,032 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:54,032 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:54,032 - INFO - 重试消息: id:3, 类型=PLAYER_FLEET_LAND, 重试次数=3
+2025-03-07 13:52:54,032 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:54,032 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:54,032 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:55,035 - INFO - 当前tick: 3
+2025-03-07 13:52:55,036 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 开始思考...
+2025-03-07 13:52:55,036 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 尝试降落在星球 world.gaseous.none 上。
+2025-03-07 13:52:55,036 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:55,037 - ERROR - 处理消息 4 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:55,037 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:55,037 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:55,037 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:55,037 - INFO - 重试消息: id:4, 类型=PLAYER_FLEET_LAND, 重试次数=1
+2025-03-07 13:52:55,037 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:55,037 - ERROR - 处理消息 4 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:55,037 - INFO - 重试消息: id:4, 类型=PLAYER_FLEET_LAND, 重试次数=2
+2025-03-07 13:52:55,037 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:55,037 - ERROR - 处理消息 4 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:55,037 - INFO - 重试消息: id:4, 类型=PLAYER_FLEET_LAND, 重试次数=3
+2025-03-07 13:52:55,037 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:55,037 - ERROR - 处理消息 4 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:55,037 - ERROR - 消息 4 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:56,040 - INFO - 当前tick: 4
+2025-03-07 13:52:56,041 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 开始思考...
+2025-03-07 13:52:56,041 - INFO - Robot 0165a88d-8a0d-485f-b1aa-27be35a76140 尝试降落在星球 world.gaseous.none 上。
+2025-03-07 13:52:56,041 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:56,041 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:56,041 - ERROR - 消息 4 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:56,042 - ERROR - 消息 4 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:56,042 - ERROR - 消息 4 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:52:56,042 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_LAND, 重试次数=1
+2025-03-07 13:52:56,042 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:56,042 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:56,042 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_LAND, 重试次数=2
+2025-03-07 13:52:56,042 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:56,042 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:56,042 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_LAND, 重试次数=3
+2025-03-07 13:52:56,042 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '0165a88d-8a0d-485f-b1aa-27be35a76140'}, 发送者=<managers.player_manager.PlayerManager object at 0x102a7dd30>
+2025-03-07 13:52:56,042 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 13:52:56,043 - ERROR - 消息 5 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 13:53:38,719 - WARNING - 初始星球9，坐标(-7, 35, 29), 边长5 舰队位置 (-8, 30, 23)
+2025-03-07 13:53:38,719 - INFO - 当前tick: 1
+2025-03-07 13:53:38,719 - INFO - Robot 817cb4b7-2b49-4cb2-82cc-6242a417afde 开始思考...
+2025-03-07 13:53:38,720 - INFO - Robot 817cb4b7-2b49-4cb2-82cc-6242a417afde 考虑前往类型为world.rocky.ocean的星球 9,坐标((-7, 35, 29)...
+2025-03-07 13:53:38,720 - INFO - Robot 817cb4b7-2b49-4cb2-82cc-6242a417afde 选择 slow_travel 前往类型为world.rocky.ocean的星球 9，并找到了路径。
+2025-03-07 13:53:38,720 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '817cb4b7-2b49-4cb2-82cc-6242a417afde', 'destination': (-7, 35, 29), 'location': (-8, 30, 23), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10424dd30>
+2025-03-07 13:53:38,720 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '817cb4b7-2b49-4cb2-82cc-6242a417afde', 'destination': (-7, 35, 29), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x10424dfd0>
+2025-03-07 13:53:38,720 - ERROR - 舰队 817cb4b7-2b49-4cb2-82cc-6242a417afde 与星球 world.rocky.ocean 发生碰撞！
+2025-03-07 13:53:38,720 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'cell': (-8, 30, 23), 'objects': ['817cb4b7-2b49-4cb2-82cc-6242a417afde', 9]}, 发送者=<managers.rule_manager.RulesManager object at 0x10424dfd0>
+2025-03-07 13:53:39,726 - INFO - 当前tick: 2
+2025-03-07 13:53:39,726 - INFO - Robot 817cb4b7-2b49-4cb2-82cc-6242a417afde 开始思考...
+2025-03-07 13:53:39,727 - INFO - Robot 817cb4b7-2b49-4cb2-82cc-6242a417afde 尝试降落在星球 world.rocky.ocean 上。
+2025-03-07 13:54:08,767 - WARNING - 初始星球6，坐标(-18, 30, -5), 边长7 舰队位置 (-9, 22, -11)
+2025-03-07 13:54:08,768 - INFO - 当前tick: 1
+2025-03-07 13:54:08,768 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 开始思考...
+2025-03-07 13:54:08,768 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 考虑前往类型为world.rocky.death的星球 6,坐标((-18, 30, -5)...
+2025-03-07 13:54:08,768 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 选择 slow_travel 前往类型为world.rocky.death的星球 6，并找到了路径。
+2025-03-07 13:54:08,768 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (-18, 30, -5), 'location': (-9, 22, -11), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1029f9d30>
+2025-03-07 13:54:08,769 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (-18, 30, -5), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1029f9fd0>
+2025-03-07 13:54:09,774 - INFO - 当前tick: 2
+2025-03-07 13:54:09,774 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 开始思考...
+2025-03-07 13:54:09,775 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 尝试降落在星球 world.rocky.death 上。
+2025-03-07 13:54:15,348 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'world_id': 6}, 发送者=<managers.player_manager.PlayerManager object at 0x1029f9d30>
+2025-03-07 13:54:15,348 - INFO - 玩家 830c351a-3b9a-42b3-a95a-c9578b2b9e76 的舰队降落在星球 world.rocky.death！
+2025-03-07 13:54:16,354 - INFO - 当前tick: 3
+2025-03-07 13:54:16,354 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 开始思考...
+2025-03-07 13:54:16,354 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 准备探索星球 world.rocky.death。
+2025-03-07 13:54:16,355 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 考虑前往类型为world.rocky.death的星球 4,坐标((21, 27, -26)...
+2025-03-07 13:54:23,334 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 选择 slow_travel 前往类型为world.rocky.death的星球 4，并找到了路径。
+2025-03-07 13:54:23,335 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'location': (-9, 22, -11), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1029f9d30>
+2025-03-07 13:54:23,335 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1029f9fd0>
+2025-03-07 13:54:24,340 - INFO - 当前tick: 4
+2025-03-07 13:54:24,340 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 开始思考...
+2025-03-07 13:54:24,340 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 准备探索星球 world.rocky.death。
+2025-03-07 13:54:24,340 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 考虑前往类型为world.rocky.death的星球 4,坐标((21, 27, -26)...
+2025-03-07 13:54:24,341 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 选择 slow_travel 前往类型为world.rocky.death的星球 4，并找到了路径。
+2025-03-07 13:54:24,341 - INFO - 发布消息: id:6, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'location': (-9, 22, -11), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1029f9d30>
+2025-03-07 13:54:24,341 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1029f9fd0>
+2025-03-07 13:54:25,346 - INFO - 当前tick: 5
+2025-03-07 13:54:25,348 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 开始思考...
+2025-03-07 13:54:25,349 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 准备探索星球 world.rocky.death。
+2025-03-07 13:54:25,350 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 考虑前往类型为world.rocky.death的星球 4,坐标((21, 27, -26)...
+2025-03-07 13:54:25,353 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 选择 slow_travel 前往类型为world.rocky.death的星球 4，并找到了路径。
+2025-03-07 13:54:25,353 - INFO - 发布消息: id:8, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'location': (-9, 22, -11), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1029f9d30>
+2025-03-07 13:54:25,355 - INFO - 发布消息: id:9, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1029f9fd0>
+2025-03-07 13:54:26,360 - INFO - 当前tick: 6
+2025-03-07 13:54:26,360 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 开始思考...
+2025-03-07 13:54:26,360 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 准备探索星球 world.rocky.death。
+2025-03-07 13:54:26,360 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 考虑前往类型为world.rocky.death的星球 4,坐标((21, 27, -26)...
+2025-03-07 13:54:26,360 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 选择 slow_travel 前往类型为world.rocky.death的星球 4，并找到了路径。
+2025-03-07 13:54:26,360 - INFO - 发布消息: id:10, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'location': (-9, 22, -11), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1029f9d30>
+2025-03-07 13:54:26,361 - INFO - 发布消息: id:11, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1029f9fd0>
+2025-03-07 13:54:27,366 - INFO - 当前tick: 7
+2025-03-07 13:54:27,366 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 开始思考...
+2025-03-07 13:54:27,366 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 准备探索星球 world.rocky.death。
+2025-03-07 13:54:27,366 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 考虑前往类型为world.rocky.death的星球 4,坐标((21, 27, -26)...
+2025-03-07 13:54:27,367 - INFO - Robot 830c351a-3b9a-42b3-a95a-c9578b2b9e76 选择 slow_travel 前往类型为world.rocky.death的星球 4，并找到了路径。
+2025-03-07 13:54:27,367 - INFO - 发布消息: id:12, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'location': (-9, 22, -11), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1029f9d30>
+2025-03-07 13:54:27,367 - INFO - 发布消息: id:13, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '830c351a-3b9a-42b3-a95a-c9578b2b9e76', 'destination': (21, 27, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1029f9fd0>
+2025-03-07 13:55:41,810 - WARNING - 初始星球0，坐标(1, -15, -4), 边长7 舰队位置 (-1, -12, -12)
+2025-03-07 13:55:41,810 - INFO - 当前tick: 1
+2025-03-07 13:55:41,810 - INFO - Robot 8cae734b-c724-42db-9764-bbeac5cdd1ba 开始思考...
+2025-03-07 13:55:41,811 - INFO - Robot 8cae734b-c724-42db-9764-bbeac5cdd1ba 考虑前往类型为world.rocky.ocean的星球 0,坐标((1, -15, -4)...
+2025-03-07 13:55:41,811 - INFO - Robot 8cae734b-c724-42db-9764-bbeac5cdd1ba 选择 slow_travel 前往类型为world.rocky.ocean的星球 0，并找到了路径。
+2025-03-07 13:55:41,811 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '8cae734b-c724-42db-9764-bbeac5cdd1ba', 'destination': (1, -15, -4), 'location': (-1, -12, -12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106749d30>
+2025-03-07 13:55:41,811 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '8cae734b-c724-42db-9764-bbeac5cdd1ba', 'destination': (1, -15, -4), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106749fd0>
+2025-03-07 13:55:41,811 - ERROR - 舰队 8cae734b-c724-42db-9764-bbeac5cdd1ba 与星球 world.rocky.ocean 发生碰撞！
+2025-03-07 13:55:41,811 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'cell': (-1, -12, -12), 'objects': ['8cae734b-c724-42db-9764-bbeac5cdd1ba', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x106749fd0>
+2025-03-07 13:55:42,816 - INFO - 当前tick: 2
+2025-03-07 13:55:42,817 - INFO - Robot 8cae734b-c724-42db-9764-bbeac5cdd1ba 开始思考...
+2025-03-07 13:55:42,817 - INFO - Robot 8cae734b-c724-42db-9764-bbeac5cdd1ba 尝试降落在星球 world.rocky.ocean 上。
+2025-03-07 13:55:42,817 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '8cae734b-c724-42db-9764-bbeac5cdd1ba', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x106749d30>
+2025-03-07 13:55:42,818 - INFO - 玩家 8cae734b-c724-42db-9764-bbeac5cdd1ba 的舰队降落在星球 world.rocky.ocean！
+2025-03-07 13:55:42,818 - ERROR - 舰队 8cae734b-c724-42db-9764-bbeac5cdd1ba 与星球 world.rocky.ocean 发生碰撞！
+2025-03-07 13:55:42,818 - INFO - 发布消息: id:5, 类型=INTERSECTION_EVENT, 数据:{'cell': (-1, -12, -12), 'objects': ['8cae734b-c724-42db-9764-bbeac5cdd1ba', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x106749fd0>
+2025-03-07 13:55:44,111 - WARNING - 初始星球0，坐标(-50, 48, 12), 边长4 舰队位置 (-45, 53, 12)
+2025-03-07 13:55:44,112 - INFO - 当前tick: 1
+2025-03-07 13:55:44,112 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:44,112 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 考虑前往类型为world.asteroid.none的星球 0,坐标((-50, 48, 12)...
+2025-03-07 13:55:44,112 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 选择 slow_travel 前往类型为world.asteroid.none的星球 0，并找到了路径。
+2025-03-07 13:55:44,112 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'destination': (-50, 48, 12), 'location': (-45, 53, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:44,113 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'destination': (-50, 48, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:44,113 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:44,113 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:45,118 - INFO - 当前tick: 2
+2025-03-07 13:55:45,118 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:45,118 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:55:45,118 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:45,119 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:55:45,119 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:45,119 - INFO - 发布消息: id:5, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:46,121 - INFO - 当前tick: 3
+2025-03-07 13:55:46,122 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:46,122 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:55:46,122 - INFO - 发布消息: id:6, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:46,122 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:55:46,122 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:46,122 - INFO - 发布消息: id:7, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:47,126 - INFO - 当前tick: 4
+2025-03-07 13:55:47,126 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:47,126 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:55:47,127 - INFO - 发布消息: id:8, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:47,127 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:55:47,127 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:47,127 - INFO - 发布消息: id:9, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:48,128 - INFO - 当前tick: 5
+2025-03-07 13:55:48,129 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:48,130 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:55:48,131 - INFO - 发布消息: id:10, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:48,133 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:55:48,133 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:48,133 - INFO - 发布消息: id:11, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:49,139 - INFO - 当前tick: 6
+2025-03-07 13:55:49,140 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:49,140 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:55:49,140 - INFO - 发布消息: id:12, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:49,140 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:55:49,140 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:49,140 - INFO - 发布消息: id:13, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:50,143 - INFO - 当前tick: 7
+2025-03-07 13:55:50,143 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:50,143 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:55:50,143 - INFO - 发布消息: id:14, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:50,143 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:55:50,143 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:50,143 - INFO - 发布消息: id:15, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:55:51,144 - INFO - 当前tick: 8
+2025-03-07 13:55:51,145 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:55:51,145 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:55:51,145 - INFO - 发布消息: id:16, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:55:51,145 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:55:51,146 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:55:51,146 - INFO - 发布消息: id:17, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:13,609 - INFO - 当前tick: 9
+2025-03-07 13:56:13,610 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:13,610 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:13,610 - INFO - 发布消息: id:18, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:13,610 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:13,610 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:13,610 - INFO - 发布消息: id:19, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:14,613 - INFO - 当前tick: 10
+2025-03-07 13:56:14,613 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:14,613 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:14,613 - INFO - 发布消息: id:20, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:14,613 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:14,613 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:14,613 - INFO - 发布消息: id:21, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:15,619 - INFO - 当前tick: 11
+2025-03-07 13:56:15,619 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:15,619 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:15,619 - INFO - 发布消息: id:22, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:15,619 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:15,619 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:15,619 - INFO - 发布消息: id:23, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:16,624 - INFO - 当前tick: 12
+2025-03-07 13:56:16,625 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:16,625 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:16,625 - INFO - 发布消息: id:24, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:16,625 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:16,625 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:16,625 - INFO - 发布消息: id:25, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:17,631 - INFO - 当前tick: 13
+2025-03-07 13:56:17,631 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:17,631 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:17,631 - INFO - 发布消息: id:26, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:17,632 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:17,632 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:17,632 - INFO - 发布消息: id:27, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:18,635 - INFO - 当前tick: 14
+2025-03-07 13:56:18,635 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:18,635 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:18,635 - INFO - 发布消息: id:28, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:18,635 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:18,635 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:18,635 - INFO - 发布消息: id:29, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:19,640 - INFO - 当前tick: 15
+2025-03-07 13:56:19,640 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:19,640 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:19,640 - INFO - 发布消息: id:30, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:19,640 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:19,640 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:19,640 - INFO - 发布消息: id:31, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:20,648 - INFO - 当前tick: 16
+2025-03-07 13:56:20,649 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:20,649 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:20,649 - INFO - 发布消息: id:32, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:20,649 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:20,649 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:20,650 - INFO - 发布消息: id:33, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 13:56:21,656 - INFO - 当前tick: 17
+2025-03-07 13:56:21,657 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 开始思考...
+2025-03-07 13:56:21,657 - INFO - Robot e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 尝试降落在星球 world.asteroid.none 上。
+2025-03-07 13:56:21,658 - INFO - 发布消息: id:34, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 'world_id': 0}, 发送者=<managers.player_manager.PlayerManager object at 0x1067fdd30>
+2025-03-07 13:56:21,658 - INFO - 玩家 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 的舰队降落在星球 world.asteroid.none！
+2025-03-07 13:56:21,658 - ERROR - 舰队 e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77 与星球 world.asteroid.none 发生碰撞！
+2025-03-07 13:56:21,658 - INFO - 发布消息: id:35, 类型=INTERSECTION_EVENT, 数据:{'cell': (-45, 53, 12), 'objects': ['e97f1efa-7ea2-4d61-9a2c-b7bdf4fccc77', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x1067fdfd0>
+2025-03-07 14:07:23,446 - WARNING - 初始星球1，坐标(34, -31, 15), 边长11 舰队位置 (43, -43, 6)
+2025-03-07 14:07:23,446 - INFO - 当前tick: 1
+2025-03-07 14:07:23,446 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:23,447 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 考虑前往类型为world.rocky.desert的星球 1,坐标((34, -31, 15)...
+2025-03-07 14:07:23,447 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 选择 slow_travel 前往类型为world.rocky.desert的星球 1，并找到了路径。
+2025-03-07 14:07:23,447 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (34, -31, 15), 'location': (43, -43, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:23,447 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (34, -31, 15), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:23,447 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:23,447 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:28,802 - INFO - 当前tick: 2
+2025-03-07 14:07:28,805 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:28,805 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 尝试降落在星球 world.rocky.desert 上。
+2025-03-07 14:07:28,806 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'world_id': 1}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:28,808 - INFO - 玩家 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 的舰队降落在星球 world.rocky.desert！
+2025-03-07 14:07:28,808 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:28,809 - INFO - 发布消息: id:5, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:29,814 - INFO - 当前tick: 3
+2025-03-07 14:07:29,814 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:29,814 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 准备探索星球 world.rocky.desert。
+2025-03-07 14:07:29,814 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 考虑前往类型为world.gaseous.none的星球 7,坐标((45, -30, -26)...
+2025-03-07 14:07:29,816 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 选择 slow_travel 前往类型为world.gaseous.none的星球 7，并找到了路径。
+2025-03-07 14:07:29,816 - INFO - 发布消息: id:6, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'location': (43, -43, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:29,816 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:29,816 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:29,816 - INFO - 发布消息: id:8, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:30,821 - INFO - 当前tick: 4
+2025-03-07 14:07:30,822 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:30,822 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 准备探索星球 world.rocky.desert。
+2025-03-07 14:07:30,822 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 考虑前往类型为world.gaseous.none的星球 7,坐标((45, -30, -26)...
+2025-03-07 14:07:30,825 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 选择 slow_travel 前往类型为world.gaseous.none的星球 7，并找到了路径。
+2025-03-07 14:07:30,825 - INFO - 发布消息: id:9, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'location': (43, -43, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:30,825 - INFO - 发布消息: id:10, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:30,825 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:30,826 - INFO - 发布消息: id:11, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:31,829 - INFO - 当前tick: 5
+2025-03-07 14:07:31,830 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:31,830 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 准备探索星球 world.rocky.desert。
+2025-03-07 14:07:31,830 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 考虑前往类型为world.gaseous.none的星球 7,坐标((45, -30, -26)...
+2025-03-07 14:07:31,833 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 选择 slow_travel 前往类型为world.gaseous.none的星球 7，并找到了路径。
+2025-03-07 14:07:31,833 - INFO - 发布消息: id:12, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'location': (43, -43, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:31,833 - INFO - 发布消息: id:13, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:31,833 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:31,834 - INFO - 发布消息: id:14, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:32,839 - INFO - 当前tick: 6
+2025-03-07 14:07:32,839 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:32,839 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 准备探索星球 world.rocky.desert。
+2025-03-07 14:07:32,840 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 考虑前往类型为world.gaseous.none的星球 7,坐标((45, -30, -26)...
+2025-03-07 14:07:32,842 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 选择 slow_travel 前往类型为world.gaseous.none的星球 7，并找到了路径。
+2025-03-07 14:07:32,842 - INFO - 发布消息: id:15, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'location': (43, -43, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:32,842 - INFO - 发布消息: id:16, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:32,842 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:32,842 - INFO - 发布消息: id:17, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:33,847 - INFO - 当前tick: 7
+2025-03-07 14:07:33,848 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:33,848 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 准备探索星球 world.rocky.desert。
+2025-03-07 14:07:33,848 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 考虑前往类型为world.gaseous.none的星球 7,坐标((45, -30, -26)...
+2025-03-07 14:07:33,850 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 选择 slow_travel 前往类型为world.gaseous.none的星球 7，并找到了路径。
+2025-03-07 14:07:33,850 - INFO - 发布消息: id:18, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'location': (43, -43, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:33,850 - INFO - 发布消息: id:19, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:33,851 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:33,851 - INFO - 发布消息: id:20, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:34,853 - INFO - 当前tick: 8
+2025-03-07 14:07:34,853 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 开始思考...
+2025-03-07 14:07:34,853 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 准备探索星球 world.rocky.desert。
+2025-03-07 14:07:34,853 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 考虑前往类型为world.gaseous.none的星球 7,坐标((45, -30, -26)...
+2025-03-07 14:07:34,854 - INFO - Robot 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 选择 slow_travel 前往类型为world.gaseous.none的星球 7，并找到了路径。
+2025-03-07 14:07:34,854 - INFO - 发布消息: id:21, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'location': (43, -43, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066f5d30>
+2025-03-07 14:07:34,854 - INFO - 发布消息: id:22, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 'destination': (45, -30, -26), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:34,854 - ERROR - 舰队 98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:34,854 - INFO - 发布消息: id:23, 类型=INTERSECTION_EVENT, 数据:{'cell': (43, -43, 6), 'objects': ['98a707e3-49eb-4cf4-8ee9-a5d1672d8cd7', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x1066f5fd0>
+2025-03-07 14:07:42,240 - WARNING - 初始星球9，坐标(-18, 16, 4), 边长9 舰队位置 (-28, 30, 8)
+2025-03-07 14:07:42,240 - INFO - 当前tick: 1
+2025-03-07 14:07:42,241 - INFO - Robot bbd833c4-ef72-46ca-bd54-8f9383c9f029 开始思考...
+2025-03-07 14:07:42,241 - INFO - Robot bbd833c4-ef72-46ca-bd54-8f9383c9f029 考虑前往类型为world.rocky.lava的星球 9,坐标((-18, 16, 4)...
+2025-03-07 14:07:42,241 - INFO - Robot bbd833c4-ef72-46ca-bd54-8f9383c9f029 选择 slow_travel 前往类型为world.rocky.lava的星球 9，并找到了路径。
+2025-03-07 14:07:42,241 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'bbd833c4-ef72-46ca-bd54-8f9383c9f029', 'destination': (-18, 16, 4), 'location': (-28, 30, 8), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1066a1d30>
+2025-03-07 14:07:42,241 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'bbd833c4-ef72-46ca-bd54-8f9383c9f029', 'destination': (-18, 16, 4), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1066a1fd0>
+2025-03-07 14:07:59,213 - WARNING - 初始星球3，坐标(41, 33, 29), 边长7 舰队位置 (49, 27, 25)
+2025-03-07 14:07:59,213 - INFO - 当前tick: 1
+2025-03-07 14:07:59,213 - INFO - Robot 93ebef4b-59e3-4a88-9cbb-57f6ea49cdd7 开始思考...
+2025-03-07 14:07:59,213 - INFO - Robot 93ebef4b-59e3-4a88-9cbb-57f6ea49cdd7 考虑前往类型为world.rocky.desert的星球 3,坐标((41, 33, 29)...
+2025-03-07 14:07:59,214 - INFO - Robot 93ebef4b-59e3-4a88-9cbb-57f6ea49cdd7 选择 slow_travel 前往类型为world.rocky.desert的星球 3，并找到了路径。
+2025-03-07 14:07:59,214 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '93ebef4b-59e3-4a88-9cbb-57f6ea49cdd7', 'destination': (41, 33, 29), 'location': (49, 27, 25), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x104739d30>
+2025-03-07 14:07:59,214 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '93ebef4b-59e3-4a88-9cbb-57f6ea49cdd7', 'destination': (41, 33, 29), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x104739fd0>
+2025-03-07 14:07:59,214 - ERROR - 舰队 93ebef4b-59e3-4a88-9cbb-57f6ea49cdd7 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:07:59,214 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'cell': (49, 27, 25), 'objects': ['93ebef4b-59e3-4a88-9cbb-57f6ea49cdd7', 3]}, 发送者=<managers.rule_manager.RulesManager object at 0x104739fd0>
+2025-03-07 14:08:58,873 - WARNING - 初始星球7，坐标(46, 49, -17), 边长5 舰队位置 (39, 58, -23)
+2025-03-07 14:08:58,874 - INFO - 当前tick: 1
+2025-03-07 14:08:58,877 - INFO - Robot 86b3bc85-e95b-4477-a8ee-a4f735f5f6e0 开始思考...
+2025-03-07 14:08:58,880 - INFO - Robot 86b3bc85-e95b-4477-a8ee-a4f735f5f6e0 考虑前往类型为world.asteroid.none的星球 7,坐标((46, 49, -17)...
+2025-03-07 14:09:12,015 - INFO - Robot 86b3bc85-e95b-4477-a8ee-a4f735f5f6e0 选择 slow_travel 前往类型为world.asteroid.none的星球 7，并找到了路径。
+2025-03-07 14:17:52,170 - WARNING - 初始星球0，坐标(49, 25, -1), 边长7 舰队位置 (50, 33, -6)
+2025-03-07 14:17:52,170 - INFO - 当前tick: 1
+2025-03-07 14:17:52,171 - INFO - Robot 3e7854ff-e19d-4225-8c55-ec14ccb7e16b 开始思考...
+2025-03-07 14:17:52,171 - INFO - Robot 3e7854ff-e19d-4225-8c55-ec14ccb7e16b 考虑前往类型为world.rocky.frozen的星球 0,坐标((49, 25, -1)...
+2025-03-07 14:17:52,171 - INFO - Robot 3e7854ff-e19d-4225-8c55-ec14ccb7e16b 选择 slow_travel 前往类型为world.rocky.frozen的星球 0，并找到了路径。
+2025-03-07 14:17:52,171 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '3e7854ff-e19d-4225-8c55-ec14ccb7e16b', 'destination': (49, 25, -1), 'location': (50, 33, -6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10638e270>
+2025-03-07 14:17:52,171 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:28:50,185 - WARNING - 初始星球3，舰队位置 (-7, 11, -6)
+2025-03-07 14:28:50,185 - INFO - 当前tick: 1
+2025-03-07 14:28:50,186 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 开始思考...
+2025-03-07 14:28:50,186 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 考虑前往类型为world.rocky.death的星球 3,坐标((-11, 15, -9)...
+2025-03-07 14:28:50,186 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 选择 slow_travel 前往类型为world.rocky.death的星球 3，并找到了路径。
+2025-03-07 14:28:50,186 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 'destination': (-11, 15, -9), 'location': (-7, 11, -6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:50,186 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:28:50,186 - ERROR - 舰队 fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:28:50,186 - INFO - 发布消息: id:2, 类型=INTERSECTION_EVENT, 数据:{'cell': (-7, 11, -6), 'objects': ['fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 3]}, 发送者=<managers.rule_manager.RulesManager object at 0x1048d5fd0>
+2025-03-07 14:28:50,186 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=1
+2025-03-07 14:28:50,186 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 'destination': (-11, 15, -9), 'location': (-7, 11, -6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:50,187 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:28:50,187 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=2
+2025-03-07 14:28:50,187 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 'destination': (-11, 15, -9), 'location': (-7, 11, -6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:50,187 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:28:50,187 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=3
+2025-03-07 14:28:50,187 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 'destination': (-11, 15, -9), 'location': (-7, 11, -6), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:50,187 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:28:50,187 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:28:51,190 - INFO - 当前tick: 2
+2025-03-07 14:28:51,190 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 开始思考...
+2025-03-07 14:28:51,191 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 尝试降落在星球 world.rocky.death 上。
+2025-03-07 14:28:51,191 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:51,191 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:51,192 - ERROR - 舰队 fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:28:51,192 - INFO - 发布消息: id:4, 类型=INTERSECTION_EVENT, 数据:{'cell': (-7, 11, -6), 'objects': ['fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 3]}, 发送者=<managers.rule_manager.RulesManager object at 0x1048d5fd0>
+2025-03-07 14:28:51,192 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:28:51,192 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:28:51,192 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:28:51,192 - INFO - 重试消息: id:3, 类型=PLAYER_FLEET_LAND, 重试次数=1
+2025-03-07 14:28:51,192 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:51,192 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:51,192 - INFO - 重试消息: id:3, 类型=PLAYER_FLEET_LAND, 重试次数=2
+2025-03-07 14:28:51,192 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:51,192 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:51,193 - INFO - 重试消息: id:3, 类型=PLAYER_FLEET_LAND, 重试次数=3
+2025-03-07 14:28:51,193 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:51,193 - ERROR - 处理消息 3 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:51,193 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:52,198 - INFO - 当前tick: 3
+2025-03-07 14:28:52,198 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 开始思考...
+2025-03-07 14:28:52,199 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 尝试降落在星球 world.rocky.death 上。
+2025-03-07 14:28:52,199 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:52,199 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:52,199 - ERROR - 舰队 fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:28:52,199 - INFO - 发布消息: id:6, 类型=INTERSECTION_EVENT, 数据:{'cell': (-7, 11, -6), 'objects': ['fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 3]}, 发送者=<managers.rule_manager.RulesManager object at 0x1048d5fd0>
+2025-03-07 14:28:52,200 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:52,200 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:52,200 - ERROR - 消息 3 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:52,200 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_LAND, 重试次数=1
+2025-03-07 14:28:52,200 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:52,200 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:52,200 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_LAND, 重试次数=2
+2025-03-07 14:28:52,200 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:52,200 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:52,201 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_LAND, 重试次数=3
+2025-03-07 14:28:52,201 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:52,201 - ERROR - 处理消息 5 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:52,201 - ERROR - 消息 5 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:53,206 - INFO - 当前tick: 4
+2025-03-07 14:28:53,206 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 开始思考...
+2025-03-07 14:28:53,206 - INFO - Robot fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 尝试降落在星球 world.rocky.death 上。
+2025-03-07 14:28:53,206 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:53,207 - ERROR - 处理消息 7 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:53,207 - ERROR - 舰队 fa4ce8db-f0a3-4df8-a0b8-cbd449c54399 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:28:53,207 - INFO - 发布消息: id:8, 类型=INTERSECTION_EVENT, 数据:{'cell': (-7, 11, -6), 'objects': ['fa4ce8db-f0a3-4df8-a0b8-cbd449c54399', 3]}, 发送者=<managers.rule_manager.RulesManager object at 0x1048d5fd0>
+2025-03-07 14:28:53,207 - ERROR - 消息 5 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:53,207 - ERROR - 消息 5 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:53,207 - ERROR - 消息 5 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:28:53,207 - INFO - 重试消息: id:7, 类型=PLAYER_FLEET_LAND, 重试次数=1
+2025-03-07 14:28:53,207 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:53,207 - ERROR - 处理消息 7 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:53,207 - INFO - 重试消息: id:7, 类型=PLAYER_FLEET_LAND, 重试次数=2
+2025-03-07 14:28:53,207 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:53,207 - ERROR - 处理消息 7 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:53,207 - INFO - 重试消息: id:7, 类型=PLAYER_FLEET_LAND, 重试次数=3
+2025-03-07 14:28:53,208 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'fa4ce8db-f0a3-4df8-a0b8-cbd449c54399'}, 发送者=<managers.player_manager.PlayerManager object at 0x1048d5d30>
+2025-03-07 14:28:53,208 - ERROR - 处理消息 7 (PLAYER_FLEET_LAND) 时发生错误: 'world_id'
+2025-03-07 14:28:53,208 - ERROR - 消息 7 (PLAYER_FLEET_LAND) 超过最大重试次数，已丢弃
+2025-03-07 14:29:15,623 - WARNING - 初始星球1，舰队位置 (60, -22, 10)
+2025-03-07 14:29:15,623 - INFO - 当前tick: 1
+2025-03-07 14:29:15,623 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 开始思考...
+2025-03-07 14:29:15,624 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 考虑前往类型为world.rocky.lava的星球 1,坐标((50, -28, 2)...
+2025-03-07 14:29:15,624 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 选择 slow_travel 前往类型为world.rocky.lava的星球 1，并找到了路径。
+2025-03-07 14:29:15,624 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '39a20a78-8c1e-4bf2-8dee-8c282101bbde', 'destination': (50, -28, 2), 'location': (60, -22, 10), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106eedd30>
+2025-03-07 14:29:15,624 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:15,624 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=1
+2025-03-07 14:29:15,624 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '39a20a78-8c1e-4bf2-8dee-8c282101bbde', 'destination': (50, -28, 2), 'location': (60, -22, 10), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106eedd30>
+2025-03-07 14:29:15,624 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:15,624 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=2
+2025-03-07 14:29:15,624 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '39a20a78-8c1e-4bf2-8dee-8c282101bbde', 'destination': (50, -28, 2), 'location': (60, -22, 10), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106eedd30>
+2025-03-07 14:29:15,624 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:15,625 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=3
+2025-03-07 14:29:15,625 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '39a20a78-8c1e-4bf2-8dee-8c282101bbde', 'destination': (50, -28, 2), 'location': (60, -22, 10), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106eedd30>
+2025-03-07 14:29:15,625 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:15,625 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:16,630 - INFO - 当前tick: 2
+2025-03-07 14:29:16,630 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 开始思考...
+2025-03-07 14:29:16,630 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 尝试降落在星球 world.rocky.lava 上。
+2025-03-07 14:29:16,630 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': '39a20a78-8c1e-4bf2-8dee-8c282101bbde', 'world_id': 1}, 发送者=<managers.player_manager.PlayerManager object at 0x106eedd30>
+2025-03-07 14:29:16,630 - INFO - 玩家 39a20a78-8c1e-4bf2-8dee-8c282101bbde 的舰队降落在星球 world.rocky.lava！
+2025-03-07 14:29:16,631 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:16,631 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:16,631 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:17,636 - INFO - 当前tick: 3
+2025-03-07 14:29:17,636 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 开始思考...
+2025-03-07 14:29:17,637 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 准备探索星球 world.rocky.lava。
+2025-03-07 14:29:17,637 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 考虑前往类型为world.rocky.woodland的星球 9,坐标((35, 21, -35)...
+2025-03-07 14:29:17,637 - WARNING - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 无法找到前往星球 9 的路径。
+2025-03-07 14:29:18,642 - INFO - 当前tick: 4
+2025-03-07 14:29:18,642 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 开始思考...
+2025-03-07 14:29:18,643 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 准备探索星球 world.rocky.lava。
+2025-03-07 14:29:18,643 - INFO - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 考虑前往类型为world.rocky.woodland的星球 9,坐标((35, 21, -35)...
+2025-03-07 14:29:18,643 - WARNING - Robot 39a20a78-8c1e-4bf2-8dee-8c282101bbde 无法找到前往星球 9 的路径。
+2025-03-07 14:29:22,634 - WARNING - 初始星球5，舰队位置 (-33, 23, 44)
+2025-03-07 14:29:22,635 - INFO - 当前tick: 1
+2025-03-07 14:29:22,635 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 开始思考...
+2025-03-07 14:29:22,635 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 考虑前往类型为world.rocky.death的星球 5,坐标((-21, 26, 50)...
+2025-03-07 14:29:22,635 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 选择 slow_travel 前往类型为world.rocky.death的星球 5，并找到了路径。
+2025-03-07 14:29:22,635 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-21, 26, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:22,636 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:22,636 - ERROR - 舰队 deed4c02-ae07-4044-bd5a-2a5d2f49f97b 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:29:22,636 - INFO - 发布消息: id:2, 类型=INTERSECTION_EVENT, 数据:{'cell': (-33, 23, 44), 'objects': ['deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 5]}, 发送者=<managers.rule_manager.RulesManager object at 0x1069a1fd0>
+2025-03-07 14:29:22,636 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=1
+2025-03-07 14:29:22,636 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-21, 26, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:22,636 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:22,636 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=2
+2025-03-07 14:29:22,636 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-21, 26, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:22,636 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:22,636 - INFO - 重试消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=3
+2025-03-07 14:29:22,636 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-21, 26, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:22,636 - ERROR - 处理消息 1 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:22,636 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:23,641 - INFO - 当前tick: 2
+2025-03-07 14:29:23,641 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 开始思考...
+2025-03-07 14:29:23,641 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 尝试降落在星球 world.rocky.death 上。
+2025-03-07 14:29:23,641 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'world_id': 5}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:23,641 - INFO - 玩家 deed4c02-ae07-4044-bd5a-2a5d2f49f97b 的舰队降落在星球 world.rocky.death！
+2025-03-07 14:29:23,641 - ERROR - 舰队 deed4c02-ae07-4044-bd5a-2a5d2f49f97b 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:29:23,641 - INFO - 发布消息: id:4, 类型=INTERSECTION_EVENT, 数据:{'cell': (-33, 23, 44), 'objects': ['deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 5]}, 发送者=<managers.rule_manager.RulesManager object at 0x1069a1fd0>
+2025-03-07 14:29:23,641 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:23,641 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:23,642 - ERROR - 消息 1 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:29:24,647 - INFO - 当前tick: 3
+2025-03-07 14:29:24,647 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 开始思考...
+2025-03-07 14:29:24,647 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 准备探索星球 world.rocky.death。
+2025-03-07 14:29:24,647 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 考虑前往类型为world.rocky.frozen的星球 6,坐标((-16, 34, 50)...
+2025-03-07 14:29:24,648 - INFO - Robot deed4c02-ae07-4044-bd5a-2a5d2f49f97b 选择 slow_travel 前往类型为world.rocky.frozen的星球 6，并找到了路径。
+2025-03-07 14:29:24,648 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-16, 34, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:24,648 - ERROR - 处理消息 5 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:24,648 - ERROR - 舰队 deed4c02-ae07-4044-bd5a-2a5d2f49f97b 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:29:24,648 - INFO - 发布消息: id:6, 类型=INTERSECTION_EVENT, 数据:{'cell': (-33, 23, 44), 'objects': ['deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 5]}, 发送者=<managers.rule_manager.RulesManager object at 0x1069a1fd0>
+2025-03-07 14:29:24,648 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=1
+2025-03-07 14:29:24,648 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-16, 34, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:24,649 - ERROR - 处理消息 5 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:24,649 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=2
+2025-03-07 14:29:24,649 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-16, 34, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:24,649 - ERROR - 处理消息 5 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:24,649 - INFO - 重试消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 重试次数=3
+2025-03-07 14:29:24,649 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'deed4c02-ae07-4044-bd5a-2a5d2f49f97b', 'destination': (-16, 34, 50), 'location': (-33, 23, 44), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1069a1d30>
+2025-03-07 14:29:24,649 - ERROR - 处理消息 5 (PLAYER_FLEET_MOVE_REQUEST) 时发生错误: 'Fleet' object has no attribute 'current_destination'
+2025-03-07 14:29:24,649 - ERROR - 消息 5 (PLAYER_FLEET_MOVE_REQUEST) 超过最大重试次数，已丢弃
+2025-03-07 14:37:18,946 - WARNING - 初始星球9，舰队位置 (-3, -27, -10)
+2025-03-07 14:37:18,946 - INFO - 当前tick: 1
+2025-03-07 14:37:18,947 - INFO - Robot 97db69ab-1519-4bad-9081-f1d80b4e92a8 开始思考...
+2025-03-07 14:37:18,947 - INFO - Robot 97db69ab-1519-4bad-9081-f1d80b4e92a8 考虑前往类型为world.rocky.lava的星球 9,坐标((-6, -21, -6)...
+2025-03-07 14:37:18,947 - INFO - Robot 97db69ab-1519-4bad-9081-f1d80b4e92a8 选择 slow_travel 前往类型为world.rocky.lava的星球 9，并找到了路径。
+2025-03-07 14:37:18,947 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '97db69ab-1519-4bad-9081-f1d80b4e92a8', 'destination': (-6, -21, -6), 'location': (-3, -27, -10), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1062b9d30>
+2025-03-07 14:37:23,015 - WARNING - 初始星球1，舰队位置 (0, -14, 12)
+2025-03-07 14:37:23,015 - INFO - 当前tick: 1
+2025-03-07 14:37:23,016 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 开始思考...
+2025-03-07 14:37:23,016 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 考虑前往类型为world.gaseous.none的星球 1,坐标((2, -3, 6)...
+2025-03-07 14:37:23,016 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 14:37:23,016 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'location': (0, -14, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:28,252 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:28,253 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:28,254 - ERROR - 舰队 f48d2809-221f-46c5-9088-0829c0e8ff39 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 14:37:28,254 - INFO - 发布消息: id:4, 类型=INTERSECTION_EVENT, 数据:{'location': (0, -14, 12), 'objects': ['f48d2809-221f-46c5-9088-0829c0e8ff39', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:40,974 - INFO - 当前tick: 2
+2025-03-07 14:37:40,975 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 开始思考...
+2025-03-07 14:37:40,975 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 考虑前往类型为world.gaseous.none的星球 1,坐标((2, -3, 6)...
+2025-03-07 14:37:40,975 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 14:37:40,976 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'location': (0, -14, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:40,976 - INFO - 发布消息: id:6, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:40,976 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:40,976 - ERROR - 舰队 f48d2809-221f-46c5-9088-0829c0e8ff39 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 14:37:40,976 - INFO - 发布消息: id:8, 类型=INTERSECTION_EVENT, 数据:{'location': (0, -14, 12), 'objects': ['f48d2809-221f-46c5-9088-0829c0e8ff39', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:41,979 - INFO - 当前tick: 3
+2025-03-07 14:37:41,980 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 开始思考...
+2025-03-07 14:37:41,980 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 考虑前往类型为world.gaseous.none的星球 1,坐标((2, -3, 6)...
+2025-03-07 14:37:41,980 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 14:37:41,980 - INFO - 发布消息: id:9, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'location': (0, -14, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:41,980 - INFO - 发布消息: id:10, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:41,980 - INFO - 发布消息: id:11, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:41,980 - ERROR - 舰队 f48d2809-221f-46c5-9088-0829c0e8ff39 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 14:37:41,981 - INFO - 发布消息: id:12, 类型=INTERSECTION_EVENT, 数据:{'location': (0, -14, 12), 'objects': ['f48d2809-221f-46c5-9088-0829c0e8ff39', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:42,985 - INFO - 当前tick: 4
+2025-03-07 14:37:42,985 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 开始思考...
+2025-03-07 14:37:42,986 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 考虑前往类型为world.gaseous.none的星球 1,坐标((2, -3, 6)...
+2025-03-07 14:37:42,986 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 14:37:42,986 - INFO - 发布消息: id:13, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'location': (0, -14, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:42,986 - INFO - 发布消息: id:14, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:42,986 - INFO - 发布消息: id:15, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:42,986 - ERROR - 舰队 f48d2809-221f-46c5-9088-0829c0e8ff39 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 14:37:42,986 - INFO - 发布消息: id:16, 类型=INTERSECTION_EVENT, 数据:{'location': (0, -14, 12), 'objects': ['f48d2809-221f-46c5-9088-0829c0e8ff39', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:43,991 - INFO - 当前tick: 5
+2025-03-07 14:37:43,991 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 开始思考...
+2025-03-07 14:37:43,991 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 考虑前往类型为world.gaseous.none的星球 1,坐标((2, -3, 6)...
+2025-03-07 14:37:43,991 - INFO - Robot f48d2809-221f-46c5-9088-0829c0e8ff39 选择 slow_travel 前往类型为world.gaseous.none的星球 1，并找到了路径。
+2025-03-07 14:37:43,991 - INFO - 发布消息: id:17, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'location': (0, -14, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:43,992 - INFO - 发布消息: id:18, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39', 'destination': (2, -3, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:37:43,992 - INFO - 发布消息: id:19, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': 'f48d2809-221f-46c5-9088-0829c0e8ff39'}, 发送者=<managers.player_manager.PlayerManager object at 0x10698dd30>
+2025-03-07 14:37:43,992 - ERROR - 舰队 f48d2809-221f-46c5-9088-0829c0e8ff39 与星球 world.gaseous.none 发生碰撞！
+2025-03-07 14:37:43,992 - INFO - 发布消息: id:20, 类型=INTERSECTION_EVENT, 数据:{'location': (0, -14, 12), 'objects': ['f48d2809-221f-46c5-9088-0829c0e8ff39', 1]}, 发送者=<managers.rule_manager.RulesManager object at 0x10698dfd0>
+2025-03-07 14:39:01,919 - WARNING - 初始星球7，舰队位置 (2, -55, 45)
+2025-03-07 14:39:01,920 - INFO - 当前tick: 1
+2025-03-07 14:39:01,920 - INFO - Robot d0442526-f0d6-4951-b0be-1effc4e41e7f 开始思考...
+2025-03-07 14:39:12,257 - WARNING - 初始星球4，舰队位置 (25, -32, 12)
+2025-03-07 14:39:12,257 - INFO - 当前tick: 1
+2025-03-07 14:39:12,258 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:17,917 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:17,918 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:17,919 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:17,919 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:17,919 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:18,922 - INFO - 当前tick: 2
+2025-03-07 14:39:18,923 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:18,923 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:18,923 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:18,924 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:18,924 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:18,924 - INFO - 发布消息: id:6, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:19,927 - INFO - 当前tick: 3
+2025-03-07 14:39:19,927 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:19,927 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:19,927 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:19,927 - INFO - 发布消息: id:7, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:19,928 - INFO - 发布消息: id:8, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:19,928 - INFO - 发布消息: id:9, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:20,931 - INFO - 当前tick: 4
+2025-03-07 14:39:20,931 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:20,932 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:20,932 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:20,932 - INFO - 发布消息: id:10, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:20,932 - INFO - 发布消息: id:11, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:20,932 - INFO - 发布消息: id:12, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:21,936 - INFO - 当前tick: 5
+2025-03-07 14:39:21,936 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:21,937 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:21,937 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:21,938 - INFO - 发布消息: id:13, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:21,938 - INFO - 发布消息: id:14, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:21,938 - INFO - 发布消息: id:15, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:22,941 - INFO - 当前tick: 6
+2025-03-07 14:39:22,941 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:22,942 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:22,942 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:22,942 - INFO - 发布消息: id:16, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:22,942 - INFO - 发布消息: id:17, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:22,942 - INFO - 发布消息: id:18, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:23,945 - INFO - 当前tick: 7
+2025-03-07 14:39:23,946 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:23,946 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:23,947 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:23,947 - INFO - 发布消息: id:19, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:23,947 - INFO - 发布消息: id:20, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:23,947 - INFO - 发布消息: id:21, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:24,949 - INFO - 当前tick: 8
+2025-03-07 14:39:24,950 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:24,950 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:24,951 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:24,951 - INFO - 发布消息: id:22, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:24,951 - INFO - 发布消息: id:23, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:24,951 - INFO - 发布消息: id:24, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:25,956 - INFO - 当前tick: 9
+2025-03-07 14:39:25,957 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 开始思考...
+2025-03-07 14:39:25,957 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 考虑前往类型为world.gaseous.none的星球 4,坐标((27, -23, 2)...
+2025-03-07 14:39:25,957 - INFO - Robot 1134521b-5ddd-4099-8f99-3678cfcca04b 选择 slow_travel 前往类型为world.gaseous.none的星球 4，并找到了路径。
+2025-03-07 14:39:25,957 - INFO - 发布消息: id:25, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'location': (25, -32, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:25,958 - INFO - 发布消息: id:26, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b', 'destination': (27, -23, 2), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106d45fd0>
+2025-03-07 14:39:25,958 - INFO - 发布消息: id:27, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '1134521b-5ddd-4099-8f99-3678cfcca04b'}, 发送者=<managers.player_manager.PlayerManager object at 0x106d45d30>
+2025-03-07 14:39:43,865 - WARNING - 初始星球4，舰队位置 (-2, 3, -43)
+2025-03-07 14:39:43,866 - INFO - 当前tick: 1
+2025-03-07 14:39:43,866 - INFO - Robot 702436b3-4168-4d27-a288-2e4cbe5a8322 开始思考...
+2025-03-07 14:39:47,834 - INFO - Robot 702436b3-4168-4d27-a288-2e4cbe5a8322 考虑前往类型为world.asteroid.none的星球 4,坐标((-7, -4, -35)...
+2025-03-07 14:39:47,835 - INFO - Robot 702436b3-4168-4d27-a288-2e4cbe5a8322 选择 slow_travel 前往类型为world.asteroid.none的星球 4，并找到了路径。
+2025-03-07 14:39:47,836 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '702436b3-4168-4d27-a288-2e4cbe5a8322', 'destination': (-7, -4, -35), 'location': (-2, 3, -43), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x10616dd30>
+2025-03-07 14:39:47,837 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '702436b3-4168-4d27-a288-2e4cbe5a8322', 'destination': (-7, -4, -35), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x10616dfd0>
+2025-03-07 14:39:47,837 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': '702436b3-4168-4d27-a288-2e4cbe5a8322'}, 发送者=<managers.player_manager.PlayerManager object at 0x10616dd30>
+2025-03-07 14:39:48,842 - INFO - 当前tick: 2
+2025-03-07 14:39:48,842 - INFO - Robot 702436b3-4168-4d27-a288-2e4cbe5a8322 开始思考...
+2025-03-07 14:42:42,062 - WARNING - 初始星球0，舰队位置 (-4, 36, 15)
+2025-03-07 14:42:42,062 - INFO - 当前tick: 1
+2025-03-07 14:42:42,063 - INFO - Robot fdb49b3b-96eb-41e7-b0cf-6e8e047546d6 开始思考...
+2025-03-07 14:43:02,402 - INFO - Robot fdb49b3b-96eb-41e7-b0cf-6e8e047546d6 考虑前往类型为world.rocky.death的星球 0,坐标((-11, 36, 12)...
+2025-03-07 14:43:02,404 - INFO - Robot fdb49b3b-96eb-41e7-b0cf-6e8e047546d6 选择 slow_travel 前往类型为world.rocky.death的星球 0，并找到了路径。
+2025-03-07 14:43:30,969 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'fdb49b3b-96eb-41e7-b0cf-6e8e047546d6', 'destination': (-11, 36, 12), 'location': (-4, 36, 15), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x102aa1d30>
+2025-03-07 14:43:30,970 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'fdb49b3b-96eb-41e7-b0cf-6e8e047546d6', 'destination': (-11, 36, 12), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x102aa1fd0>
+2025-03-07 14:43:30,970 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': 'fdb49b3b-96eb-41e7-b0cf-6e8e047546d6'}, 发送者=<managers.player_manager.PlayerManager object at 0x102aa1d30>
+2025-03-07 14:43:30,971 - ERROR - 舰队 fdb49b3b-96eb-41e7-b0cf-6e8e047546d6 与星球 world.rocky.death 发生碰撞！
+2025-03-07 14:43:30,971 - INFO - 发布消息: id:4, 类型=INTERSECTION_EVENT, 数据:{'location': (-4, 36, 15), 'objects': ['fdb49b3b-96eb-41e7-b0cf-6e8e047546d6', 0]}, 发送者=<managers.rule_manager.RulesManager object at 0x102aa1fd0>
+2025-03-07 14:43:31,976 - INFO - 当前tick: 2
+2025-03-07 14:43:31,976 - INFO - Robot fdb49b3b-96eb-41e7-b0cf-6e8e047546d6 开始思考...
+2025-03-07 14:43:49,746 - WARNING - 初始星球5，舰队位置 (23, 34, -37)
+2025-03-07 14:43:49,747 - INFO - 当前tick: 1
+2025-03-07 14:43:49,747 - INFO - Robot c810e650-601c-40fb-90ed-8a127508395f 开始思考...
+2025-03-07 14:43:52,267 - INFO - Robot c810e650-601c-40fb-90ed-8a127508395f 考虑前往类型为world.gaseous.none的星球 5,坐标((13, 24, -25)...
+2025-03-07 14:43:52,268 - INFO - Robot c810e650-601c-40fb-90ed-8a127508395f 选择 slow_travel 前往类型为world.gaseous.none的星球 5，并找到了路径。
+2025-03-07 14:43:57,883 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'c810e650-601c-40fb-90ed-8a127508395f', 'destination': (13, 24, -25), 'location': (23, 34, -37), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106fedd30>
+2025-03-07 14:43:57,883 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'c810e650-601c-40fb-90ed-8a127508395f', 'destination': (13, 24, -25), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106fedfd0>
+2025-03-07 14:43:57,884 - INFO - 发布消息: id:3, 类型=PLAYER_FLEET_MOVEMENT_INTERRUPT, 数据:{'player_id': 'c810e650-601c-40fb-90ed-8a127508395f'}, 发送者=<managers.player_manager.PlayerManager object at 0x106fedd30>
+2025-03-07 14:43:58,888 - INFO - 当前tick: 2
+2025-03-07 14:43:58,888 - INFO - Robot c810e650-601c-40fb-90ed-8a127508395f 开始思考...
+2025-03-07 14:45:26,348 - WARNING - 初始星球4，舰队位置 (0, 42, -27)
+2025-03-07 14:45:26,349 - INFO - 当前tick: 1
+2025-03-07 14:45:26,349 - INFO - Robot 2584d8b8-5d71-4d4d-9614-2148fe00e85c 开始思考...
+2025-03-07 14:45:31,883 - INFO - Robot 2584d8b8-5d71-4d4d-9614-2148fe00e85c 考虑前往类型为world.rocky.woodland的星球 4,坐标((6, 40, -32)...
+2025-03-07 14:45:31,885 - INFO - Robot 2584d8b8-5d71-4d4d-9614-2148fe00e85c 选择 slow_travel 前往类型为world.rocky.woodland的星球 4，并找到了路径。
+2025-03-07 14:45:49,062 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': '2584d8b8-5d71-4d4d-9614-2148fe00e85c', 'destination': (6, 40, -32), 'location': (0, 42, -27), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x1064d5d30>
+2025-03-07 14:45:49,063 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': '2584d8b8-5d71-4d4d-9614-2148fe00e85c', 'destination': (6, 40, -32), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x1064d5fd0>
+2025-03-07 14:46:06,878 - WARNING - 初始星球5，舰队位置 (11, 14, -4)
+2025-03-07 14:46:06,878 - INFO - 当前tick: 1
+2025-03-07 14:46:06,878 - INFO - Robot 666672d7-628d-4ee1-97e4-7a1c180d365d 开始思考...
+2025-03-07 14:46:09,066 - INFO - Robot 666672d7-628d-4ee1-97e4-7a1c180d365d 考虑前往类型为world.rocky.lava的星球 5,坐标((18, 3, -2)...
+2025-03-07 14:46:09,067 - INFO - Robot 666672d7-628d-4ee1-97e4-7a1c180d365d 选择 slow_travel 前往类型为world.rocky.lava的星球 5，并找到了路径。
+2025-03-07 14:50:39,215 - WARNING - 初始星球5，舰队位置 (-19, 3, 10)
+2025-03-07 14:50:39,216 - INFO - 当前tick: 1
+2025-03-07 14:50:42,163 - INFO - Robot a5fe095e-e524-484c-b0c1-b2ac48ee9c58 开始思考...
+2025-03-07 14:50:46,528 - INFO - Robot a5fe095e-e524-484c-b0c1-b2ac48ee9c58 考虑前往类型为world.rocky.desert的星球 5,坐标((-8, -8, 6)...
+2025-03-07 14:50:46,531 - INFO - Robot a5fe095e-e524-484c-b0c1-b2ac48ee9c58 选择 slow_travel 前往类型为world.rocky.desert的星球 5，并找到了路径。
+2025-03-07 14:50:46,531 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'a5fe095e-e524-484c-b0c1-b2ac48ee9c58', 'destination': (-8, -8, 6), 'location': (-19, 3, 10), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x104be9d30>
+2025-03-07 14:50:46,531 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'a5fe095e-e524-484c-b0c1-b2ac48ee9c58', 'destination': (-8, -8, 6), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x104be9fd0>
+2025-03-07 14:50:51,528 - ERROR - 舰队 a5fe095e-e524-484c-b0c1-b2ac48ee9c58 与星球 world.rocky.desert 发生碰撞！
+2025-03-07 14:50:51,529 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'location': (-19, 3, 10), 'objects': ['a5fe095e-e524-484c-b0c1-b2ac48ee9c58', 5]}, 发送者=<managers.rule_manager.RulesManager object at 0x104be9fd0>
+2025-03-07 14:50:51,529 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_ARRIVE, 数据:{'player_id': 'a5fe095e-e524-484c-b0c1-b2ac48ee9c58', 'location': (-19, 3, 10), 'arrival_type': 'coordinate'}, 发送者=<managers.rule_manager.RulesManager object at 0x104be9fd0>
+2025-03-07 14:50:52,534 - INFO - 当前tick: 2
+2025-03-07 14:50:59,251 - INFO - Robot a5fe095e-e524-484c-b0c1-b2ac48ee9c58 开始思考...
+2025-03-07 14:51:39,732 - WARNING - 初始星球6，舰队位置 (40, 11, -29)
+2025-03-07 14:51:39,733 - INFO - 当前tick: 1
+2025-03-07 14:51:39,733 - INFO - Robot e7190b7b-a41c-413f-b8f7-d7ab68a5211c 开始思考...
+2025-03-07 14:51:44,870 - INFO - Robot e7190b7b-a41c-413f-b8f7-d7ab68a5211c 考虑前往类型为world.rocky.woodland的星球 6,坐标((49, 10, -33)...
+2025-03-07 14:51:44,870 - INFO - Robot e7190b7b-a41c-413f-b8f7-d7ab68a5211c 选择 slow_travel 前往类型为world.rocky.woodland的星球 6，并找到了路径。
+2025-03-07 14:51:44,871 - INFO - 发布消息: id:1, 类型=PLAYER_FLEET_MOVE_REQUEST, 数据:{'player_id': 'e7190b7b-a41c-413f-b8f7-d7ab68a5211c', 'destination': (49, 10, -33), 'location': (40, 11, -29), 'travel_method': 'slow_travel'}, 发送者=<managers.player_manager.PlayerManager object at 0x106415d30>
+2025-03-07 14:51:44,871 - INFO - 发布消息: id:2, 类型=PLAYER_FLEET_MOVEMENT_ALLOWED, 数据:{'player_id': 'e7190b7b-a41c-413f-b8f7-d7ab68a5211c', 'destination': (49, 10, -33), 'travel_method': 'slow_travel'}, 发送者=<managers.rule_manager.RulesManager object at 0x106415fd0>
+2025-03-07 14:51:47,707 - ERROR - 舰队 e7190b7b-a41c-413f-b8f7-d7ab68a5211c 与星球 world.rocky.woodland 发生碰撞！
+2025-03-07 14:51:47,707 - INFO - 发布消息: id:3, 类型=INTERSECTION_EVENT, 数据:{'location': (40, 11, -29), 'objects': ['e7190b7b-a41c-413f-b8f7-d7ab68a5211c', 6]}, 发送者=<managers.rule_manager.RulesManager object at 0x106415fd0>
+2025-03-07 14:51:47,707 - INFO - 发布消息: id:4, 类型=PLAYER_FLEET_ARRIVE, 数据:{'player_id': 'e7190b7b-a41c-413f-b8f7-d7ab68a5211c', 'location': (40, 11, -29), 'arrival_type': 'coordinate'}, 发送者=<managers.rule_manager.RulesManager object at 0x106415fd0>
+2025-03-07 14:51:48,708 - INFO - 当前tick: 2
+2025-03-07 14:51:48,708 - INFO - Robot e7190b7b-a41c-413f-b8f7-d7ab68a5211c 开始思考...
+2025-03-07 14:51:54,168 - INFO - Robot e7190b7b-a41c-413f-b8f7-d7ab68a5211c 尝试降落在星球 world.rocky.woodland 上。
+2025-03-07 14:51:54,168 - INFO - 发布消息: id:5, 类型=PLAYER_FLEET_LAND, 数据:{'player_id': 'e7190b7b-a41c-413f-b8f7-d7ab68a5211c', 'world_id': 6}, 发送者=<managers.player_manager.PlayerManager object at 0x106415d30>
+2025-03-07 14:51:54,168 - INFO - 玩家 e7190b7b-a41c-413f-b8f7-d7ab68a5211c 的舰队降落在星球 world.rocky.woodland！
+2025-03-07 14:51:54,169 - ERROR - 舰队 e7190b7b-a41c-413f-b8f7-d7ab68a5211c 与星球 world.rocky.woodland 发生碰撞！
+2025-03-07 14:51:54,169 - INFO - 发布消息: id:6, 类型=INTERSECTION_EVENT, 数据:{'location': (40, 11, -29), 'objects': ['e7190b7b-a41c-413f-b8f7-d7ab68a5211c', 6]}, 发送者=<managers.rule_manager.RulesManager object at 0x106415fd0>
+2025-03-07 14:51:55,172 - INFO - 当前tick: 3
+2025-03-07 14:51:55,173 - INFO - Robot e7190b7b-a41c-413f-b8f7-d7ab68a5211c 开始思考...
