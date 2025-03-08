@@ -5,37 +5,60 @@ from .message_bus import MessageType, Message
 import math
 
 class World(BaseObject):
-    def __init__(self, world_config, building_slots, actual_initial_buildings, exploration_rewards, reachable_half_extent, impenetrable_half_extent):
+    def __init__(self, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent):
         super().__init__()
         self.world_config = world_config
-        self.building_slots = self._init_building_slots(building_slots)
-        self.actual_initial_buildings = actual_initial_buildings
+        self.building_slots = building_slots  # 直接使用传入的 building_slots (已经是二级字典)
         self.exploration_rewards = exploration_rewards
         self.location = (0, 0, 0)  # 中心坐标
         self.reachable_half_extent = reachable_half_extent  # 可到达半边长
         self.impenetrable_half_extent = impenetrable_half_extent  # 不可穿透半边长
+        self.docked_fleets: Dict[str, Tuple[int, int, int]] = {}  # 新增：停靠的舰队 {player_id: fleet_location}
 
-    def _init_building_slots(self, building_slots: Dict[str, int]) -> Dict[str, List[Optional[str]]]:
-        slots = {}
-        for slot_type, count in building_slots.items():
-            slots[slot_type] = [None] * count
-        return slots
 
-    def get_available_slot(self, slot_type: str) -> Optional[int]:
-        if slot_type in self.building_slots:
-            try:
-                return self.building_slots[slot_type].index(None)
-            except ValueError:
-                return None
-        return None
+    def _parse_adjustment(self, adjustment_str):
+        if '~' in adjustment_str:
+            parts = adjustment_str.split('~')
+            return int(parts[0]), int(parts[1])
+        else:
+            num = int(adjustment_str)
+            return num, num
 
-    def occupy_slot(self, slot_type: str, slot_index: int, building_id: str):
-        if slot_type in self.building_slots and 0 <= slot_index < len(self.building_slots[slot_type]):
-            self.building_slots[slot_type][slot_index] = building_id
+    def is_on_surface(self, location: Tuple[int, int, int]) -> bool:
+        """判断给定坐标是否在该星球表面"""
+        dx = abs(location[0] - self.location[0])
+        dy = abs(location[1] - self.location[1])
+        dz = abs(location[2] - self.location[2])
 
-    def free_slot(self, slot_type: str, slot_index: int):
-        if slot_type in self.building_slots and 0 <= slot_index < len(self.building_slots[slot_type]):
-            self.building_slots[slot_type][slot_index] = None
+        return (
+            dx <= self.reachable_half_extent and
+            dy <= self.reachable_half_extent and
+            dz <= self.reachable_half_extent and
+            (
+                dx == self.impenetrable_half_extent + 1 or
+                dy == self.impenetrable_half_extent + 1 or
+                dz == self.impenetrable_half_extent + 1
+            )
+        )
+
+    def check_collision(self, location: Tuple[int, int, int]) -> bool:
+        """检查给定坐标是否与星球发生碰撞（即坐标位于星球表面）"""
+        # 与 is_on_surface() 的逻辑相同, 但包含不可通行区域
+        dx = abs(location[0] - self.location[0])
+        dy = abs(location[1] - self.location[1])
+        dz = abs(location[2] - self.location[2])
+        return (
+            dx <= self.reachable_half_extent and
+            dy <= self.reachable_half_extent and
+            dz <= self.reachable_half_extent
+        )
+
+    def calculate_distance_to_center(self, location: Tuple[int, int, int]) -> float:
+        """计算给定位置到星球中心的距离（欧几里得距离）"""
+        dx = location[0] - self.location[0]
+        dy = location[1] - self.location[1]
+        dz = location[2] - self.location[2]
+        return math.sqrt(dx*dx + dy*dy + dz*dz)
 
 class WorldManager:
     _instance = None
@@ -82,37 +105,36 @@ class WorldManager:
             if not self.locations[location]:
                 del self.locations[location]
 
-    # --- WorldManager 原有方法 ---
-    def generate_worlds(self, num_worlds: int):
-        world_ids = list(self.world_configs.keys())
-        probabilities = [self.world_configs[world_id].info['occur'] for world_id in world_ids]
+    def generate(self, location, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent) -> World:
+        world = World(world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent)
+        world.location= location
+        self.world_instances[world.object_id] = world
+        return world
 
-        for _ in range(num_worlds):
-            selected_world_id = random.choices(world_ids, weights=probabilities)[0]
-            world_config = self.world_configs[selected_world_id]
-            resource_slots = self._generate_resource_slots(world_config)
-            actual_initial_buildings = self._generate_initial_buildings(world_config)
-            exploration_rewards = self._calculate_exploration_rewards(world_config)
+    def _generate_resource_slots(self, world_config):
+        """生成初始的 building_slots 字典 (所有类型均为二级字典)"""
+        building_slots = {
+            "resource": {},
+            "general": {},  # 改为二级字典
+            "defense": {}   # 改为二级字典
+        }
+        for res_id in world_config.info:
+            if res_id.endswith("_slot"):
+                base_slot = int(world_config.info[res_id])
+                adjustment_key = f"{res_id[:-5]}_slot_adjustment"
+                if adjustment_key in world_config.info:
+                    adjustment = self._parse_adjustment(world_config.info[adjustment_key])
+                    base_slot += random.randint(adjustment[0], adjustment[1])
 
-            # 随机生成星球半径 (以单元格为单位)
-            reachable_half_extent = random.randint(5, 15)  # 可到达半边长
-            impenetrable_half_extent = int(reachable_half_extent * random.uniform(0.6, 0.8))  # 不可穿透半边长
-
-            world = World(world_config, resource_slots, actual_initial_buildings, exploration_rewards, reachable_half_extent, impenetrable_half_extent)
-
-            # 分配坐标 (直接在单元格坐标空间内分配)
-            max_coord = 50  # 假设世界大小为 100x100x100 个单元格
-            world.location = (random.randint(-max_coord, max_coord),
-                              random.randint(-max_coord, max_coord),
-                              random.randint(-max_coord, max_coord))
-
-            self.world_instances[world.object_id] = world
-
-            # 将星球添加到 locations
-            for location in self._calculate_occupied_locations(world):
-                self.add_object(world.object_id, location)
-
-        return list(self.world_instances.values())
+                if res_id.startswith("general"):
+                    building_slots["general"]["general"] = base_slot  # 添加到二级字典
+                elif res_id.startswith("defense"):
+                    building_slots["defense"]["defense"] = base_slot  # 添加到二级字典
+                else:
+                    # 对于 resource 类型，添加到二级字典中
+                    subtype = res_id[:-5].capitalize()  # 首字母大写，例如 "adamantium" -> "Adamantium"
+                    building_slots["resource"][subtype] = base_slot
+        return building_slots
 
     def _calculate_occupied_locations(self, world: World) -> List[Tuple[int, int, int]]:
         """计算星球占用的所有位置 (立方体)"""
@@ -140,31 +162,11 @@ class WorldManager:
         """判断给定的对象 ID 是否是星球"""
         return object_id in self.world_instances
 
-    def get_world_at_location(self, location: Tuple[int, int, int]) -> Optional[World]:
-        """获取指定位置的星球对象 (如果有)"""
-        objects_in_location = self.get_objects_in_location(location)
-        for object_id in objects_in_location:
-            if self.is_world(object_id):
-                return self.get_world_by_id(object_id)
-        return None
-
     def add_world_instance(self, world_instance):
         self.world_instances[world_instance.object_id] = world_instance
 
     def get_world_by_id(self, world_id):
         return self.world_instances.get(world_id)
-
-    def _generate_resource_slots(self, world_config):
-        resource_slots = {}
-        for res_id in world_config.info:
-            if res_id.endswith("_slot"):
-                base_slot = int(world_config.info[res_id])
-                adjustment_key = f"{res_id[:-5]}_slot_adjustment"
-                if adjustment_key in world_config.info:
-                    adjustment = self._parse_adjustment(world_config.info[adjustment_key])
-                    base_slot += random.randint(adjustment[0], adjustment[1])
-                resource_slots[res_id[:-5]] = base_slot
-        return resource_slots
 
     def _parse_adjustment(self, adjustment_str):
         if '~' in adjustment_str:
@@ -199,38 +201,8 @@ class WorldManager:
             return random.choice(list(self.world_instances.keys()))
         return None
 
-    def apply_modifier(self, target_id, modifier, attribute, quantity, duration):
-        # World没有apply_modifier，这里留空
-        pass
-
     def tick(self, tick_counter):
-        if tick_counter % self.tick_interval == 0:
-            self.update_locations() # tick时候更新
-            # 遍历所有位置，检测交汇
-            for location, object_ids in self.locations.items():
-                if len(object_ids) > 1:
-                    # 发送交汇事件
-                    self.game.message_bus.post_message(MessageType.INTERSECTION_EVENT, {
-                        "location": location,
-                        "objects": object_ids,
-                    }, self)
-            pass
-
-    def update_locations(self):
-        """更新 locations 的可用性"""
-        # 清空所有位置
-        self.locations = {}
-
-        # 重新添加所有星球
-        for world in self.world_instances.values():
-            for location in self._calculate_occupied_locations(world):
-                self.add_object(world.object_id, location)
-        
-        # 遍历所有玩家, 把Fleet加进去
-        for player_id, player in self.game.player_manager.players.items():
-            fleet = player.fleet
-            if fleet.location:
-                self.add_object(player_id, fleet.location) # 添加舰队
+        pass
 
     def is_location_available(self, location: Tuple[int, int, int]) -> bool:
         """判断位置是否可用(是否在不可进入的星球半径内)"""

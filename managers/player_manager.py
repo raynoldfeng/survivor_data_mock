@@ -12,39 +12,28 @@ class Fleet:
         self.morale = 100
         self.attack = 50
         self.defense = 50
-        self.final_destination = None  # 最终目标 (单元格坐标或星球 ID)
+        self.dest = None  # 最终目标 (单元格坐标或星球 ID)
         self.path = None  # 路径 (单元格坐标列表)
-        # self.current_destination = None # 当前寻路的目标 (单元格坐标)  # 移除
         self.travel_start_round = 0
         self.travel_speed = 1.0 # 现在速度的单位是 cell/tick
         self.travel_method = None
         self.landed_on = None
         self.location = (0,0,0) # 单元格坐标
 
-    def set_final_destination(self, destination):
+    def set_destination(self, destination):
         """设置最终目标"""
-        self.final_destination = destination
+        self.dest = destination
         self.path = None  # 清空旧路径
-        # self.current_destination = None # 清空旧目标  # 移除
 
     def set_path(self, path: List[Tuple[int, int, int]]):
         """设置路径"""
         self.path = path
-        # if path:                                    # 移除
-        #     self.current_destination = path[0] # 设置为路径的第一个点
-        # else:
-        #     self.current_destination = None
 
     def move_to_next_cell(self):
-        """移动到路径的下一个单元格 (或朝 final_destination 移动)"""
+        """移动到路径的下一个单元格 (或朝 dest 移动)"""
         if self.path:
             self.path.pop(0)  # 移除当前单元格
-            # if self.path:                                # 移除
-            #     self.current_destination = self.path[0]  # 设置下一个单元格为目标
-            # else:
-            #     self.current_destination = None # 走完了
-            #     self.final_destination = None  # 到达最终目的地(如果设置了路径的话)
-        # 如果没有设置path, 则current_destination 为None
+
 
 class Player(BaseObject):
     def __init__(self, resources: Dict[str, Resource], building_config):
@@ -91,18 +80,14 @@ class PlayerManager:
             cls._instance.game.player_manager = cls._instance
             cls._instance.tick_interval = 1
             # 订阅消息
-            cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_MOVEMENT_ALLOWED, cls._instance.handle_fleet_movement_allowed)
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_RESOURCE_CHANGED, cls._instance.handle_player_resource_changed)
         return cls._instance
 
     def create_player(self, resources: Dict[str, Resource], building_configs):
         player = Player(resources, building_configs)
-        # 获取一个随机星球的 ID
         initial_world_id = self.game.world_manager.pick()
-        # 获取该星球
         initial_world = self.game.world_manager.get_world_by_id(initial_world_id)
         if initial_world:
-            # 获取出生点
             spawn_location = self.game.world_manager.get_spawn_location(initial_world)
             if spawn_location:
                 self.game.log.warn(f"初始星球{initial_world.object_id}，舰队位置 {spawn_location}")
@@ -146,40 +131,28 @@ class PlayerManager:
                 if action_data:
                     self.process_action_data(action_data)
 
-            # for player_id, player in self.players.items():
-            #     self.move_fleet(player_id)  # 移动到rule_mgr里
-
     def process_action_data(self, action_data):
         """处理操作数据，发送消息"""
         action = action_data['action']
 
         if action == 'move':
-            # 获取目标坐标
-            destination = action_data["target_planet_id"]  # 先假设它是坐标或星球 ID
-            target_world = self.game.world_manager.get_world_by_id(destination)
-            if target_world:
-                # 如果是星球 ID，则转换为星球的 cell 坐标
-                destination = target_world.location
-
             # 发送 PLAYER_FLEET_MOVE_REQUEST 消息
             self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVE_REQUEST, {
                 "player_id": action_data["player_id"],
-                "destination": destination,  # 现在 destination 始终是 cell 坐标
                 "location": self.players[action_data["player_id"]].fleet.location,
                 "travel_method": action_data["travel_method"],
             }, self)
 
-            # 如果玩家在移动过程中再次选择移动，则发送中断消息
-            # if self.players[action_data["player_id"]].fleet.current_destination is not None: # 移除
-            # if self.players[action_data["player_id"]].fleet.path:  # 改为判断 path 是否为空 #移除
-            #     self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
-            #         "player_id": action_data["player_id"],
-            #     }, self)
         # 处理降落请求
         elif action == 'land':
-            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_LAND, {
+            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_LAND_REQUEST, {  # 改为 REQUEST
                 "player_id": action_data["player_id"],
                 "world_id": action_data["world_id"]
+            }, self)
+        # 新增起飞
+        elif action == 'takeoff':
+            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_TAKEOFF_REQUEST, {
+                "player_id": action_data["player_id"],
             }, self)
 
         elif action == 'build':
@@ -201,33 +174,12 @@ class PlayerManager:
                 "choice": action_data["choice"],
             }, self)
 
-    def handle_fleet_movement_allowed(self, message:Message):
-        """
-        处理舰队移动允许的消息, 现在这个消息只负责更新fleet状态
-        """
-        player = self.get_player_by_id(message.data["player_id"])
-        if not player:
-            return
-        
-        travel_method = message.data["travel_method"]
-        destination = message.data["destination"]
+        elif action == 'explore':
+            self.game.message_bus.post_message(MessageType.PLAYER_EXPLORE_WORLD_REQUEST, {
+                "player_id": action_data["player_id"],
+                "world_id": action_data["world_id"],
+            }, self)
 
-        # 更新fleet状态
-        player.fleet.set_final_destination(destination) #设置最终目标
-        player.fleet.travel_method = travel_method
-        if travel_method == "subspace_jump":
-            # player.fleet.location = destination #在rules里已经设置过了
-            player.fleet.landed_on = None
-        elif travel_method == "slow_travel": # 新增: 如果是慢速旅行, 则设置路径
-            start_location = player.fleet.location
-            # 尝试寻路
-            path = self.game.pathfinder.find_path(start_location, destination, target_type="world")
-            if path:
-                # 找到路径，设置路径
-                player.fleet.set_path(path)
-    def apply_modifier(self, player_id: str, modifier: Modifier, attribute: str, quantity: float, duration: int):
-        pass
-    
     def handle_player_resource_changed(self, message: Message):
         """
         处理玩家资源变化的消息 (由 ModifierManager 发送)
@@ -241,11 +193,10 @@ class PlayerManager:
         quantity = message.data["quantity"]
         if modifier == "INCREASE":
             player.modify_resource(resource_id, quantity)
-        elif modifier == "REDUCE":
+        elif modifier == Modifier.REDUCE:
             player.modify_resource(resource_id, -quantity)
 
     def pick(self):
         if self.players:
             return random.choice(list(self.players.keys()))
         return None
-    

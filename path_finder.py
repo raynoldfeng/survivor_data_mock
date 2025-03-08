@@ -10,19 +10,32 @@ class Pathfinder:
         self.max_search_distance = 100  # 最大搜索距离 (曼哈顿距离)
         self.heuristic_weight = 1.2  # 启发式函数权重
 
-    def find_path(self, start_location: Tuple[int, int, int], end_location: Tuple[int, int, int], target_type: str = "coordinate") -> Optional[List[Tuple[int, int, int]]]:
+    def find_path(self, start_location: Tuple[int, int, int], end_location: Tuple[int, int, int], target_type: str = "coordinate", target_world_id: Optional[str] = None) -> Optional[List[Tuple[int, int, int]]]:
         """
         使用 A* 算法寻找从 start_location 到 end_location 的最短路径。
 
         Args:
             start_location: 起始坐标 (x, y, z)。
-            end_location: 目标坐标 (x, y, z) 或 目标星球ID。  <-- 注意这里的类型
+            end_location: 目标坐标 (x, y, z)。
             target_type: 目标类型，"coordinate" 表示普通坐标，"world" 表示星球。
+            target_world_id: 如果 target_type 是 "world"，则此参数是目标星球的 ID。
 
         Returns:
             如果找到路径，返回路径 (坐标列表)。
             如果找不到路径，返回 None。
+            如果已经在目标位置, 返回 []
         """
+
+        # 1. 检查起点和终点是否相同 (或足够接近)
+        if start_location == end_location:
+            return []  # 直接返回空列表
+        
+        #判断是否已经在星球表面
+        if target_type == "world":
+            world = self.game.world_manager.get_world_by_id(target_world_id)
+            if world:
+                if world.is_on_surface(start_location):
+                    return []  # 返回空列表
 
         open_list = []  # 开放列表 (待探索的节点), 使用 heapq
         closed_list = set()  # 关闭列表 (已探索过的节点)
@@ -38,25 +51,12 @@ class Pathfinder:
             f_cost, current_location, parent, g_cost = heapq.heappop(open_list)
 
             if target_type == "coordinate" and current_location == end_location:
-                return self._reconstruct_path(current_location)
+                return self._reconstruct_path(current_location) # 返回路径
+            # 增加对星球表面的判断
             elif target_type == "world":
-                world =  self.game.world_manager.get_world_at_location(end_location) #获取在end_location位置的星球
-                if world: #如果目标位置有星球
-                    distance_x = abs(current_location[0] - world.location[0])
-                    distance_y = abs(current_location[1] - world.location[1])
-                    distance_z = abs(current_location[2] - world.location[2])
-
-                    if (
-                        distance_x <= world.reachable_half_extent and
-                        distance_y <= world.reachable_half_extent and
-                        distance_z <= world.reachable_half_extent and
-                        (
-                            distance_x == world.impenetrable_half_extent + 1 or
-                            distance_y == world.impenetrable_half_extent + 1 or
-                            distance_z == world.impenetrable_half_extent + 1
-                        )
-                    ):
-                        return self._reconstruct_path(current_location)
+                world =  self.game.world_manager.get_world_by_id(target_world_id)
+                if world and world.is_on_surface(current_location):
+                    return self._reconstruct_path(current_location) # 返回路径
 
             if current_location in closed_list:
                 continue  # 如果已经在关闭列表中，跳过 (惰性删除)
@@ -66,7 +66,7 @@ class Pathfinder:
             steps += 1
             if steps > self.max_search_steps:
                 print("达到最大搜索步数，寻路失败")
-                return None
+                return None # 返回 None
 
             # 限制搜索距离
             if g_cost + self._heuristic_cost(current_location, end_location) > self.max_search_distance:

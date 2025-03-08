@@ -1,10 +1,11 @@
 from loader.locale import Locale
 from loader.enums import *
-from managers.robot import Robot
+from managers.world_manager import World
 from path_finder import Pathfinder
 from logger import Log
 import logging
 from time import sleep
+from typing import List
 
 class Game:
     def __init__(self):
@@ -23,6 +24,36 @@ class Game:
     def add_robot(self, resources, building_configs):
         player = self.player_manager.create_player(resources, building_configs)
         self.robot = self.player_manager.add_robot(player)
+
+    def generate_worlds(self, num_worlds: int) -> List['World']:  # 添加类型提示
+        """生成指定数量的星球"""
+        world_configs = self.world_manager.world_configs
+        world_ids = list(world_configs.keys())
+        probabilities = [world_configs[world_id].info['occur'] for world_id in world_ids]
+
+        for _ in range(num_worlds):
+            selected_world_id = random.choices(world_ids, weights=probabilities)[0]
+            world_config = world_configs[selected_world_id]
+            building_slots = self.world_manager._generate_resource_slots(world_config)
+            exploration_rewards = self.world_manager._calculate_exploration_rewards(world_config)
+            actual_initial_buildings = self.world_manager._generate_initial_buildings(world_config)
+            # 随机生成星球半径 (以单元格为单位)
+            reachable_half_extent = random.randint(5, 15)
+            impenetrable_half_extent = int(reachable_half_extent * random.uniform(0.6, 0.8))
+
+            # 分配坐标
+            max_coord = 50
+            location = (random.randint(-max_coord, max_coord),
+                              random.randint(-max_coord, max_coord),
+                              random.randint(-max_coord, max_coord))
+
+
+            world = self.world_manager.generate(location, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent)
+
+            self.building_manager.add_world_buildings(world.object_id,building_slots)
+
+            #还缺少actual_initial_buildings的处理
+            
 
 
     def run(self):
@@ -54,3 +85,4 @@ class Game:
                         self.log.info(f"  - 建筑: {building_name}")
             '''
             sleep(1)
+

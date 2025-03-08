@@ -41,13 +41,13 @@ class ModifierManager():
                 if duration > 0:
                     # 根据 target_type 调用相应的方法
                     if target_type == "Player":
-                        self.game.player_manager.apply_modifier(target_id, modifier, attribute, quantity, duration)
+                        #TODO 补充player的modifier逻辑
+                        pass
                     elif target_type == "Building":
-                        # self.game.building_manager.apply_modifier(target_id, modifier, attribute, quantity, duration)
                         # 在这里处理duration = 0的情况
                         if duration == 0:
                             continue
-                        building_instance =  self.game.building_manager.get_building_instance(target_id)
+                        building_instance =  self.game.building_manager.get_building_by_id(target_id)
                         if not building_instance:
                             continue
                         if modifier == "BUILDING":
@@ -60,7 +60,8 @@ class ModifierManager():
                                     self.game.message_bus.post_message(MessageType.BUILDING_COMPLETED,{"building_id": building_instance.object_id,}, self)
                                     continue  # 跳过本次循环的剩余部分
                     elif target_type == "World":
-                        self.game.world_manager.apply_modifier(target_id, modifier, attribute, quantity, duration)
+                        #TODO 补充world的modifier逻辑
+                        pass
 
                     duration -= 1
                     if duration > 0:
@@ -73,10 +74,10 @@ class ModifierManager():
         if not player:
             return
 
-        if message.data["modifier"] == "INCREASE":
+        if message.data["modifier"] == Modifier.INCREASE:
             # player.modify_resource(message.data["resource_id"], message.data["quantity"]) # 在player_manager里做
             pass
-        elif message.data["modifier"] == "REDUCE":
+        elif message.data["modifier"] == Modifier.REDUCE:
             # player.modify_resource(message.data["resource_id"], -message.data["quantity"])  # 减少资源, 在player_manager里做
             pass
 

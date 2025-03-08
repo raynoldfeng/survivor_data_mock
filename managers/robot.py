@@ -1,58 +1,42 @@
-from loader.locale import Locale
-from loader.enums import Target, BuildingType
+from loader.enums import *
 import random
+from .message_bus import MessageType, Message  # 导入 MessageType
 
 class Robot():
     def __init__(self, player_id, game):
         self.player_id = player_id
         self.game = game
+        self.dest_world = None
 
     def can_build_on_slot(self, planet, building_config):
         """判断是否可以在指定星球的插槽上建造指定建筑, 需要考虑建筑类型和星球槽位类型的匹配"""
         player = self.game.player_manager.get_player_by_id(self.player_id)
 
-        # 1. 检查资源是否足够
-        for resource_id, modifier_dict in building_config.modifiers.items():
-            for modifier, quantity in modifier_dict.items():
-                if modifier == "USE":
-                    if player.resources.get(resource_id, 0) < quantity:
-                        return False
+        # 1. 检查资源是否足够 (在 BuildingManager 中检查)
 
-        # 2. 检查是否已经有同类型建筑 (根据 building_config.type 判断)
-        # 并且，如果是资源型建筑，还需要检查是否和已有的建筑 subtype 重复
-        for building_instance in self.game.building_manager.get_buildings_on_world(planet.object_id):
-            if building_instance.building_config.type == building_config.type:
-                if building_config.type == BuildingType.RESOURCE:
-                    # 如果是资源型建筑，检查 subtype 是否相同
-                    if building_instance.building_config.subtype == building_config.subtype:
-                        return False  # 不允许相同 subtype 的资源建筑
-                else:
-                    return False  # 非资源型建筑，不允许同类型
+        # 2. 检查建筑等级 (只有 1 级建筑才能直接建造)
+        if building_config.level != 1:
+            return False
+        
+        # 4. 检查前置建筑
+        if not self.game.building_manager._has_prerequisite_building(building_config, planet.object_id):
+            return False
 
-        # 3. 检查前置建筑
-        if building_config.type == BuildingType.GENERAL:
-            required_building_type = building_config.subtype.value
-            if required_building_type != "NONE":
-                has_required_building = False
-                for building_instance in self.game.building_manager.get_buildings_on_world(planet.object_id):
-                      if building_instance.building_config.type == BuildingType.GENERAL and building_instance.building_config.subtype.value == required_building_type:
-                        has_required_building = True
-                        break
-                if not has_required_building:
-                    return False
-
-        # 4. 检查是否有空闲的对应类型槽位 (根据 building_config.type 判断)
+        # 5. 检查是否有空闲的对应类型槽位 (根据 building_config.type 判断)
         if building_config.type == BuildingType.RESOURCE:
             slot_type = "resource"
+            subtype = building_config.subtype.value  # 获取 subtype
         elif building_config.type == BuildingType.GENERAL:
             slot_type = "general"
+            subtype = None
         elif building_config.type == BuildingType.DEFENSE:
             slot_type = "defense"
+            subtype = None
         else:
             return False  # 未知建筑类型，无法建造
 
-        # 直接调用 world 的 get_available_slot 方法
-        if planet.get_available_slot(slot_type) is None:
+        # 调用 BuildingManager 的 get_available_slot 方法
+        if self.game.building_manager.get_available_slot(planet.object_id, slot_type, subtype) is None:
             return False  # 没有空闲的槽位
 
         return True
@@ -68,51 +52,84 @@ class Robot():
         if not next_level_building_config:
             return False
 
-        # 检查资源是否足够
-        for resource_id, modifier_dict in next_level_building_config.modifiers.items():
-            for modifier, quantity in modifier_dict.items():
-                if modifier == 'USE':
-                    if player.resources.get(resource_id, 0) < quantity:
-                        return False
+        # 检查资源是否足够 (在 BuildingManager 中检查)
         return True
 
     def select_building_to_build(self, planet):
-        """选择要在指定星球上建造的建筑 (改进版)"""
+        """选择要在指定星球上建造的建筑"""
         player = self.game.player_manager.get_player_by_id(self.player_id)
         available_buildings = []
 
         for building_id, building_config in player.avaliable_building_config.items():
             if self.can_build_on_slot(planet, building_config):
                 available_buildings.append(building_config)
+
         if not available_buildings:
             return None
 
-        # 1. 优先选择能增加关键资源的建筑 (例如，钷素和能量)
-        key_resource_buildings = [
-            b for b in available_buildings
-            if any("promethium" in modifier_dict or "energy" in modifier_dict for modifier_dict in b.modifiers.values())
-        ]
-        if key_resource_buildings:
-            return random.choice(key_resource_buildings)
+        # 优先选择 1 级建筑
+        level_1_buildings = [b for b in available_buildings if b.level == 1]
+        if level_1_buildings:
+            # 在 1 级建筑中，按照之前的逻辑选择（关键资源 > 其他资源 > 人口 > 随机）
+            key_resource_buildings = [
+                b for b in level_1_buildings
+                if any(
+                    modifier_data['resource_id'] in ("resource.promethium", "resource.energy")  # 假设有 energy 资源
+                    for modifier_data in b.modifiers  # 直接从 building_config.modifiers 获取
+                    if modifier_data['modifier_type'] == Modifier.PRODUCTION
+                )
+            ]
+            if key_resource_buildings:
+                return random.choice(key_resource_buildings)
 
-        # 2. 其次，选择能增加其他资源的建筑
-        resource_buildings = [
-            b for b in available_buildings
-            if any("PRODUCTION" in modifier_dict for modifier_dict in b.modifiers.values())
-        ]
-        if resource_buildings:
-            return random.choice(resource_buildings)
-        # 3. 否则，选择能增加人口的建筑
-        population_buildings = [
-            b for b in available_buildings
-            if any("population" in modifier_dict for modifier_dict in b.modifiers.values())
-        ]
+            resource_buildings = [
+                b for b in level_1_buildings
+                if any(
+                    modifier_data['modifier_type'] == Modifier.PRODUCTION
+                    for modifier_data in b.modifiers  # 直接从 building_config.modifiers 获取
+                )
+            ]
+            if resource_buildings:
+                return random.choice(resource_buildings)
 
-        if population_buildings:
-            return random.choice(population_buildings)
+            population_buildings = [
+                b for b in level_1_buildings
+                if any(
+                    modifier_data['resource_id'] == "resource.population"
+                    for modifier_data in b.modifiers  # 直接从 building_config.modifiers 获取
+                    if modifier_data['modifier_type'] == Modifier.PRODUCTION
+                )
+            ]
+            if population_buildings:
+                return random.choice(population_buildings)
 
-        # 4. 最后，随机选择一个可建造的建筑
-        return random.choice(available_buildings)
+            return random.choice(level_1_buildings)
+        else:
+            # 如果没有 1 级建筑，则不建造 (理论上不应该出现这种情况)
+            return None
+        
+    def calculate_building_upgrade_benefit(self, building_instance):
+        """计算建筑升级的收益 (简化版，仅考虑资源产出)"""
+        next_level_config = self.game.building_manager.get_building_config(building_instance.building_config.get_next_level_id())
+        if not next_level_config:
+            return 0
+
+        current_production = 0
+        next_level_production = 0
+
+        # 获取当前等级的产出
+        # current_modifiers = self.game.building_manager.building_modifiers.get(building_instance.building_config.building_id, []) # 不需要了
+        for modifier_data in building_instance.building_config.modifiers: # 直接从 building_config.modifiers 获取
+            if modifier_data['modifier_type'] == Modifier.PRODUCTION:
+                current_production += modifier_data['quantity']
+
+        # 获取下一等级的产出
+        # next_level_modifiers = self.game.building_manager.building_modifiers.get(next_level_config.building_id, []) # 不需要了
+        for modifier_data in next_level_config.modifiers: # 直接从 next_level_config.modifiers 获取
+            if modifier_data['modifier_type'] == Modifier.PRODUCTION:
+                next_level_production += modifier_data['quantity']
+
+        return next_level_production - current_production
 
     def select_building_to_upgrade(self):
         """选择要升级的建筑 (改进版)"""
@@ -124,7 +141,7 @@ class Robot():
             if not building_ids:
                 continue
             for building_id in building_ids:
-                building_instance = self.game.building_manager.get_building_instance(building_id)
+                building_instance = self.game.building_manager.get_building_by_id(building_id)
                 if not building_instance:
                     continue
                 if self.can_upgrade_building(building_instance):
@@ -133,34 +150,17 @@ class Robot():
         if not upgradeable_buildings:
             return None
 
-        # 1. 优先升级能增加关键资源的建筑
-        key_resource_buildings = [
-            b for b in upgradeable_buildings
-            if any("promethium" in modifier_dict or "energy" in modifier_dict
-                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.get_next_level_id()).modifiers.values())
-        ]
-        if key_resource_buildings:
-            return random.choice(key_resource_buildings)
+        # 根据收益选择要升级的建筑
+        best_building = None
+        best_benefit = -1
 
-        # 2. 其次，升级能增加其他资源的建筑
-        resource_buildings = [
-            b for b in upgradeable_buildings
-            if any("PRODUCTION" in modifier_dict
-                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.get_next_level_id()).modifiers.values())
-        ]
-        if resource_buildings:
-            return random.choice(resource_buildings)
-        # 3. 否则，升级能增加人口的建筑
-        population_buildings =  [
-            b for b in upgradeable_buildings
-            if any("population" in modifier_dict
-                   for modifier_dict in self.game.building_manager.get_building_config(b.building_config.get_next_level_id()).modifiers.values())
-        ]
-        if population_buildings:
-            return random.choice(population_buildings)
+        for building_instance in upgradeable_buildings:
+            benefit = self.calculate_building_upgrade_benefit(building_instance)
+            if benefit > best_benefit:
+                best_benefit = benefit
+                best_building = building_instance
 
-        # 4. 最后，随机选择一个可升级的建筑
-        return random.choice(upgradeable_buildings)
+        return best_building # 如果没有值得升级的建筑，则返回 None
 
     def evaluate_planet(self, planet):
         """评估星球的价值"""
@@ -169,15 +169,19 @@ class Robot():
         for slot_type, slots in planet.building_slots.items():
             # 根据槽位类型给予不同的权重 (可以根据您的游戏设计调整)
             if slot_type == "resource":
-                resource_value += len(slots) * 0.8  # 资源槽位权重较高
+                # resource 类型需要累加二级字典中的所有值
+                for subtype, num_slots in slots.items():
+                    resource_value += num_slots * 0.8  # 资源槽位权重较高
             elif slot_type == "general":
-                resource_value += len(slots) * 0.5  # 通用槽位权重中等
+                for subtype, num_slots in slots.items():
+                    resource_value += num_slots * 0.5  # 资源槽位权重较高
             elif slot_type == "defense":
-                resource_value += len(slots) * 0.3  # 防御槽位权重较低
+                for subtype, num_slots in slots.items():
+                    resource_value += num_slots * 0.3  # 资源槽位权重较高
 
         # 战略位置 (简化：距离出生点越近，价值越高)
         player = self.game.player_manager.get_player_by_id(self.player_id)
-        distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.location) #直接使用location
+        distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.location)
         strategic_value = 10 / (distance + 1)  # 避免除以零
 
         # 总价值
@@ -245,32 +249,48 @@ class Robot():
         self.game.log.info(f"Robot {player.player_id} 开始思考...")
 
         # 0. 检查舰队是否正在移动
-        if player.fleet.path:
+        if player.fleet.path and player.fleet.path.lengh()>0:
             self.game.log.info(f"Robot {player.player_id} 的舰队正在移动中，跳过本轮思考。")
             return {"action": "none", "player_id": player.player_id}
 
         # 1. 检查是否已到达星球接触面且未降落, 如果是, 则降落
-        if player.fleet.final_destination and not player.fleet.landed_on:
-            world = self.game.world_manager.get_world_at_location(player.fleet.final_destination)
+        if self.dest_world is not None and player.fleet.landed_on is None:
+            world = self.game.world_manager.get_world_by_id(self.dest_world)
             if world:
-                self.game.log.info(f"Robot {player.player_id} 尝试降落在星球 {world.world_config.world_id} 上。")
-                return {
-                    "action": "land",
-                    "player_id": player.player_id,
-                    "world_id": world.object_id,  # 降落需要星球 ID
-                }
+                # 检查舰队是否在星球表面
+                if world.is_on_surface(player.fleet.location):
+                    self.dest_world = None
+                    self.game.log.info(f"Robot {player.player_id} 尝试降落在星球 {world.world_config.world_id} 上。")
+                    return {
+                        "action": "land",  # 改为 "land"
+                        "player_id": player.player_id,
+                        "world_id": world.object_id,
+                    }
 
-        # 2. 检查是否已降落且未探索 (这部分逻辑可能不需要在 Robot 中，而是在 EventManager 中处理)
-        if player.fleet.landed_on:
+        # 2. 检查是否已降落且未探索
+        if player.fleet.landed_on is not None:
+            #  检查是否需要起飞
             world = self.game.world_manager.get_world_by_id(player.fleet.landed_on)
             if world and world.object_id not in player.explored_planets:
                 self.game.log.info(f"Robot {player.player_id} 准备探索星球 {world.world_config.world_id}。")
-
+                # 发送探索星球的消息
+                return {
+                    "action": "explore",
+                    "player_id": player.player_id,
+                    "world_id": world.object_id,
+                }
+            else:
+                # 已经探索过, 或者不在星球上, 则起飞
+                self.game.log.info(f"Robot {player.player_id} 准备起飞。")
+                return {
+                    "action": "takeoff",  # 新增 "takeoff" 操作
+                    "player_id": player.player_id,
+                }
 
         # 3. 处理事件
         event_action = self.handle_event()
         if event_action:
-            self.game.log.info(f"Robot {player.player_id} 选择处理事件: {event_action}")
+            self.game.log.info(f"Robot {player.player_id} 选择处理事件: ")
             return event_action
 
         # 4. 尝试升级
@@ -311,34 +331,58 @@ class Robot():
                 travel_method = "subspace_jump"
             else:
                 travel_method = "slow_travel"  # 没有足够的资源跃迁，则尝试slow_travel
-            
+
             if travel_method == "subspace_jump":
-                self.game.log.info(f"Robot {player.player_id} 选择 {travel_method} 前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}。")
-                return {
-                    "action": "move",
-                    "target_planet_id": planet_to_explore.object_id,
-                    "travel_method": travel_method,
-                    "player_id": player.player_id
-                }
-            elif travel_method == "slow_travel":
-                # 尝试寻路
-               if travel_method == "slow_travel":
-                # 尝试寻路
-                start_location = player.fleet.location
-                end_location = planet_to_explore.location #直接使用location
-                path = self.game.pathfinder.find_path(start_location, end_location, target_type="world") #移除grid
-                if path:
-                    # 找到路径，设置路径和最终目标
-                    player.fleet.set_path(path)
-                    player.fleet.set_final_destination(planet_to_explore.object_id) #设置id, 而不是坐标
-                    self.game.log.info(f"Robot {player.player_id} 选择 {travel_method} 前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}，并找到了路径。")
+                self.game.log.info(f"Robot {player.player_id} 选择  前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}。")
+                # 获取星球表面的一个可用坐标
+                destination_coordinate = self.game.world_manager.get_spawn_location(planet_to_explore)
+                if destination_coordinate:
+                    player.fleet.set_destination(destination_coordinate)
+                    self.dest_world = planet_to_explore.object_id  # 记录目标星球
                     return {
                         "action": "move",
-                        "target_planet_id": planet_to_explore.object_id,
+                        "target_planet_id": planet_to_explore.object_id, # 保持ID不变, 但实际dest已经是坐标
                         "travel_method": travel_method,
                         "player_id": player.player_id
                     }
                 else:
+                    self.game.log.warn(f"Robot {player.player_id} 无法找到星球 {planet_to_explore.object_id} 的可到达位置，跃迁失败。")
+                    return {"action": "none", "player_id": player.player_id}
+
+            elif travel_method == "slow_travel":
+                # 尝试寻路
+                start_location = player.fleet.location
+                # 获取星球表面的一个可用坐标
+                end_location = self.game.world_manager.get_spawn_location(planet_to_explore)
+                if not end_location:
+                    self.game.log.warn(f"Robot {player.player_id} 无法找到星球 {planet_to_explore.object_id} 的可到达位置, 无法移动。")
+                    return {"action": "none", "player_id": player.player_id}
+                
+                # 寻路
+                path = self.game.pathfinder.find_path(start_location, end_location, target_type="world", target_world_id = planet_to_explore.object_id)
+
+                if path == []:
+                    # 情况 1: 已经到达星球表面
+                    self.game.log.info(f"Robot {player.player_id} 已经位于星球 {planet_to_explore.object_id} 表面，无需移动，准备降落。")
+                    #  dest 设置为当前位置
+                    player.fleet.set_destination(start_location)
+                    self.dest_world = planet_to_explore.object_id  # 记录目标星球
+                    return {"action": "none", "player_id": player.player_id}
+                elif path:
+                    # 情况 2: 找到路径
+                    player.fleet.set_path(path)
+                    # 将 dest 设置为路径的最后一个坐标
+                    player.fleet.set_destination(path[-1])
+                    self.dest_world = planet_to_explore.object_id  # 记录目标星球
+                    self.game.log.info(f"Robot {player.player_id} 选择  前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}，并找到了路径。")
+                    return {
+                        "action": "move",
+                        "target_planet_id": planet_to_explore.object_id, # 保持ID不变, 但实际dest已经是坐标
+                        "travel_method": travel_method,
+                        "player_id": player.player_id
+                    }
+                else:  # path is None
+                    # 情况 3: 无法找到路径
                     self.game.log.warn(f"Robot {player.player_id} 无法找到前往星球 {planet_to_explore.object_id} 的路径。")
                     return {"action": "none", "player_id": player.player_id}
 

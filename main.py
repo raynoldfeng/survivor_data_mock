@@ -1,6 +1,6 @@
 from loader.world_configs import load_world_configs
 from loader.resource import load_resources_from_csv
-from loader.building_config import load_buildings_from_csv
+from loader.building_config import load_building_configs
 from loader.event_config import load_events_from_csv
 from loader.locale import Locale
 from managers.building_manager import BuildingManager
@@ -17,7 +17,12 @@ def main():
     Locale.set_language("cn")
 
     resource_configs = load_resources_from_csv('resources/resources.csv')
-    building_configs = load_buildings_from_csv('resources/buildings.csv')
+
+    building_configs = load_building_configs(
+        buildings_file='resources/buildings.csv', 
+        building_modifiers_file='resources/building_modifiers.csv'
+        )
+    
     event_configs = load_events_from_csv(
         event_info='resources/event_info.csv',
         event_phases='resources/event_phases.csv',
@@ -50,12 +55,10 @@ def main():
     game.player_manager = player_manager
     game.rule_manager = rule_manager
 
-
-    worlds = world_manager.generate_worlds(10)
+    game.generate_worlds(1)
 
     game.add_robot(resource_configs, building_configs)
 
     game.run()
 
-if __name__ == "__main__":
-    main()
+main()
