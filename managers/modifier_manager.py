@@ -51,12 +51,11 @@ class ModifierManager():
                         if not building_instance:
                             continue
                         if modifier == "BUILDING":
-                            if attribute == "remaining_rounds":
-                                # 在这里递减 remaining_rounds
-                                building_instance.remaining_rounds += int(quantity)
-                                if building_instance.remaining_rounds <= 0:
+                            if attribute == "remaining_ticks":
+                                # 在这里递减 remaining_ticks
+                                building_instance.remaining_ticks += int(quantity)
+                                if building_instance.remaining_ticks <= 0:
                                     # 建造完成
-                                    # building_instance.building_finish = True
                                     self.game.message_bus.post_message(MessageType.BUILDING_COMPLETED,{"building_id": building_instance.object_id,}, self)
                                     continue  # 跳过本次循环的剩余部分
                     elif target_type == "World":
@@ -75,16 +74,13 @@ class ModifierManager():
             return
 
         if message.data["modifier"] == Modifier.INCREASE:
-            # player.modify_resource(message.data["resource_id"], message.data["quantity"]) # 在player_manager里做
             pass
         elif message.data["modifier"] == Modifier.REDUCE:
-            # player.modify_resource(message.data["resource_id"], -message.data["quantity"])  # 减少资源, 在player_manager里做
             pass
 
         self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
             "player_id": message.data["target_id"],
             "resource_id": message.data["resource_id"],
-            # "new_amount": player.get_resource_amount(message.data["resource_id"]), # 不需要了, 在player_manager里做
             "modifier":  message.data["modifier"],
             "quantity": message.data["quantity"]
         }, self)

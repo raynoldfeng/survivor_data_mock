@@ -36,7 +36,7 @@ class Game:
             world_config = world_configs[selected_world_id]
             building_slots = self.world_manager._generate_resource_slots(world_config)
             exploration_rewards = self.world_manager._calculate_exploration_rewards(world_config)
-            actual_initial_buildings = self.world_manager._generate_initial_buildings(world_config)
+            initial_buildings = self.world_manager._generate_initial_buildings(world_config)
             # 随机生成星球半径 (以单元格为单位)
             reachable_half_extent = random.randint(5, 15)
             impenetrable_half_extent = int(reachable_half_extent * random.uniform(0.6, 0.8))
@@ -50,9 +50,8 @@ class Game:
 
             world = self.world_manager.generate(location, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent)
 
-            self.building_manager.add_world_buildings(world.object_id,building_slots)
-
-            #还缺少actual_initial_buildings的处理
+            self.building_manager.add_world_slots(world.object_id,building_slots)
+            self.building_manager.add_world_buildings(world.object_id, initial_buildings)
             
 
 
@@ -68,7 +67,7 @@ class Game:
             self.message_bus.tick(self.tick_counter)
 
             # 以下是为了管理员查看方便
-            '''    
+              
             user_input = input("按回车键继续，输入 'r' 查看资源，输入 'p' 查看已探索星球及建筑：").strip().lower()
             if user_input == 'r':
                 self.log.info("当前资源：")
@@ -79,10 +78,9 @@ class Game:
                 for planet_id in self.robot.explored_planets:
                     planet = self.world_manager.get_world_by_id(planet_id)
                     planet_name = Locale.get_text(planet.world_config.world_id)
-                    self.log.info(f"星球: {planet_name} ({planet.x}, {planet.y}, {planet.z})")
+                    self.log.info(f"星球: {planet_name} ({planet.location})")
                     for building_instance in self.building_manager.get_buildings_on_world(planet_id):
                         building_name = Locale.get_text(building_instance.building_config.name_id)
-                        self.log.info(f"  - 建筑: {building_name}")
-            '''
-            sleep(1)
+                        building_level = building_instance.building_config.level
+                        self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}")
 

@@ -12,10 +12,12 @@ class BuildingInstance(BaseObject):
         self.remaining_ticks: int = building_config.build_period  # 使用 remaining_ticks
         self.durability: int = building_config.durability
         self.is_under_attack: bool = False
+        self.completion_notified = False
 
     def check_completion(self) -> bool:
         """检查是否建造/升级完成"""
-        return self.remaining_ticks <= 0
+        if self.remaining_ticks <= 0:
+            return self.completion_notified
 
     def take_damage(self, damage: int):
         """受到伤害"""
@@ -47,9 +49,15 @@ class BuildingManager():
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_REQUEST, cls._instance.handle_building_request)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_UPGRADE_REQUEST, cls._instance.handle_upgrade_request)
+            cls._instance.game.message_bus.subscribe(MessageType.BUILDING_COMPLETED, cls._instance.handle_building_completed)
 
         return cls._instance
-
+    
+    def pick(self):
+        if self.building_instances:
+            return random.choice(list(self.building_instances.keys()))
+        return None
+    
     def get_building_config(self, building_id: str) -> Optional[BuildingConfig]:
         """根据 ID 获取建筑配置"""
         return self.building_configs.get(building_id)
@@ -58,7 +66,7 @@ class BuildingManager():
         """根据 ID 获取建筑实例"""
         return self.building_instances.get(building_id)
     
-    def add_world_buildings(self, world_id: str, building_slots: Dict):
+    def add_world_slots(self, world_id: str, building_slots: Dict):
         """添加星球的初始建筑槽位信息"""
         self.world_buildings[world_id] = {}
         for slot_type, slots in building_slots.items():
@@ -69,6 +77,9 @@ class BuildingManager():
             else:
                 self.world_buildings[world_id][slot_type] = [None] * len(slots)
 
+    def add_world_buildings(self, world_id: str, building_config: Dict):
+        pass
+    
     def get_buildings_on_world(self, world_id: str) -> List[BuildingInstance]:
         """获取星球上的所有建筑实例"""
         buildings = []
@@ -79,17 +90,15 @@ class BuildingManager():
                     for subtype, sub_slots in slots.items():
                         for building_id in sub_slots:
                             if building_id:
-                                building = self.get_building_instance(building_id)
+                                building = self.get_building_by_id(building_id)
                                 if building:
                                     buildings.append(building)
                 else:
                     # 对于 general 和 defense 类型，直接遍历
-                    for sub_slots in slots.values():
-                        for building_id in sub_slots:
-                            if building_id:
-                                building = self.get_building_instance(building_id)
-                                if building:
-                                    buildings.append(building)
+                    for building_id in slots:
+                        building = self.get_building_by_id(building_id)
+                        if building:
+                            buildings.append(building)
         return buildings
 
     def _add_building_instance(self, building_instance: BuildingInstance, world_id: str, slot_type: str, slot_index: int, subtype: Optional[str] = None):
@@ -298,6 +307,7 @@ class BuildingManager():
             "world_id": world_id,
             "player_id": player_id
         }, self)
+        
         self.game.message_bus.post_message(MessageType.MODIFIER_BUILDING, {
             "target_id": building_instance.object_id,
             "target_type": "Building",
@@ -309,6 +319,12 @@ class BuildingManager():
             "building_instance": building_instance  # 传递建筑实例
         }, self)
 
+    def handle_building_completed(self, message: Message):
+        data = message.data
+        building_id = data["building_id"]
+        building_instance = self.get_building_by_id(building_id)
+        building_instance.completion_notified = True
+
     def handle_upgrade_request(self, message: Message):
         """处理升级请求"""
         data = message.data
@@ -316,7 +332,7 @@ class BuildingManager():
         building_id = data["building_id"]
 
         player = self.game.player_manager.get_player_by_id(player_id)
-        building_instance = self.get_building_instance(building_id)
+        building_instance = self.get_building_by_id(building_id)
 
         if not player or not building_instance:
             return

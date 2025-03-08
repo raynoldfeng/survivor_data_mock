@@ -55,7 +55,7 @@ def main():
     game.player_manager = player_manager
     game.rule_manager = rule_manager
 
-    game.generate_worlds(1)
+    game.generate_worlds(100)
 
     game.add_robot(resource_configs, building_configs)
 
