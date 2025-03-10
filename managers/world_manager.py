@@ -114,16 +114,41 @@ class WorldManager:
             cls._instance.tick_interval = 60
         return cls._instance
 
-    def generate(self, location, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent):
-        world = World(world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent)
-        world.location = location
-        self.world_instances[world.object_id] = world
-        
-        for dx in range(-world.impenetrable_half_extent, world.impenetrable_half_extent + 1):
-            for dy in range(-world.impenetrable_half_extent, world.impenetrable_half_extent + 1):
-                for dz in range(-world.impenetrable_half_extent, world.impenetrable_half_extent + 1):
-                    self.impenetrable_locations[(world.location[0] + dx, world.location[1] + dy, world.location[2] + dz)] = world.object_id
-        return world
+    def generate_world(self, world_config, location, reachable_half_extent, impenetrable_half_extent):
+        """生成单个星球 (进行碰撞检测)"""
+        building_slots = self._generate_resource_slots(world_config)
+        exploration_rewards = self._calculate_exploration_rewards(world_config)
+
+        temp_world = World(
+            world_config,
+            building_slots,
+            exploration_rewards,
+            reachable_half_extent,
+            impenetrable_half_extent
+        )
+        temp_world.location = location
+
+        # 碰撞检测
+        for existing_world in self.world_instances.values():
+            for dx in range(-temp_world.reachable_half_extent, temp_world.reachable_half_extent + 1):
+                for dy in range(-temp_world.reachable_half_extent, temp_world.reachable_half_extent + 1):
+                    for dz in range(-temp_world.reachable_half_extent, temp_world.reachable_half_extent + 1):
+                        check_location = (
+                            temp_world.location[0] + dx,
+                            temp_world.location[1] + dy,
+                            temp_world.location[2] + dz,
+                        )
+                        if existing_world.check_collision(check_location):
+                            return None  # 发生碰撞，返回 None
+
+        # 没有碰撞，添加到管理器
+        self.world_instances[temp_world.object_id] = temp_world
+        for dx in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
+            for dy in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
+                for dz in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
+                    self.impenetrable_locations[(temp_world.location[0] + dx, temp_world.location[1] + dy, temp_world.location[2] + dz)] = temp_world.object_id
+
+        return temp_world
      
     def _generate_resource_slots(self, world_config):
         """生成初始的 building_slots 字典 (所有类型均为二级字典)"""

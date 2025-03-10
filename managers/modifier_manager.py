@@ -41,25 +41,30 @@ class ModifierManager():
                 if duration > 0:
                     # 根据 target_type 调用相应的方法
                     if target_type == "Player":
-                        #TODO 补充player的modifier逻辑
+                        # TODO 补充player的modifier逻辑
                         pass
                     elif target_type == "Building":
-                        # 在这里处理duration = 0的情况
-                        if duration == 0:
-                            continue
-                        building_instance =  self.game.building_manager.get_building_by_id(target_id)
+                        building_instance = self.game.building_manager.get_building_by_id(target_id)
                         if not building_instance:
                             continue
-                        if modifier == "BUILDING":
-                            if attribute == "remaining_ticks":
-                                # 在这里递减 remaining_ticks
-                                building_instance.remaining_ticks += int(quantity)
-                                if building_instance.remaining_ticks <= 0:
-                                    # 建造完成
-                                    self.game.message_bus.post_message(MessageType.BUILDING_COMPLETED,{"building_id": building_instance.object_id,}, self)
-                                    continue  # 跳过本次循环的剩余部分
+
+                        if modifier == "BUILDING" and attribute == "remaining_ticks":
+                            # 递减 remaining_ticks
+                            building_instance.remaining_ticks += int(quantity)
+
+                            if building_instance.remaining_ticks <= 0:
+                                # 建造/升级完成
+                                self.game.message_bus.post_message(MessageType.BUILDING_COMPLETED, {"building_id": building_instance.object_id}, self)
+
+                                # 如果是升级，更新建筑实例状态
+                                if building_instance.building_config.level < 3:  # 假设最高等级是 3
+                                    self.game.building_manager.upgrade_building(building_instance)
+
+                                # 移除该 modifier
+                                continue  # 直接跳过，不再添加到 new_modifier_list
+
                     elif target_type == "World":
-                        #TODO 补充world的modifier逻辑
+                        # TODO 补充world的modifier逻辑
                         pass
 
                     duration -= 1

@@ -12,12 +12,12 @@ class BuildingInstance(BaseObject):
         self.remaining_ticks: int = building_config.build_period  # 使用 remaining_ticks
         self.durability: int = building_config.durability
         self.is_under_attack: bool = False
-        self.completion_notified = False
+        # self.completion_notified = False  # 移除
 
-    def check_completion(self) -> bool:
-        """检查是否建造/升级完成"""
-        if self.remaining_ticks <= 0:
-            return self.completion_notified
+    # def check_completion(self) -> bool:  # 移除
+    #     """检查是否建造/升级完成"""
+    #     if self.remaining_ticks <= 0:
+    #         return self.completion_notified
 
     def take_damage(self, damage: int):
         """受到伤害"""
@@ -95,7 +95,7 @@ class BuildingManager():
                                     buildings.append(building)
                 else:
                     # 对于 general 和 defense 类型，直接遍历
-                    for building_id in slots:
+                    for building_id in slots: # 修正：直接使用 slots
                         building = self.get_building_by_id(building_id)
                         if building:
                             buildings.append(building)
@@ -130,7 +130,7 @@ class BuildingManager():
                 else:
                     try:
                         # self.world_buildings[world_id][slot_type][self.world_buildings[world_id][slot_type].index(building_instance.object_id)] = None
-                        self.world_buildings[world_id][slot_type][slot_type][self.world_buildings[world_id][slot_type][slot_type].index(building_instance.object_id)] = None
+                        self.world_buildings[world_id][slot_type][self.world_buildings[world_id][slot_type].index(building_instance.object_id)] = None # 修正：使用索引
                         return  # 找到并移除后，直接返回
                     except ValueError:
                         pass  # 当前 slot_type 没有该建筑，继续查找
@@ -178,26 +178,27 @@ class BuildingManager():
             except ValueError:
                 return None  # 该类型的槽位已满
 
+    def upgrade_building(self, building_instance: BuildingInstance):
+        """升级建筑 (由 ModifierManager 调用)"""
+        next_level_building_config = self.get_building_config(building_instance.building_config.get_next_level_id())
+        if not next_level_building_config:
+            return
+
+        building_instance.building_config = next_level_building_config
+        building_instance.remaining_ticks = next_level_building_config.build_period
+        building_instance.durability = next_level_building_config.durability
+
     def tick(self, tick_counter):
         """
         修改后的tick方法，增加tick_counter参数, 并通过tick_interval控制频率
         """
         if tick_counter % self.tick_interval == 0:
-            # 处理建造/升级
-            for building_id, building_instance in list(self.building_instances.items()):
-                building_instance.remaining_ticks -= self.tick_interval  # 减少剩余tick数
-                if building_instance.check_completion():
-                    # 发送建造完成消息
-                    self.game.message_bus.post_message(MessageType.BUILDING_COMPLETED, {
-                        "building_id": building_id,
-                    }, self)
-
             # 移除被摧毁的建筑
             for building_id, building_instance in list(self.building_instances.items()):
                 if building_instance.get_destroyed():
                     # 获取建筑所在的星球ID
                     world_id = None
-                    for planet_id in self.game.robot.explored_planets:
+                    for planet_id in self.game.robot.explored_planets: # 修正：使用 self.game.world_manager.world_instances
                         # planet = self.game.world_manager.get_world_by_id(planet_id) # 不需要了
                         # if planet:
                         # 遍历world_buildings 来查找
@@ -213,7 +214,7 @@ class BuildingManager():
                                     if world_id:
                                         break
                                 else:
-                                    if building_id in slots[slot_type]: # 正确的
+                                    if building_id in slots: # 正确的
                                         world_id = planet_id
                                         # slot_index = slots.index(building_id)
                                         # planet.free_slot(slot_type, slot_index)
@@ -320,10 +321,11 @@ class BuildingManager():
         }, self)
 
     def handle_building_completed(self, message: Message):
-        data = message.data
-        building_id = data["building_id"]
-        building_instance = self.get_building_by_id(building_id)
-        building_instance.completion_notified = True
+        # data = message.data  # 移除
+        # building_id = data["building_id"]
+        # building_instance = self.get_building_by_id(building_id)
+        # building_instance.completion_notified = True
+        pass #移除
 
     def handle_upgrade_request(self, message: Message):
         """处理升级请求"""
@@ -374,7 +376,7 @@ class BuildingManager():
         
         # 获取建筑所在的星球ID
         world_id = None
-        for planet_id in self.game.robot.explored_planets:
+        for planet_id in self.game.robot.explored_planets: # 修正：使用 self.game.world_manager.world_instances
             if planet_id in self.world_buildings:
                 for slot_type, slots in self.world_buildings[planet_id].items():
                     if slot_type == "resource":
@@ -391,13 +393,6 @@ class BuildingManager():
                 if world_id:
                     break
 
-        # 直接修改现有 building_instance 的属性
-        building_instance.building_config = next_level_building_config
-        building_instance.remaining_ticks = next_level_building_config.build_period
-        # 可以根据需要调整 durability
-        building_instance.durability = next_level_building_config.durability
-
-
         # 发送建筑开始升级消息(其实就是start消息)
         self.game.message_bus.post_message(MessageType.BUILDING_START, {
             "building_id": building_instance.object_id,  # 保持原有id
@@ -412,6 +407,6 @@ class BuildingManager():
             "modifier": "BUILDING",
             "attribute": "remaining_ticks",  # 修改为 remaining_ticks
             "quantity": -1 * self.tick_interval,  # 每次tick减少的量
-            "duration": building_instance.remaining_ticks // self.tick_interval,  # 持续tick次数
+            "duration": next_level_building_config.build_period // self.tick_interval,  # 持续tick次数, 改为使用升级时间
             "building_instance": building_instance  # 传递建筑实例
         }, self)
