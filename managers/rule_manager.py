@@ -1,5 +1,6 @@
 from typing import Tuple
 from .message_bus import MessageType, Message
+from loader.enums import Modifier, TravelMethod
 
 class RulesManager:
     _instance = None
@@ -24,7 +25,7 @@ class RulesManager:
 
     def tick(self, tick_counter):
         if tick_counter % self.tick_interval == 0:
-            # 1. 处理碰撞检测 (移动到 RuleManager)
+            # 1. 处理碰撞检测
             self.check_collisions()
 
             # 2. 处理舰队移动
@@ -32,17 +33,35 @@ class RulesManager:
                 self.move_fleet(player_id)
 
     def check_collisions(self):
-        """检查所有玩家舰队与星球的碰撞"""
+        """检查所有玩家舰队与星球的碰撞 (包括不可穿透区域)，以及舰队之间的碰撞"""
         for player_id, player in self.game.player_manager.players.items():
             fleet = player.fleet
             if fleet.location:
-                for world in self.game.world_manager.world_instances.values():
-                    if world.check_collision(fleet.location):
-                        self.game.message_bus.post_message(MessageType.INTERSECTION_EVENT, {
-                            "location": fleet.location,
-                            "objects": [player_id, world.object_id],
-                        }, self)
-                        break  # 假设一个舰队同时只能与一个星球碰撞
+                # 检查是否与星球的不可穿透部分碰撞
+                if self.game.world_manager.is_impenetrable(fleet.location):
+                    world_id = self.game.world_manager.impenetrable_locations.get(fleet.location)
+                    # 触发坠毁逻辑 (这里只是发送一个消息)
+                    self.game.message_bus.post_message(MessageType.INTERSECTION_EVENT, {
+                        "location": fleet.location,
+                        "objects": [player_id, world_id],  # 坠毁只涉及舰队和星球
+                        "crash": True  # 添加一个标志，表示坠毁
+                    }, self)
+                    # 可以在这里添加其他处理逻辑，例如：
+                    # - 扣除舰队的耐久度
+                    # - 将舰队从游戏中移除
+                    # - ...
+                    continue  # 发生碰撞后，跳过后续的舰队间碰撞检查
+
+                # 检查舰队之间的碰撞
+                for other_player_id, other_player in self.game.player_manager.players.items():
+                    if player_id != other_player_id:  # 排除自己
+                        other_fleet = other_player.fleet
+                        if fleet.location == other_fleet.location:
+                            self.game.message_bus.post_message(MessageType.INTERSECTION_EVENT, {
+                                "location": fleet.location,
+                                "objects": [player_id, other_player_id],  # 所有相交的舰队 ID
+                                "crash": False  # 不会坠毁
+                            }, self)
 
     def handle_fleet_move_request(self, message: Message):
         """处理舰队移动请求, 只需要处理跃迁的资源消耗"""
@@ -52,7 +71,7 @@ class RulesManager:
         if not player:
             return
 
-        if travel_method == "subspace_jump":
+        if travel_method == TravelMethod.SUBSPACEJUMP:
             if player.get_resource_amount("promethium") >= self.SUBSPACE_JUMP_COST:
                 # 发送修改资源的消息 (扣除钷素)
                 self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
@@ -72,9 +91,9 @@ class RulesManager:
         if not player:
             return
 
-        player.fleet.dest = None  # 清空目标
-        player.fleet.path = None  # 清空路径
-        player.fleet.travel_method = None  # 清空移动方式
+        player.fleet.set_dest(None)  # 清空目标
+        player.fleet.set_path(None)  # 清空路径
+        player.fleet.set_travel_method(None)  # 清空移动方式
 
     def is_valid_move(self, player_id: str, new_location: Tuple[int, int, int]) -> bool:
         """检查移动是否合法 (新位置是否在星球的不可穿透区域内)"""
@@ -83,16 +102,17 @@ class RulesManager:
             return False
 
         # 检查新位置是否与其他物体碰撞 (包括星球的不可穿透区域)
-        for world in self.game.world_manager.world_instances.values():
-            if world.check_collision(new_location) and world.impenetrable_half_extent >= world.calculate_distance_to_center(new_location):
-                # 停止移动
-                player.fleet.dest = None
-                player.fleet.path = None
-                # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
-                self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
-                    "player_id": player_id,
-                }, self)
-                return False  # 不合法
+        # for world in self.game.world_manager.world_instances.values(): # 不需要遍历星球
+        #     if new_location in world.impenetrable_locations:
+        if self.game.world_manager.is_impenetrable(new_location):
+            # 停止移动
+            player.fleet.set_dest(None)
+            player.fleet.set_path(None)
+            # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
+            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
+                "player_id": player_id,
+            }, self)
+            return False  # 不合法
 
         return True  # 合法
 
@@ -208,10 +228,11 @@ class RulesManager:
             # 移动到当前寻路目标 (直接使用 cell 坐标)
             if self.is_valid_move(player_id, next_location):
                 # 更新位置
-                self.game.world_manager.update_object_location(
-                    player_id, fleet.location, next_location
-                )
-                fleet.location = next_location
+                # self.game.world_manager.update_object_location( # 不需要了
+                #     player_id, fleet.location, next_location
+                # )
+                player.fleet.location = next_location
+                self.game.player_manager.update_fleet_location(player_id, fleet.location, next_location)
                 # 移动到下一个 cell
                 fleet.move_to_next_cell()  # 这会更新 fleet.path
                 # 记录移动日志
@@ -238,23 +259,24 @@ class RulesManager:
                             }, self)
             else:
                 # 停止移动
-                player.fleet.dest = None
-                player.fleet.path = None
+                player.fleet.set_dest(None)
+                player.fleet.set_path(None)
                 # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
                 self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
                     "player_id": player_id,
                 }, self)
 
         # 情况 2: 跃迁
-        elif fleet.travel_method == "subspace_jump":
+        elif fleet.travel_method == TravelMethod.SUBSPACEJUMP:
             destination_coordinate = fleet.dest
 
             if self.is_valid_move(player_id, destination_coordinate):
                 # 更新位置
-                self.game.world_manager.update_object_location(
-                    player_id, fleet.location, destination_coordinate
-                )
-                fleet.location = destination_coordinate
+                # self.game.world_manager.update_object_location(
+                #     player_id, fleet.location, destination_coordinate
+                # )
+                player.fleet.location = destination_coordinate
+                self.game.player_manager.update_fleet_location(player_id, fleet.location, destination_coordinate)
                 # 直接发送到达消息, 根据dest类型判断, 如果是星球, 则发送world类型的到达消息, world_id
                 world = self.game.world_manager.get_world_by_id(fleet.dest)
                 self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
@@ -264,13 +286,13 @@ class RulesManager:
                         "world_id": world.object_id if world else None # 如果是星球，则提供id
                     }, self)
                 # 清空状态
-                fleet.dest = None
-                fleet.travel_method = None
+                fleet.set_dest(None)
+                fleet.set_travel_method(None)
                 # 记录移动日志
                 self.game.log.info(f"玩家 {player_id} 的舰队跃迁至 {fleet.location}")
             else:
                 #停止移动
-                player.fleet.dest = None
+                player.fleet.set_dest(None)
                 player.fleet.path = None
                 # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
                 self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {

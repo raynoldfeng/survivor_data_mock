@@ -114,7 +114,7 @@ class Pathfinder:
     def _is_location_reachable(self, location: Tuple[int, int, int]) -> bool:
         """判断位置是否可到达"""
         # 使用 WorldManager 的 is_cell_available 方法
-        return self.game.world_manager.is_location_available(location)
+        return self.game.world_manager._is_location_reachable(location)
 
     def _heuristic_cost(self, location1: Tuple[int, int, int], location2: Tuple[int, int, int]) -> int:
         """计算两个位置之间的启发式代价 (曼哈顿距离)"""

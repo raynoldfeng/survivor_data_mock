@@ -249,7 +249,7 @@ class Robot():
         self.game.log.info(f"Robot {player.player_id} 开始思考...")
 
         # 0. 检查舰队是否正在移动
-        if player.fleet.path and player.fleet.path.lengh()>0:
+        if player.fleet.path and len(player.fleet.path)>0:
             self.game.log.info(f"Robot {player.player_id} 的舰队正在移动中，跳过本轮思考。")
             return {"action": "none", "player_id": player.player_id}
 
@@ -326,19 +326,20 @@ class Robot():
         planet_to_explore = self.select_planet_to_explore()  # 获取最值得探索的星球
 
         if planet_to_explore:
+            self.dest_world = planet_to_explore.object_id  # 记录目标星球
             self.game.log.info(f"Robot {player.player_id} 考虑前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id},坐标({planet_to_explore.location}...")
             if player.get_resource_amount("promethium") >= self.game.rule_manager.SUBSPACE_JUMP_COST:
-                travel_method = "subspace_jump"
+                travel_method = TravelMethod.SLOWTRAVEL
             else:
-                travel_method = "slow_travel"  # 没有足够的资源跃迁，则尝试slow_travel
+                travel_method = TravelMethod.SLOWTRAVEL  # 没有足够的资源跃迁，则尝试slow_travel
 
-            if travel_method == "subspace_jump":
+            if travel_method == TravelMethod.SUBSPACEJUMP:
                 self.game.log.info(f"Robot {player.player_id} 选择  前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}。")
                 # 获取星球表面的一个可用坐标
-                destination_coordinate = self.game.world_manager.get_spawn_location(planet_to_explore)
+                destination_coordinate = planet_to_explore.get_spawn_location()
                 if destination_coordinate:
-                    player.fleet.set_destination(destination_coordinate)
-                    self.dest_world = planet_to_explore.object_id  # 记录目标星球
+                    player.fleet.set_dest(destination_coordinate)
+                    
                     return {
                         "action": "move",
                         "target_planet_id": planet_to_explore.object_id, # 保持ID不变, 但实际dest已经是坐标
@@ -349,35 +350,29 @@ class Robot():
                     self.game.log.warn(f"Robot {player.player_id} 无法找到星球 {planet_to_explore.object_id} 的可到达位置，跃迁失败。")
                     return {"action": "none", "player_id": player.player_id}
 
-            elif travel_method == "slow_travel":
+            elif travel_method == TravelMethod.SLOWTRAVEL:
                 # 尝试寻路
                 start_location = player.fleet.location
                 # 获取星球表面的一个可用坐标
-                end_location = self.game.world_manager.get_spawn_location(planet_to_explore)
+                end_location = planet_to_explore.get_spawn_location()
                 if not end_location:
                     self.game.log.warn(f"Robot {player.player_id} 无法找到星球 {planet_to_explore.object_id} 的可到达位置, 无法移动。")
                     return {"action": "none", "player_id": player.player_id}
                 
                 # 寻路
                 path = self.game.pathfinder.find_path(start_location, end_location, target_type="world", target_world_id = planet_to_explore.object_id)
-
                 if path == []:
                     # 情况 1: 已经到达星球表面
                     self.game.log.info(f"Robot {player.player_id} 已经位于星球 {planet_to_explore.object_id} 表面，无需移动，准备降落。")
-                    #  dest 设置为当前位置
-                    player.fleet.set_destination(start_location)
-                    self.dest_world = planet_to_explore.object_id  # 记录目标星球
                     return {"action": "none", "player_id": player.player_id}
                 elif path:
                     # 情况 2: 找到路径
                     player.fleet.set_path(path)
-                    # 将 dest 设置为路径的最后一个坐标
-                    player.fleet.set_destination(path[-1])
                     self.dest_world = planet_to_explore.object_id  # 记录目标星球
                     self.game.log.info(f"Robot {player.player_id} 选择  前往类型为{planet_to_explore.world_config.world_id}的星球 {planet_to_explore.object_id}，并找到了路径。")
                     return {
                         "action": "move",
-                        "target_planet_id": planet_to_explore.object_id, # 保持ID不变, 但实际dest已经是坐标
+                        "target_planet_id": planet_to_explore.object_id,
                         "travel_method": travel_method,
                         "player_id": player.player_id
                     }

@@ -61,3 +61,7 @@ class Target(Enum):
     WORLD = "World"
     BUILDING = "Building"
     PLAYER = "Player"
+
+class TravelMethod(Enum):
+    SLOWTRAVEL = "SlowTravel"
+    SUBSPACEJUMP = "SubspaceJump"

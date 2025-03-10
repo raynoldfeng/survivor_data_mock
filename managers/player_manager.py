@@ -20,7 +20,7 @@ class Fleet:
         self.landed_on = None
         self.location = (0,0,0) # 单元格坐标
 
-    def set_destination(self, destination):
+    def set_dest(self, destination):
         """设置最终目标"""
         self.dest = destination
         self.path = None  # 清空旧路径
@@ -29,6 +29,9 @@ class Fleet:
         """设置路径"""
         self.path = path
 
+    def set_travel_method(self, travel_method):
+        self.travel_method = travel_method
+        
     def move_to_next_cell(self):
         """移动到路径的下一个单元格 (或朝 dest 移动)"""
         if self.path:
@@ -79,6 +82,8 @@ class PlayerManager:
             cls._instance.robots: Dict[str, Robot] = {}
             cls._instance.game.player_manager = cls._instance
             cls._instance.tick_interval = 1
+            # 新增：存储每个玩家舰队的位置
+            cls._instance.fleet_locations: Dict[Tuple[int, int, int], List[str]] = {}
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_RESOURCE_CHANGED, cls._instance.handle_player_resource_changed)
         return cls._instance
@@ -88,10 +93,12 @@ class PlayerManager:
         initial_world_id = self.game.world_manager.pick()
         initial_world = self.game.world_manager.get_world_by_id(initial_world_id)
         if initial_world:
-            spawn_location = self.game.world_manager.get_spawn_location(initial_world)
+            spawn_location = initial_world.get_spawn_location()
             if spawn_location:
                 self.game.log.warn(f"初始星球{initial_world.object_id}，舰队位置 {spawn_location}")
                 player.fleet.location = spawn_location
+                # 新增：将玩家的初始舰队位置添加到 fleet_locations
+                self.fleet_locations[player.fleet.location] = [player.player_id]
             else:
                 self.game.log.warn(f"无法为星球 {initial_world.object_id} 找到可到达的出生点，将舰队位置设置为 (0, 0, 0)")
                 player.fleet.location = (0, 0, 0)
@@ -111,10 +118,29 @@ class PlayerManager:
 
     def remove_player(self, player_id: str):
         if player_id in self.players:
+            # 新增：从 fleet_locations 中移除玩家舰队的位置
+            player = self.players[player_id]
+            if player.fleet.location in self.fleet_locations:
+                self.fleet_locations[player.fleet.location].remove(player_id)
+                if not self.fleet_locations[player.fleet.location]:
+                    del self.fleet_locations[player.fleet.location]
             del self.players[player_id]
 
     def get_player_by_id(self, player_id: str) -> Optional[Player]:
         return self.players.get(player_id)
+    
+    def update_fleet_location(self, player_id: str, old_location: Tuple[int, int, int], new_location: Tuple[int, int, int]):
+        """更新玩家舰队的位置"""
+        # 从旧位置移除
+        if old_location in self.fleet_locations:
+            if player_id in self.fleet_locations[old_location]:
+                self.fleet_locations[old_location].remove(player_id)
+            if not self.fleet_locations[old_location]:
+                del self.fleet_locations[old_location]
+        # 添加到新位置
+        if new_location not in self.fleet_locations:
+            self.fleet_locations[new_location] = []
+        self.fleet_locations[new_location].append(player_id)
 
     def tick(self, tick_counter):
         if tick_counter % self.tick_interval == 0:
@@ -145,7 +171,7 @@ class PlayerManager:
 
         # 处理降落请求
         elif action == 'land':
-            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_LAND_REQUEST, {  # 改为 REQUEST
+            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_LAND_REQUEST, {
                 "player_id": action_data["player_id"],
                 "world_id": action_data["world_id"]
             }, self)
@@ -180,6 +206,9 @@ class PlayerManager:
                 "world_id": action_data["world_id"],
             }, self)
 
+    def apply_modifier(self, player_id: str, modifier: Modifier, attribute: str, quantity: float, duration: int):
+        pass
+    
     def handle_player_resource_changed(self, message: Message):
         """
         处理玩家资源变化的消息 (由 ModifierManager 发送)
@@ -193,7 +222,7 @@ class PlayerManager:
         quantity = message.data["quantity"]
         if modifier == "INCREASE":
             player.modify_resource(resource_id, quantity)
-        elif modifier == Modifier.REDUCE:
+        elif modifier == "REDUCE":
             player.modify_resource(resource_id, -quantity)
 
     def pick(self):

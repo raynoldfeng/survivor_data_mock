@@ -1,6 +1,6 @@
 from base_object import BaseObject
 import random
-from typing import Dict, Tuple, List, Optional
+from typing import Dict, Tuple, List, Optional, Set
 from .message_bus import MessageType, Message
 import math
 
@@ -13,8 +13,8 @@ class World(BaseObject):
         self.location = (0, 0, 0)  # 中心坐标
         self.reachable_half_extent = reachable_half_extent  # 可到达半边长
         self.impenetrable_half_extent = impenetrable_half_extent  # 不可穿透半边长
-        self.docked_fleets: Dict[str, Tuple[int, int, int]] = {}  # 新增：停靠的舰队 {player_id: fleet_location}
-
+        self.impenetrable_locations: Set[Tuple[int, int, int]] = self._calculate_impenetrable_locations()  # 不可穿透区域的坐标
+        self.docked_fleets: Dict[str, Tuple[int, int, int]] = {}  # 停靠的舰队 {player_id: fleet_location}
 
     def _parse_adjustment(self, adjustment_str):
         if '~' in adjustment_str:
@@ -42,8 +42,7 @@ class World(BaseObject):
         )
 
     def check_collision(self, location: Tuple[int, int, int]) -> bool:
-        """检查给定坐标是否与星球发生碰撞（即坐标位于星球表面）"""
-        # 与 is_on_surface() 的逻辑相同, 但包含不可通行区域
+        """检查给定坐标是否与星球发生碰撞（即坐标位于星球表面, 或不可穿透区域）"""
         dx = abs(location[0] - self.location[0])
         dy = abs(location[1] - self.location[1])
         dz = abs(location[2] - self.location[2])
@@ -59,14 +58,54 @@ class World(BaseObject):
         dy = location[1] - self.location[1]
         dz = location[2] - self.location[2]
         return math.sqrt(dx*dx + dy*dy + dz*dz)
+    
+    def _calculate_impenetrable_locations(self) -> Set[Tuple[int, int, int]]:
+        """计算星球不可穿透区域的所有坐标"""
+        locations = set()
+        for dx in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
+            for dy in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
+                for dz in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
+                    locations.add((self.location[0] + dx, self.location[1] + dy, self.location[2] + dz))
+        return locations
 
+    def get_spawn_location(self) -> Optional[Tuple[int, int, int]]:
+        """获取星球上一个可用的出生点 (单元格坐标)"""
+        while True:  # 使用循环，直到找到一个可用的出生点
+            # 随机选择一个轴 (x, y, 或 z)
+            axis = random.choice(['x', 'y', 'z'])
+
+            # 随机选择一个面 (+ 或 -)
+            sign = random.choice([-1, 1])
+
+            # 固定该轴向的偏移量
+            if axis == 'x':
+                offset_x = sign * (self.impenetrable_half_extent + 1)
+                offset_y = random.randint(-self.reachable_half_extent, self.reachable_half_extent)
+                offset_z = random.randint(-self.reachable_half_extent, self.reachable_half_extent)
+            elif axis == 'y':
+                offset_x = random.randint(-self.reachable_half_extent, self.reachable_half_extent)
+                offset_y = sign * (self.impenetrable_half_extent + 1)
+                offset_z = random.randint(-self.reachable_half_extent, self.reachable_half_extent)
+            else:  # axis == 'z'
+                offset_x = random.randint(-self.reachable_half_extent, self.reachable_half_extent)
+                offset_y = random.randint(-self.reachable_half_extent, self.reachable_half_extent)
+                offset_z = sign * (self.impenetrable_half_extent + 1)
+
+            # 计算出生点坐标
+            spawn_location = (
+                self.location[0] + offset_x,
+                self.location[1] + offset_y,
+                self.location[2] + offset_z,
+            )
+            return spawn_location
+        
 class WorldManager:
     _instance = None
 
     def __new__(cls, world_configs, game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.locations: Dict[Tuple[int, int, int], List[str]] = {}  # 位置数据 {location: [object_id]}
+            cls._instance.impenetrable_locations: Dict[Tuple[int, int, int], str] = {} # 新增
 
             cls._instance.world_configs = world_configs
             cls._instance.world_instances: Dict[str, World] = {}
@@ -75,42 +114,17 @@ class WorldManager:
             cls._instance.tick_interval = 60
         return cls._instance
 
-    def get_objects_in_location(self, location: Tuple[int, int, int]) -> List[str]:
-        """获取指定位置的所有对象 ID"""
-        return self.locations.get(location, [])
-
-    def update_object_location(self, object_id: str, old_location: Tuple[int, int, int], new_location: Tuple[int, int, int]):
-        """更新对象的位置"""
-        if old_location != new_location:
-            if old_location in self.locations:
-                if object_id in self.locations[old_location]:
-                    self.locations[old_location].remove(object_id)
-                if not self.locations[old_location]:
-                    del self.locations[old_location]
-            if new_location not in self.locations:
-                self.locations[new_location] = []
-            self.locations[new_location].append(object_id)
-
-    def add_object(self, object_id: str, location: Tuple[int, int, int]):
-        """添加对象"""
-        if location not in self.locations:
-            self.locations[location] = []
-        self.locations[location].append(object_id)
-
-    def remove_object(self, object_id: str, location: Tuple[int, int, int]):
-        """移除对象"""
-        if location in self.locations:
-            if object_id in self.locations[location]:
-                self.locations[location].remove(object_id)
-            if not self.locations[location]:
-                del self.locations[location]
-
-    def generate(self, location, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent) -> World:
+    def generate(self, location, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent):
         world = World(world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent)
-        world.location= location
+        world.location = location
         self.world_instances[world.object_id] = world
+        
+        for dx in range(-world.impenetrable_half_extent, world.impenetrable_half_extent + 1):
+            for dy in range(-world.impenetrable_half_extent, world.impenetrable_half_extent + 1):
+                for dz in range(-world.impenetrable_half_extent, world.impenetrable_half_extent + 1):
+                    self.impenetrable_locations[(world.location[0] + dx, world.location[1] + dy, world.location[2] + dz)] = world.object_id
         return world
-
+     
     def _generate_resource_slots(self, world_config):
         """生成初始的 building_slots 字典 (所有类型均为二级字典)"""
         building_slots = {
@@ -135,21 +149,6 @@ class WorldManager:
                     subtype = res_id[:-5].capitalize()  # 首字母大写，例如 "adamantium" -> "Adamantium"
                     building_slots["resource"][subtype] = base_slot
         return building_slots
-
-    def _calculate_occupied_locations(self, world: World) -> List[Tuple[int, int, int]]:
-        """计算星球占用的所有位置 (立方体)"""
-        occupied_locations = []
-        half_extent = world.impenetrable_half_extent  # 使用 impenetrable_half_extent
-        for dx in range(-half_extent, half_extent + 1):
-            for dy in range(-half_extent, half_extent + 1):
-                for dz in range(-half_extent, half_extent + 1):
-                    location = (world.location[0] + dx, world.location[1] + dy, world.location[2] + dz)
-                    # 只要在以impenetrable_half_extent为半径的立方体内的cell都算作被占用
-                    if (abs(location[0] - world.location[0]) <= world.impenetrable_half_extent and
-                        abs(location[1] - world.location[1]) <= world.impenetrable_half_extent and
-                        abs(location[2] - world.location[2]) <= world.impenetrable_half_extent):
-                        occupied_locations.append(location)
-        return occupied_locations
 
     def calculate_distance(self, location1: Tuple[int, int, int], location2: Tuple[int, int, int]) -> int:
         """计算两个位置之间的距离 (欧几里得距离, 向下取整)"""
@@ -195,49 +194,31 @@ class WorldManager:
                     quantity = float(quantity_range)
                 rewards.append((reward['resource_id'], quantity))
         return rewards
-
+    
+    def _is_location_reachable(self, location: Tuple[int, int, int]) -> bool:
+        """判断位置是否可到达"""
+        # 遍历所有星球，检查是否在任何一个星球的不可穿透区域内
+        for world in self.game.world_manager.world_instances.values():
+            if location in world.impenetrable_locations:
+                return False  # 在不可穿透区域内，不可到达
+        return True  # 不在任何星球的不可穿透区域内，可到达
+    
+    def is_impenetrable(self, location: Tuple[int, int, int]) -> bool:
+        """检查给定位置是否不可到达"""
+        if location in self.impenetrable_locations:
+            self.game.log.info(f"{location} 不可到达,与{self.impenetrable_locations[location]} 碰撞")
+            return True
+        else:
+            return False
+      
     def pick(self):
         if self.world_instances:
             return random.choice(list(self.world_instances.keys()))
         return None
 
-    def tick(self, tick_counter):
+    def apply_modifier(self, target_id, modifier, attribute, quantity, duration):
+        # World没有apply_modifier，这里留空
         pass
 
-    def is_location_available(self, location: Tuple[int, int, int]) -> bool:
-        """判断位置是否可用(是否在不可进入的星球半径内)"""
-        return not self.locations.get(location)
-
-    def get_spawn_location(self, world: World) -> Optional[Tuple[int, int, int]]:
-        """获取星球上一个可用的出生点 (单元格坐标)"""
-        while True:  # 使用循环，直到找到一个可用的出生点
-            # 随机选择一个轴 (x, y, 或 z)
-            axis = random.choice(['x', 'y', 'z'])
-
-            # 随机选择一个面 (+ 或 -)
-            sign = random.choice([-1, 1])
-
-            # 固定该轴向的偏移量
-            if axis == 'x':
-                offset_x = sign * (world.impenetrable_half_extent + 1)
-                offset_y = random.randint(-world.reachable_half_extent, world.reachable_half_extent)
-                offset_z = random.randint(-world.reachable_half_extent, world.reachable_half_extent)
-            elif axis == 'y':
-                offset_x = random.randint(-world.reachable_half_extent, world.reachable_half_extent)
-                offset_y = sign * (world.impenetrable_half_extent + 1)
-                offset_z = random.randint(-world.reachable_half_extent, world.reachable_half_extent)
-            else:  # axis == 'z'
-                offset_x = random.randint(-world.reachable_half_extent, world.reachable_half_extent)
-                offset_y = random.randint(-world.reachable_half_extent, world.reachable_half_extent)
-                offset_z = sign * (world.impenetrable_half_extent + 1)
-
-            # 计算出生点坐标
-            spawn_location = (
-                world.location[0] + offset_x,
-                world.location[1] + offset_y,
-                world.location[2] + offset_z,
-            )
-
-            # 检查出生点是否可用
-            if self.is_location_available(spawn_location):
-                return spawn_location
+    def tick(self, tick_counter):
+        pass
