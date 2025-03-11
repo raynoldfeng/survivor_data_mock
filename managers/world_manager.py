@@ -115,7 +115,7 @@ class WorldManager:
         return cls._instance
 
     def generate_world(self, world_config, location, reachable_half_extent, impenetrable_half_extent):
-        """生成单个星球 (进行碰撞检测)"""
+        """生成单个星球 (进行碰撞检测和安全距离检查)"""
         building_slots = self._generate_resource_slots(world_config)
         exploration_rewards = self._calculate_exploration_rewards(world_config)
 
@@ -128,18 +128,29 @@ class WorldManager:
         )
         temp_world.location = location
 
-        # 碰撞检测
+        # --- 碰撞检测和安全距离检查 (改进) ---
+        safe_distance_factor = 1.5  # 安全距离系数 (可调整)
         for existing_world in self.world_instances.values():
-            for dx in range(-temp_world.reachable_half_extent, temp_world.reachable_half_extent + 1):
-                for dy in range(-temp_world.reachable_half_extent, temp_world.reachable_half_extent + 1):
-                    for dz in range(-temp_world.reachable_half_extent, temp_world.reachable_half_extent + 1):
-                        check_location = (
-                            temp_world.location[0] + dx,
-                            temp_world.location[1] + dy,
-                            temp_world.location[2] + dz,
-                        )
-                        if existing_world.check_collision(check_location):
-                            return None  # 发生碰撞，返回 None
+            # 计算两个星球“可到达区域”的边界之间的最小距离
+            min_distance = (temp_world.reachable_half_extent + existing_world.reachable_half_extent) * safe_distance_factor
+            distance_x = abs(temp_world.location[0] - existing_world.location[0])
+            distance_y = abs(temp_world.location[1] - existing_world.location[1])
+            distance_z = abs(temp_world.location[2] - existing_world.location[2])
+
+            if (distance_x < min_distance and
+                distance_y < min_distance and
+                distance_z < min_distance):
+                self.game.log.info(f"生成星球 {temp_world.world_config.world_id} 失败：与星球 {existing_world.world_config.world_id} 距离过近")
+                return None  # 距离过近，返回 None
+
+        # --- 碰撞检测 (简化) ---
+        # 检查新星球的“不可穿透区域”是否与现有星球的“不可穿透区域”重叠
+        for existing_world in self.world_instances.values():
+            if (abs(temp_world.location[0] - existing_world.location[0]) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1 and
+                abs(temp_world.location[1] - existing_world.location[1]) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1 and
+                abs(temp_world.location[2] - existing_world.location[2]) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1):
+                self.game.log.info(f"生成星球 {temp_world.world_config.world_id} 失败：与星球 {existing_world.world_config.world_id} 发生碰撞")
+                return None
 
         # 没有碰撞，添加到管理器
         self.world_instances[temp_world.object_id] = temp_world
@@ -147,7 +158,7 @@ class WorldManager:
             for dy in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
                 for dz in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
                     self.impenetrable_locations[(temp_world.location[0] + dx, temp_world.location[1] + dy, temp_world.location[2] + dz)] = temp_world.object_id
-
+        self.game.log.info(f"成功生成星球 {temp_world.world_config.world_id}，位置：{temp_world.location}")
         return temp_world
      
     def _generate_resource_slots(self, world_config):

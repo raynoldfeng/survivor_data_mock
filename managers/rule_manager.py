@@ -17,8 +17,8 @@ class RulesManager:
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_MOVE_REQUEST, cls._instance.handle_fleet_move_request)
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, cls._instance.handle_fleet_movement_interrupt)
-            cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_LAND_REQUEST, cls._instance.handle_fleet_land_request)  # 改为 REQUEST
-            cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_TAKEOFF_REQUEST, cls._instance.handle_fleet_takeoff_request) # 新增
+            cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_LAND_REQUEST, cls._instance.handle_fleet_land_request)
+            cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_TAKEOFF_REQUEST, cls._instance.handle_fleet_takeoff_request)
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_EXPLORE_WORLD_REQUEST, cls._instance.handle_explore_world_request)
 
         return cls._instance
@@ -67,11 +67,15 @@ class RulesManager:
         """处理舰队移动请求, 只需要处理跃迁的资源消耗"""
         player = self.game.player_manager.get_player_by_id(message.data["player_id"])
         travel_method = message.data["travel_method"]
+        path = message.data["path"]
 
+        player.fleet.set_travel_method(travel_method)
         if not player:
             return
 
         if travel_method == TravelMethod.SUBSPACEJUMP:
+            # 亚空间跳跃情况下只能跳一次，如果有多个路径的话给予抹除？
+            player.set_path(path[:1])
             if player.get_resource_amount("promethium") >= self.SUBSPACE_JUMP_COST:
                 # 发送修改资源的消息 (扣除钷素)
                 self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
@@ -84,6 +88,10 @@ class RulesManager:
                 }, self)
             else:
                 self.game.log.warn(f"玩家 {player.player_id} 尝试亚空间跳跃，但钷素不足")
+        else:
+            # TODO: 判断普通航行情况下，下一次坐标是否符合速度要求
+            player.fleet.set_path(path)
+            pass
 
     def handle_fleet_movement_interrupt(self, message: Message):
         """处理舰队移动中断"""
@@ -91,9 +99,7 @@ class RulesManager:
         if not player:
             return
 
-        player.fleet.set_dest(None)  # 清空目标
-        player.fleet.set_path(None)  # 清空路径
-        player.fleet.set_travel_method(None)  # 清空移动方式
+        player.fleet.set_path([])
 
     def is_valid_move(self, player_id: str, new_location: Tuple[int, int, int]) -> bool:
         """检查移动是否合法 (新位置是否在星球的不可穿透区域内)"""
@@ -102,18 +108,9 @@ class RulesManager:
             return False
 
         # 检查新位置是否与其他物体碰撞 (包括星球的不可穿透区域)
-        # for world in self.game.world_manager.world_instances.values(): # 不需要遍历星球
-        #     if new_location in world.impenetrable_locations:
         if self.game.world_manager.is_impenetrable(new_location):
             # 停止移动
-            player.fleet.set_dest(None)
-            player.fleet.set_path(None)
-            # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
-            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
-                "player_id": player_id,
-            }, self)
             return False  # 不合法
-
         return True  # 合法
 
     def handle_explore_world_request(self, message: Message):
@@ -165,6 +162,7 @@ class RulesManager:
         if world.is_on_surface(player.fleet.location):
             # 标记玩家舰队已经降落
             player.fleet.landed_on = world.object_id
+            player.fleet.set_path([])
             # 添加到星球的 docked_fleets
             if world.object_id not in world.docked_fleets:
                 world.docked_fleets[player.player_id] = player.fleet.location
@@ -194,6 +192,7 @@ class RulesManager:
 
         # 取消降落状态
         player.fleet.landed_on = None
+        player.fleet.set_path([])
         self.game.log.info(f"玩家 {player.player_id} 的舰队从星球起飞！")
 
     def move_fleet(self, player_id: str):
@@ -203,112 +202,26 @@ class RulesManager:
             return
 
         fleet = player.fleet
-
-        # 航行规则：
-        # 1. slow_travel (慢速旅行):
-        #    - 如果 path 不为空，则沿着 path 移动。
-        #    - 如果 path 为空：
-        #      - 如果 dest 不为空，则表示已经到达目标星球边缘 或 无法移动（寻路失败/中断/目标不可达）。
-        #      - 如果 dest 为空，则表示没有移动目标。
-        # 2. subspace_jump (亚空间跳跃):
-        #    - 直接跃迁到 dest 指定的坐标。
-        #    - 如果 dest 是星球ID，则跃迁到星球边缘的某个坐标。（Robot.think() 中保证）
-        #    - 跃迁完成后，dest 和 travel_method 都会被清空。
-        # 3. 碰撞检测：
-        #    - 在每次移动前，都会检查新位置是否合法（is_valid_move()）。
-        #    - 如果新位置位于星球的不可穿透区域内，则移动会被中断，path 和 dest 会被清空。
-        # 4. 到达目标：
-        #    - slow_travel 到达星球边缘：path 会变为空列表，但 dest 仍然是星球ID，此时可以触发降落逻辑。
-        #    - slow_travel 到达坐标：path 会变为空列表，dest 是坐标。
-        #    - subspace_jump 到达星球边缘/坐标：dest 会被设置为星球边缘/坐标，path 为空。
-
-        # 情况 1 & 3: 慢速旅行
         if fleet.path and len(fleet.path) > 0:  # 检查 path 是否为空
             next_location = fleet.path[0]  # 获取下一个目标位置
             # 移动到当前寻路目标 (直接使用 cell 坐标)
             if self.is_valid_move(player_id, next_location):
-                # 更新位置
-                # self.game.world_manager.update_object_location( # 不需要了
-                #     player_id, fleet.location, next_location
-                # )
                 player.fleet.location = next_location
                 self.game.player_manager.update_fleet_location(player_id, fleet.location, next_location)
-                # 移动到下一个 cell
-                fleet.move_to_next_cell()  # 这会更新 fleet.path
+                fleet.move_to_next_cell()
                 # 记录移动日志
-                self.game.log.info(f"玩家 {player_id} 的舰队慢速移动至 {fleet.location}")
+                self.game.log.info(f"玩家 {player_id} 的舰队通过{fleet.travel_method}移动至 {fleet.location}")
                 # 判断是否到达最终目标 (path 为空)
                 if not fleet.path:
-                    if fleet.dest:
-                        # 检查 dest 是星球 ID 还是坐标, 这里发送到达事件
-                        world = self.game.world_manager.get_world_by_id(fleet.dest)
-                        if world:
-                            # 到达星球
-                            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
-                                "player_id": player_id,
-                                "location":  fleet.location,
-                                "arrival_type": "world",  # 明确到达类型
-                                "world_id": world.object_id,
-                            }, self)
-                        else:
-                            # 到达坐标
-                            self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
-                                "player_id": player_id,
-                                "location": fleet.location,
-                                "arrival_type": "coordinate",  # 普通坐标
-                            }, self)
-            else:
-                # 停止移动
-                player.fleet.set_dest(None)
-                player.fleet.set_path(None)
-                # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
-                self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
-                    "player_id": player_id,
-                }, self)
-
-        # 情况 2: 跃迁
-        elif fleet.travel_method == TravelMethod.SUBSPACEJUMP:
-            destination_coordinate = fleet.dest
-
-            if self.is_valid_move(player_id, destination_coordinate):
-                # 更新位置
-                # self.game.world_manager.update_object_location(
-                #     player_id, fleet.location, destination_coordinate
-                # )
-                player.fleet.location = destination_coordinate
-                self.game.player_manager.update_fleet_location(player_id, fleet.location, destination_coordinate)
-                # 直接发送到达消息, 根据dest类型判断, 如果是星球, 则发送world类型的到达消息, world_id
-                world = self.game.world_manager.get_world_by_id(fleet.dest)
-                self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
+                    self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
                         "player_id": player_id,
                         "location": fleet.location,
-                        "arrival_type": "coordinate" if not world else "world",
-                        "world_id": world.object_id if world else None # 如果是星球，则提供id
+                        "arrival_type": "coordinate",  # 普通坐标
                     }, self)
-                # 清空状态
-                fleet.set_dest(None)
-                fleet.set_travel_method(None)
-                # 记录移动日志
-                self.game.log.info(f"玩家 {player_id} 的舰队跃迁至 {fleet.location}")
             else:
-                #停止移动
-                player.fleet.set_dest(None)
-                player.fleet.path = None
+                # 目的地坐标不可到达，停止移动
+                player.fleet.set_path([])
                 # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
                 self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
                     "player_id": player_id,
                 }, self)
-        elif fleet.path is None or len(fleet.path) == 0: # 检查path是否为空
-            if fleet.dest:
-                # 1. 刚刚完成 subspace_jump 或 slow_travel
-                # 2. 或者寻路失败/路径中断
-                # 3. 到达星球的不可穿透区域
-                self.game.log.info(f"玩家 {player_id} 的舰队 path 为空, 但有 dest: {fleet.dest}")
-                # 在这里可以添加额外的处理逻辑，例如：
-                # - 尝试重新寻路 (如果距离目标还很远)
-                # - 如果已经非常接近目标（例如，在 final_destination 的几个单元格内），
-                #   可以考虑直接“着陆”到目标星球上（如果 final_destination 是星球）
-                # - 什么都不做，等待下一 tick
-
-                # 简单起见，我们先什么都不做
-                pass

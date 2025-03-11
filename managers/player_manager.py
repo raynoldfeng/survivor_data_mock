@@ -12,18 +12,13 @@ class Fleet:
         self.morale = 100
         self.attack = 50
         self.defense = 50
-        self.dest = None  # 最终目标 (单元格坐标或星球 ID)
-        self.path = None  # 路径 (单元格坐标列表)
+        self.path = []
         self.travel_start_round = 0
         self.travel_speed = 1.0 # 现在速度的单位是 cell/tick
         self.travel_method = None
         self.landed_on = None
         self.location = (0,0,0) # 单元格坐标
 
-    def set_dest(self, destination):
-        """设置最终目标"""
-        self.dest = destination
-        self.path = None  # 清空旧路径
 
     def set_path(self, path: List[Tuple[int, int, int]]):
         """设置路径"""
@@ -31,7 +26,7 @@ class Fleet:
 
     def set_travel_method(self, travel_method):
         self.travel_method = travel_method
-        
+
     def move_to_next_cell(self):
         """移动到路径的下一个单元格 (或朝 dest 移动)"""
         if self.path:
@@ -148,14 +143,16 @@ class PlayerManager:
                 player.action_points += player.action_points_recovery_per_minute
                 player.action_points = min(player.action_points, player.max_action_points)
 
-                action_data = player.tick(self.game)
-                if action_data:
-                    self.process_action_data(action_data)
+                actions = player.tick(self.game)
+                if actions is not None:
+                    for action in actions:
+                        self.process_action_data(action)
 
             for robot_id, robot in self.robots.items():
-                action_data = robot.tick(self.game)
-                if action_data:
-                    self.process_action_data(action_data)
+                actions = robot.tick(self.game)
+                if actions is not None:
+                    for action in actions:
+                        self.process_action_data(action)
 
     def process_action_data(self, action_data):
         """处理操作数据，发送消息"""
@@ -165,7 +162,7 @@ class PlayerManager:
             # 发送 PLAYER_FLEET_MOVE_REQUEST 消息
             self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVE_REQUEST, {
                 "player_id": action_data["player_id"],
-                "location": self.players[action_data["player_id"]].fleet.location,
+                "path": action_data["path"],
                 "travel_method": action_data["travel_method"],
             }, self)
 
