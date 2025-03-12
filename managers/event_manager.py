@@ -1,8 +1,8 @@
-from typing import Dict, List, Optional, Callable
-from loader.enums import Target, Modifier
-from base_object import BaseObject
+from basic_types.enums import *
+from basic_types.base_object import BaseObject
+from basic_types.modifier import ModifierConfig
+from basic_types.player import Player
 from .message_bus import Message, MessageType
-from .player_manager import Player
 from loader.event_config import EventConfig, EventPhase, EventOption, EventChallenge, EventResult
 import random
 
@@ -137,37 +137,29 @@ class EventManager():
             return
 
         for result in results:
+            modifier_config =  ModifierConfig(
+                    data_type = result.resource_type_id,
+                    modifier_type = result.modifier,
+                    quantity = result.quantity,
+                    target_type = event.target_type,
+                    duration = result.duration,
+                    delay = 0,
+                )
             if event.target_type == Target.PLAYER:
                 self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
                     "target_id": target.player_id,  # 使用玩家 ID 作为 target_id
-                    "target_type": "Player",
-                    "resource_id": result.resource_type_id,
-                    "modifier": result.modifier,
-                    "quantity": result.quantity,
-                    "duration": result.duration,
+                    "modifier_config": modifier_config
                 }, self)
             # 其他目标类型的处理 (例如，如果是 World 或 Building，可能需要发送其他类型的消息)
             elif event.target_type == Target.WORLD:
-                # 假设您有一个 MODIFIER_WORLD 消息
                 self.game.message_bus.post_message(MessageType.MODIFIER_WORLD, {
                     "target_id": target.object_id,
-                    "target_type": "World",
-                    "attribute": result.resource_type_id,  # 假设资源类型 ID 可以作为属性名
-                    "modifier": result.modifier,
-                    "quantity": result.quantity,
-                    "duration": result.duration,
+                    "modifier_config": modifier_config
                 }, self)
             elif event.target_type == Target.BUILDING:
-                # 假设您有一个 MODIFIER_BUILDING 消息
                 self.game.message_bus.post_message(MessageType.MODIFIER_BUILDING, {
                     "target_id": target.object_id,
-                    "target_type": "Building",
-                    "attribute": result.resource_type_id,  # 假设资源类型 ID 可以作为属性名
-                    "modifier": result.modifier,
-                    "quantity": result.quantity,
-                    "duration": result.duration,
-                    'building_config': target.building_config, # 传递building_config
-                    'building_instance':target # 传递instance
+                    "modifier_config" :modifier_config
                 }, self)
 
     def update_event_state(self):

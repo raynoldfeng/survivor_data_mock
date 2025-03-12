@@ -1,6 +1,5 @@
-from .imports import *
-from .enums import *
-import csv
+from common import *
+from basic_types.enums import *
 
 class EventPhase:
     def __init__(self, phase_id, previous_phase, next_phase_success, next_phase_failure, text_id, duration):
@@ -142,7 +141,7 @@ def load_events_from_csv(**kwargs):
             for row in reader:
                 result_id = row['result_id']
                 resource_type_id = row['resource_type_id']
-                modifier = Modifier(row["modifier"])
+                modifier = ModifierType(row["modifier"])
                 quantity = row['quantity']
                 duration = row['duration']
                 result = EventResult(result_id, resource_type_id, modifier, quantity, duration)

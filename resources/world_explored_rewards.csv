@@ -1,4 +1,4 @@
-id,resource_id,probability,quantity_range
+id,resource,probability,quantity_range
 world.gaseous.none,resource.promethium,1.0,0.1-0.3
 world.rocky.lava,resource.adamantium,0.3,0.1-0.3
 world.rocky.lava,resource.ceramite,0.2,0.1-0.3

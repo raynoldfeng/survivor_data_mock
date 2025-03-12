@@ -1,6 +1,7 @@
-from typing import Tuple
+from common import *
+from basic_types.enums import *
 from .message_bus import MessageType, Message
-from loader.enums import Modifier, TravelMethod
+
 
 class RulesManager:
     _instance = None
@@ -80,11 +81,10 @@ class RulesManager:
                 # 发送修改资源的消息 (扣除钷素)
                 self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
                     "target_id": player.player_id,
-                    "target_type": "Player",
+                    "target_type": Target.PLAYER,
                     "resource_id": "promethium",
-                    "modifier": Modifier.REDUCE,
+                    "modifier": ModifierType.LOSS,
                     "quantity": self.SUBSPACE_JUMP_COST,
-                    "duration": 0,
                 }, self)
             else:
                 self.game.log.warn(f"玩家 {player.player_id} 尝试亚空间跳跃，但钷素不足")
@@ -141,9 +141,9 @@ class RulesManager:
             resource_id, quantity = reward
             self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
                 "target_id": player.player_id,
-                "target_type": "Player",
+                "target_type": Target.PLAYER,
                 "resource_id": resource_id,
-                "modifier": "INCREASE",
+                "modifier": ModifierType.GAIN,
                 "quantity": quantity,
                 "duration": 0,  # 立即生效
             }, self)

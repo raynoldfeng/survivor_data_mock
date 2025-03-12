@@ -1,35 +1,9 @@
-from typing import Dict, List, Optional, Union
+from basic_types.modifier import ModifierConfig
+from common import *
 from loader.building_config import BuildingConfig
+from basic_types.enums import *
+from basic_types.building import BuildingInstance
 from .message_bus import Message, MessageType
-from base_object import BaseObject
-from loader.enums import Modifier, BuildingType
-import random
-
-class BuildingInstance(BaseObject):
-    def __init__(self, building_config: BuildingConfig):
-        super().__init__()
-        self.building_config: BuildingConfig = building_config
-        self.remaining_ticks: int = building_config.build_period  # 使用 remaining_ticks
-        self.durability: int = building_config.durability
-        self.is_under_attack: bool = False
-        # self.completion_notified = False  # 移除
-
-    # def check_completion(self) -> bool:  # 移除
-    #     """检查是否建造/升级完成"""
-    #     if self.remaining_ticks <= 0:
-    #         return self.completion_notified
-
-    def take_damage(self, damage: int):
-        """受到伤害"""
-        self.durability -= damage
-        if self.durability <= 0:
-            self.durability = 0
-            # 发送建筑被摧毁的消息 (在tick中处理)
-
-    def get_destroyed(self) -> bool:
-        """获取是否被摧毁"""
-        return self.durability <= 0
-
 
 class BuildingManager():
     _instance = None
@@ -37,11 +11,11 @@ class BuildingManager():
     def __new__(cls, building_configs: Dict[str, BuildingConfig], game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.building_configs: Dict[str, BuildingConfig] = building_configs
-            cls._instance.building_instances: Dict[str, BuildingInstance] = {}
+            cls._instance.building_configs: Dict[str, BuildingConfig] = building_configs # type: ignore
+            cls._instance.building_instances: Dict[str, BuildingInstance] = {} # type: ignore
             cls._instance.game = game
             cls._instance.game.building_manager = cls._instance
-            cls._instance.tick_interval = 5  # 每5分钟tick一次 (根据需要调整)
+            cls._instance.tick_interval = 5 
 
             # 存储每个星球上每个槽位的建筑实例 ID
             cls._instance.world_buildings: Dict[str, Dict[str, Union[List[Optional[str]], Dict[str, List[Optional[str]]]]]] = {}
@@ -50,6 +24,8 @@ class BuildingManager():
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_REQUEST, cls._instance.handle_building_request)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_UPGRADE_REQUEST, cls._instance.handle_upgrade_request)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_COMPLETED, cls._instance.handle_building_completed)
+            cls._instance.game.message_bus.subscribe(MessageType.BUILDING_ATTRIBUTE_CHANGED, cls._instance.handle_building_attribute_changed)
+            
 
         return cls._instance
     
@@ -189,35 +165,25 @@ class BuildingManager():
         building_instance.durability = next_level_building_config.durability
 
     def tick(self, tick_counter):
-        """
-        修改后的tick方法，增加tick_counter参数, 并通过tick_interval控制频率
-        """
         if tick_counter % self.tick_interval == 0:
             # 移除被摧毁的建筑
             for building_id, building_instance in list(self.building_instances.items()):
                 if building_instance.get_destroyed():
                     # 获取建筑所在的星球ID
                     world_id = None
-                    for planet_id in self.game.robot.explored_planets: # 修正：使用 self.game.world_manager.world_instances
-                        # planet = self.game.world_manager.get_world_by_id(planet_id) # 不需要了
-                        # if planet:
-                        # 遍历world_buildings 来查找
+                    for planet_id in self.game.robot.explored_planets:
                         if planet_id in self.world_buildings:
                             for slot_type, slots in self.world_buildings[planet_id].items():
                                 if slot_type == "resource":
                                     for subtype, sub_slots in slots.items():
                                         if building_id in sub_slots:
                                             world_id = planet_id
-                                            # slot_index = sub_slots.index(building_id)
-                                            # planet.free_slot(slot_type, slot_index, subtype)  # 释放槽位
                                             break
                                     if world_id:
                                         break
                                 else:
-                                    if building_id in slots: # 正确的
+                                    if building_id in slots:
                                         world_id = planet_id
-                                        # slot_index = slots.index(building_id)
-                                        # planet.free_slot(slot_type, slot_index)
                                         break
                             if world_id:
                                 break
@@ -226,6 +192,7 @@ class BuildingManager():
                     self.game.message_bus.post_message(MessageType.BUILDING_DESTROYED, {
                         "building_id": building_id,
                     }, self)
+
 
     def handle_building_request(self, message: Message):
         """处理建造请求"""
@@ -248,13 +215,19 @@ class BuildingManager():
 
         # 检查资源是否足够
         can_afford = True
-        for modifier_data in building_config.modifiers:
-            if modifier_data['modifier_type'] == Modifier.REDUCE:
-                resource_id = modifier_data['resource_id']
-                quantity = modifier_data['quantity']
-                if player.resources.get(resource_id, 0) < quantity:
+
+        for modifier_config in building_config.modifier_configs:
+            if modifier_config.modifier_type == ModifierType.LOSS:
+                data_type = modifier_config.data_type
+                quantity = modifier_config.quantity
+                if player.resources.get(data_type, 0) < quantity:
                     can_afford = False
                     break
+
+        # manpower 是单独处理的
+        manpower = building_config.manpower
+        
+
         if not can_afford:
             # 发送资源不足消息
             self.game.message_bus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
@@ -264,23 +237,18 @@ class BuildingManager():
             return
 
         # 发送修改资源的请求 (使用 MODIFIER_PLAYER_RESOURCE 消息)
-        for modifier_data in building_config.modifiers:
-            if modifier_data['modifier_type'] == Modifier.REDUCE:
-                resource_id = modifier_data['resource_id']
-                quantity = modifier_data['quantity']
-                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
-                    "target_id": player_id,
-                    "target_type": "Player",
-                    "resource_id": resource_id,
-                    "modifier": Modifier.REDUCE, 
-                    "quantity": quantity,
-                    "duration": 0,  # 立即生效
+        for modifier_config in building_config.modifier_configs:
+            data_type = modifier_config.data_type
+            quantity = modifier_config.quantity
+            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+                "target_id": player_id,
+                "modifier_config" : modifier_config
                 }, self)
 
         # 检查是否有空闲的对应类型槽位, 并获取槽位索引
         if building_config.type == BuildingType.RESOURCE:
             slot_type = "resource"
-            subtype = building_config.subtype.value  # 获取 subtype
+            subtype = building_config.subtype.value
         elif building_config.type == BuildingType.GENERAL:
             slot_type = "general"
             subtype = None
@@ -290,17 +258,14 @@ class BuildingManager():
         else:
             return  # 未知建筑类型，无法建造
 
-        slot_index = self.get_available_slot(world_id, slot_type, subtype)  # 传入 subtype
+        slot_index = self.get_available_slot(world_id, slot_type, subtype)
         if slot_index is None:
             self.game.log.info("没有空闲的槽位")
             return  # 没有可用的槽位
 
         # 创建建筑实例
         building_instance = BuildingInstance(building_config)
-        # self._add_building_instance(building_instance, world_id) # 放到后面
-        # 占用星球槽位
-        # world.occupy_slot(slot_type, slot_index, building_instance.object_id, subtype)
-        self._add_building_instance(building_instance, world_id, slot_type, slot_index, subtype) # 在这里更新world_buildings
+        self._add_building_instance(building_instance, world_id, slot_type, slot_index, subtype)
 
         # 发送建筑开始建造消息, 并请求modifier
         self.game.message_bus.post_message(MessageType.BUILDING_START, {
@@ -309,23 +274,21 @@ class BuildingManager():
             "player_id": player_id
         }, self)
         
+        modifier_config =  ModifierConfig(
+            data_type = "remaining_ticks",  # 修改为 remaining_ticks
+            modifier_type = ModifierType.LOSS,
+            quantity = self.tick_interval,  # 每次tick减少的量
+            target_type = Target.BUILDING,
+            duration = building_instance.build_period // self.tick_interval,  # 持续tick次数, 改为使用升级时间
+            delay = 0,
+        )
         self.game.message_bus.post_message(MessageType.MODIFIER_BUILDING, {
             "target_id": building_instance.object_id,
-            "target_type": "Building",
-            "building_config": building_config,  # 传递建筑配置
-            "modifier": "BUILDING",
-            "attribute": "remaining_ticks",  # 修改为 remaining_ticks
-            "quantity": -1 * self.tick_interval,  # 每次tick减少的量
-            "duration": building_instance.remaining_ticks // self.tick_interval,  # 持续tick次数
-            "building_instance": building_instance  # 传递建筑实例
+            "modifier_config": modifier_config
         }, self)
 
     def handle_building_completed(self, message: Message):
-        # data = message.data  # 移除
-        # building_id = data["building_id"]
-        # building_instance = self.get_building_by_id(building_id)
-        # building_instance.completion_notified = True
-        pass #移除
+        pass 
 
     def handle_upgrade_request(self, message: Message):
         """处理升级请求"""
@@ -346,13 +309,14 @@ class BuildingManager():
 
         # 检查资源是否足够
         can_afford = True
-        for modifier_data in next_level_building_config.modifiers:
-            if modifier_data['modifier_type'] == Modifier.REDUCE:
-                resource_id = modifier_data['resource_id']
-                quantity = modifier_data['quantity']
-                if player.resources.get(resource_id, 0) < quantity:
+        for modifier_config in next_level_building_config.modifier_configs:
+            if modifier_config['modifier'] == ModifierType.LOSS:
+                data_type = modifier_config.data_type
+                quantity = modifier_config.quantity
+                if player.resources.get(data_type, 0) < quantity:
                     can_afford = False
                     break
+
         if not can_afford:
             # 发送资源不足消息
             self.game.message_bus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
@@ -360,19 +324,18 @@ class BuildingManager():
                 "building_id": building_id,
             }, self)
             return
+        
         # 发送修改资源的请求 (使用 MODIFIER_PLAYER_RESOURCE 消息)
-        for modifier_data in next_level_building_config.modifiers:
-            if modifier_data['modifier_type'] == Modifier.REDUCE:
-                resource_id = modifier_data['resource_id']
-                quantity = modifier_data['quantity']
-                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
-                    "target_id": player_id,
-                    "target_type": "Player",
-                    "resource_id": resource_id,
-                    "modifier": Modifier.REDUCE,
-                    "quantity": quantity,
-                    "duration": 0,  # 立即生效
-                }, self)
+        for modifier_config in next_level_building_config.modifier_configs:
+            resource_id = modifier_config.data_type
+            quantity = modifier_config.quantity
+            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+                "target_id": player_id,
+                "target_type": Target.PLAYER,
+                "resource_id": resource_id,
+                "modifier": modifier_config.modifier_type,
+                "quantity": quantity,
+            }, self)
         
         # 获取建筑所在的星球ID
         world_id = None
@@ -400,13 +363,27 @@ class BuildingManager():
             "player_id": player_id
         }, self)
 
+        modifier_config =  ModifierConfig(
+            data_type = "remaining_ticks",  # 修改为 remaining_ticks
+            modifier_type = ModifierType.LOSS,
+            quantity = self.tick_interval,  # 每次tick减少的量
+            target_type = Target.BUILDING,
+            duration = next_level_building_config.build_period // self.tick_interval,  # 持续tick次数, 改为使用升级时间
+            delay = 0,
+        )
+
         self.game.message_bus.post_message(MessageType.MODIFIER_BUILDING, {
-            "target_id": building_instance.object_id,  # 保持原有 ID
-            "target_type": "Building",
-            "building_config": next_level_building_config,  # 传递建筑配置
-            "modifier": "BUILDING",
-            "attribute": "remaining_ticks",  # 修改为 remaining_ticks
-            "quantity": -1 * self.tick_interval,  # 每次tick减少的量
-            "duration": next_level_building_config.build_period // self.tick_interval,  # 持续tick次数, 改为使用升级时间
-            "building_instance": building_instance  # 传递建筑实例
+            "target_id": building_instance.object_id,
+            "modifier_config": modifier_config
         }, self)
+    
+    def handle_building_attribute_changed(self, message:Message):
+        building = self.get_building_by_id(message.data["target_id"])
+        if not building:
+            return
+
+        attribute = message.data["attribute"]
+        quantity = message.data["quantity"]
+
+        # 这里后续改成明确的对象方法调用，不要对象/dict混用
+        building[attribute] += quantity

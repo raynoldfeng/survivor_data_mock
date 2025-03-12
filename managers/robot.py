@@ -1,6 +1,5 @@
-from loader.enums import *
-import random
-from .message_bus import MessageType, Message  # 导入 MessageType
+from basic_types.enums import *
+from common import *
 
 class Dest():
     def __init__(self, type, value):
@@ -79,9 +78,9 @@ class Robot():
             key_resource_buildings = [
                 b for b in level_1_buildings
                 if any(
-                    modifier_data['resource_id'] in ("resource.promethium", "resource.energy")  # 假设有 energy 资源
-                    for modifier_data in b.modifiers  # 直接从 building_config.modifiers 获取
-                    if modifier_data['modifier_type'] == Modifier.PRODUCTION
+                    modifier_config.data_type in ("resource.promethium", "resource.energy")
+                    for modifier_config in b.modifier_configs
+                    if modifier_config.modifier_type == ModifierType.PRODUCTION
                 )
             ]
             if key_resource_buildings:
@@ -90,8 +89,8 @@ class Robot():
             resource_buildings = [
                 b for b in level_1_buildings
                 if any(
-                    modifier_data['modifier_type'] == Modifier.PRODUCTION
-                    for modifier_data in b.modifiers  # 直接从 building_config.modifiers 获取
+                    modifier.modifier_type == ModifierType.PRODUCTION
+                    for modifier in b.modifier_configs
                 )
             ]
             if resource_buildings:
@@ -100,9 +99,9 @@ class Robot():
             population_buildings = [
                 b for b in level_1_buildings
                 if any(
-                    modifier_data['resource_id'] == "resource.population"
-                    for modifier_data in b.modifiers  # 直接从 building_config.modifiers 获取
-                    if modifier_data['modifier_type'] == Modifier.PRODUCTION
+                    modifier.data_type == "resource.population"
+                    for modifier in b.modifier_configs
+                    if modifier.modifier_type == ModifierType.PRODUCTION
                 )
             ]
             if population_buildings:
@@ -123,14 +122,15 @@ class Robot():
         next_level_production = 0
 
         # 获取当前等级的产出
-        for modifier_data in building_instance.building_config.modifiers: # 直接从 building_config.modifiers 获取
-            if modifier_data['modifier_type'] == Modifier.PRODUCTION:
-                current_production += modifier_data['quantity']
+        for modifier in building_instance.building_config.modifier_configs:
+            if modifier.modifier_type == ModifierType.PRODUCTION:
+                current_production += modifier.quantity
 
         # 获取下一等级的产出
-        for modifier_data in next_level_config.modifiers: # 直接从 next_level_config.modifiers 获取
-            if modifier_data['modifier_type'] == Modifier.PRODUCTION:
-                next_level_production += modifier_data['quantity']
+        for modifier in next_level_config.modifier_configs: 
+            if modifier.modifier_type == ModifierType.PRODUCTION:
+                next_level_production += modifier.quantity
+
 
         return next_level_production - current_production
 
@@ -139,16 +139,10 @@ class Robot():
         player = self.game.player_manager.get_player_by_id(self.player_id)
         upgradeable_buildings = []
 
-        for planet_id in list(player.planets_buildings.keys()):
-            building_ids = player.planets_buildings.get(planet_id)
-            if not building_ids:
-                continue
-            for building_id in building_ids:
-                building_instance = self.game.building_manager.get_building_by_id(building_id)
-                if not building_instance:
-                    continue
-                if self.can_upgrade_building(building_instance):
-                    upgradeable_buildings.append(building_instance)
+        for planet_id in player.explored_planets:
+            for building_instance in self.game.building_manager.get_buildings_on_world(planet_id):
+                #TODO:增加升级建筑的资源判断逻辑
+                upgradeable_buildings.append(building_instance)
 
         if not upgradeable_buildings:
             return None

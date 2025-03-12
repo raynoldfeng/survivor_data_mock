@@ -1,11 +1,9 @@
 from loader.locale import Locale
-from loader.enums import *
-from managers.world_manager import World
+from basic_types.enums import *
 from path_finder import Pathfinder
 from logger import Log
 import logging
 from time import sleep
-from typing import List
 
 class Game:
     def __init__(self):
@@ -105,8 +103,8 @@ class Game:
                 user_input = input("按回车键继续，输入 'r' 查看资源，输入 'p' 查看已探索星球及建筑：").strip().lower()
                 if user_input == 'r':
                     self.log.info("当前资源：")
-                    for resource_id, amount in self.robot.resources.items():
-                        self.log.info(f"{resource_id}: {amount}")
+                    for resource, amount in self.robot.resources.items():
+                        self.log.info(f"{resource}: {amount}")
                 elif user_input == 'p':
                     self.log.info("已探索的星球及建筑：")
                     for planet_id in self.robot.explored_planets:

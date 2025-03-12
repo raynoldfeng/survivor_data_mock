@@ -1,4 +1,4 @@
-from .imports import *
+from common import *
 
 class Locale:
     language: str = "en"

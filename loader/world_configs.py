@@ -1,6 +1,6 @@
-from .imports import *
-from .enums import *
-from .resource import Resource
+from common import *
+from basic_types.enums import *
+from basic_types.world_config import WorldConfig
 
 class WorldDataMapper:
     @staticmethod
@@ -39,17 +39,10 @@ class WorldDataMapper:
     @staticmethod
     def map_world_explored_reward(row):
         return {
-            'resource_id': row['resource_id'],
+            'resource': row['resource'],
             'probability': float(row['probability']),
             'quantity_range': row['quantity_range']
         }
-
-class WorldConfig:
-    def __init__(self, world_id, info, init_structures, explored_rewards):
-        self.world_id = world_id
-        self.info = info
-        self.init_structures = init_structures
-        self.explored_rewards = explored_rewards
 
 def load_world_info_config(file_path):
     world_info_data = {}

@@ -1,4 +1,5 @@
-from .imports import *
+from common import *
+
 # 资源类型枚举
 class ResourceType(Enum):
     PRIMARY = "Primary"    # 基础资源 (原生资源)
@@ -51,11 +52,11 @@ class RockyPlanetSubtype(Enum):
     OCEAN = "Ocean"
     FROZEN = "Frozen"
 
-class Modifier(Enum):
+class ModifierType(Enum):
     PRODUCTION = "Production"  # 单位时间产出
-    COST = "Cost"  # 单位时间消耗
-    INCREASE = "Increrase"  # 一次性增加
-    REDUCE = "Reduce"  # 一次性扣除
+    CONSUME = "Consume"  # 单位时间消耗
+    GAIN = "Gain"  # 一次性增加
+    LOSS = "Loss"  # 一次性扣除
 
 class Target(Enum):
     WORLD = "World"

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Dict, Any, Optional, Callable
+from common import *
 
 class MessageType(Enum):
     NONE = 0
@@ -26,9 +26,11 @@ class MessageType(Enum):
     BUILDING_INSUFFICIENT_RESOURCES = 21
     BUILDING_REQUEST = 22
     BUILDING_UPGRADE_REQUEST = 23
-    MODIFIER_PLAYER_RESOURCE = 24
-    MODIFIER_BUILDING = 25
-    INTERSECTION_EVENT = 26
+    BUILDING_ATTRIBUTE_CHANGED = 24
+    MODIFIER_PLAYER_RESOURCE = 25
+    MODIFIER_BUILDING = 26
+    MODIFIER_WORLD = 27
+    INTERSECTION_EVENT = 28
 
 
 
