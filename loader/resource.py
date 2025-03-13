@@ -9,7 +9,7 @@ def load_resources_from_csv(file_path: str) -> Dict[str, Resource]:
             reader = csv.DictReader(f)
             for row in reader:
                 id = row["id"]
-                resource = Resource.from_csv_row(row)
+                resource = ResourceConfig.from_csv_row(row)
                 resources[id] = resource
     except FileNotFoundError:
         print(f"Error: File not found: {file_path}")

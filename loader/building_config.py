@@ -1,4 +1,5 @@
 from basic_types.modifier import ModifierConfig
+from basic_types.resource import Resource
 from common import *
 from basic_types.building_config import BuildingConfig
 from basic_types.enums import *
@@ -24,8 +25,8 @@ class BuildingDataMapper:
     @staticmethod
     def map_building_modifier(row):
         modifier_config =  ModifierConfig(
-            data_type = row['resource'],
-            modifier_type = row['modifier'],
+            data_type = Resource.get_resource_by_id(row['resource']),
+            modifier_type = ModifierType(row['modifier']),
             quantity = float(row['quantity']),
             target_type = Target.PLAYER,
             duration = 0,

@@ -13,7 +13,7 @@ class BuildingType(Enum):
     DEFENSE = "Defense"    # 防御建筑
 
 # 建筑子类型枚举 (根据建筑类型细分)
-class ResourceSubType(Enum):
+class BuildingSubTypeResource(Enum):
     ADAMANTIUM = "Adamantium"
     PLASTEEL = "Plasteel"
     CERAMITE = "Ceramite"
@@ -21,12 +21,12 @@ class ResourceSubType(Enum):
     PROMETHAZINE = "Promethazine"
     FARM = "Farm"           
 
-class GeneralSubType(Enum):
+class BuildingSubTypeGeneral(Enum):
     HABITATION = "Habitation"  # 居民点 (包括城市、教堂、大教堂)
     WORKSHOP = "Workshop"      # 工作坊 (包括加工厂、铸造工厂、兵工厂、高级武器工厂)
     LABORATORY = "Laboratory"  # 实验室 (包括化工厂、高级化工厂、研究所、STC研究所)
 
-class DefenseSubType(Enum):
+class BuildingSubTypeDefense(Enum):
     ORBITALDEFENSE = "OrbitalDefense"  # 轨道防御
     ENERGYSHIELD = "EnergyShield"    # 能量护盾
     PSYCHICBARRIER = "PsychicBarrier" # 灵能屏障
@@ -66,3 +66,12 @@ class Target(Enum):
 class TravelMethod(Enum):
     SLOWTRAVEL = "SlowTravel"
     SUBSPACEJUMP = "SubspaceJump"
+
+class PlayerAction(Enum):
+    LAND = "Land",
+    MOVE = "Move",
+    TAKEOFF = "TakeOff",
+    EXPLORE = "Explore"
+    BUILD = 'Build',
+    UPGRADE = 'Upgrade',
+    CHOICE = 'Choice'

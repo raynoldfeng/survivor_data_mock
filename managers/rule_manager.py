@@ -1,3 +1,5 @@
+from basic_types.modifier import ModifierConfig
+from basic_types.resource import Resource
 from common import *
 from basic_types.enums import *
 from .message_bus import MessageType, Message
@@ -79,12 +81,10 @@ class RulesManager:
             player.set_path(path[:1])
             if player.get_resource_amount("promethium") >= self.SUBSPACE_JUMP_COST:
                 # 发送修改资源的消息 (扣除钷素)
+                modifier_config = ModifierConfig(Target.PLAYER, Resource.get_resource_by_id("resource.promethium"), ModifierType.LOSS, self.SUBSPACE_JUMP_COST, 0, 0)
                 self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
                     "target_id": player.player_id,
-                    "target_type": Target.PLAYER,
-                    "resource_id": "promethium",
-                    "modifier": ModifierType.LOSS,
-                    "quantity": self.SUBSPACE_JUMP_COST,
+                    "modifier_config": modifier_config
                 }, self)
             else:
                 self.game.log.warn(f"玩家 {player.player_id} 尝试亚空间跳跃，但钷素不足")
@@ -139,14 +139,12 @@ class RulesManager:
         # 计算并应用探索奖励
         for reward in world.exploration_rewards:
             resource_id, quantity = reward
+            modifier_config = ModifierConfig(Target.PLAYER, Resource.get_resource_by_id(resource_id), ModifierType.GAIN, quantity, 0, 0)
             self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
                 "target_id": player.player_id,
-                "target_type": Target.PLAYER,
-                "resource_id": resource_id,
-                "modifier": ModifierType.GAIN,
-                "quantity": quantity,
-                "duration": 0,  # 立即生效
+                "modifier_config": modifier_config
             }, self)
+            
     def handle_fleet_land_request(self, message: Message):
         """处理降落请求, 检查舰队当前位置是否在星球表面"""
         player = self.game.player_manager.get_player_by_id(message.data["player_id"])

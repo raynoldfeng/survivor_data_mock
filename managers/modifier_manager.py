@@ -1,6 +1,7 @@
 from basic_types.enums import *
 from basic_types.modifier import ModifierConfig, ModifierInstance
 from basic_types.player import Player
+from basic_types.resource import Resource
 from .message_bus import Message, MessageType
 
 #ModifierManager里负责把ModifierConfig 创建成Instance并且管理
@@ -25,9 +26,8 @@ class ModifierManager():
         for modifier in self.modifiers:
             modifier.life += 1
             config : ModifierConfig = modifier.config
-            if config.modifier_type == ModifierType.GAIN or ModifierType.LOSS:
-                quantity = config.quantity * -1 if config.modifier_type is ModifierType.LOSS else 1
-                
+            quantity = config.quantity * -1 if config.modifier_type is ModifierType.LOSS else 1
+            if config.modifier_type in(ModifierType.GAIN , ModifierType.LOSS):
                 if config.target_type == Target.PLAYER:
                     self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
                         "player_id": modifier.target_id,
@@ -35,7 +35,7 @@ class ModifierManager():
                         "quantity": quantity
                     }, self)
                 elif config.target_type == Target.BUILDING:
-                    self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
+                    self.game.message_bus.post_message(MessageType.BUILDING_ATTRIBUTE_CHANGED, {
                         "building_id": modifier.target_id,
                         "attribute": config.data_type,
                         "quantity": quantity
@@ -44,8 +44,19 @@ class ModifierManager():
                 if modifier.life < config.duration:
                     modifiers_next_round.append(modifier)
             else:
-                # ModifierType.CONSUME ModifierType.PRODUCTION
-
+                # ModifierType.CONSUME or ModifierType.PRODUCTION
+                if config.target_type == Target.PLAYER:
+                    self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
+                        "player_id": modifier.target_id,
+                        "resource": config.data_type,
+                        "quantity": quantity
+                    }, self)
+                elif config.target_type == Target.BUILDING:
+                    self.game.message_bus.post_message(MessageType.BUILDING_ATTRIBUTE_CHANGED, {
+                        "building_id": modifier.target_id,
+                        "attribute": config.data_type,
+                        "quantity": quantity
+                    }, self)
                 pass
         self.modifiers = modifiers_next_round
 
@@ -58,14 +69,16 @@ class ModifierManager():
         if not player:
             return
         
+        assert(isinstance(modifier_config, ModifierConfig))
         instance = ModifierInstance(target_id = player.player_id,config = modifier_config)
         self.modifiers.append(instance)
 
     def handle_building_modifier(self, message: Message): 
         """处理建筑修改请求, 添加modifier"""
-        building = self.game.biulding_manager.get_building_by_id(message.data["target_id"])
+        building = self.game.building_manager.get_building_by_id(message.data["target_id"])
         modifier_config : ModifierConfig = message.data["modifier_config"]
 
-        instance = ModifierInstance(target_id = player.player_id,config = modifier_config)
+        assert(isinstance(modifier_config, ModifierConfig))
+        instance = ModifierInstance(target_id = building.object_id,config = modifier_config)
         self.modifiers.append(instance)
 

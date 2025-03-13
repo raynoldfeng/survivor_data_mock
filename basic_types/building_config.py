@@ -42,11 +42,11 @@ class BuildingConfig:
     @staticmethod
     def get_subtype(building_type: BuildingType, subtype_str: str):
         if building_type == BuildingType.RESOURCE:
-            return ResourceSubType(subtype_str)
+            return BuildingSubTypeResource(subtype_str)
         elif building_type == BuildingType.GENERAL:
-            return GeneralSubType(subtype_str)
+            return BuildingSubTypeGeneral(subtype_str)
         elif building_type == BuildingType.DEFENSE:
-            return DefenseSubType(subtype_str)
+            return BuildingSubTypeDefense(subtype_str)
         return None
 
     def get_next_level_id(self):

@@ -31,7 +31,7 @@ class Player(BaseObject):
     def __init__(self, resources: Dict[str, Resource], building_config):
         super().__init__()
         self.player_id = str(uuid.uuid4())
-        self.resources: Dict[str, float] = {res_id: 0.0 for res_id in resources}
+        self.resources: Dict[Resource, float] = {resource: 0.0 for resource in resources}
         self.manpower_allocation = {}
         self.avaliable_manpower = 0
         self.fleet = Fleet()
@@ -41,16 +41,6 @@ class Player(BaseObject):
         self.action_points = 5
         self.max_action_points = 20
         self.action_points_recovery_per_minute = 0.1
-
-    def get_resource_amount(self, resource_id: str) -> float:
-        """获取指定资源的数量"""
-        return self.resources.get(resource_id, 0.0)
-
-    def modify_resource(self, resource_id: str, amount: float):
-        """修改指定资源的数量 (可以是正数或负数)"""
-        if resource_id in self.resources:
-            self.resources[resource_id] += amount
-            self.resources[resource_id] = max(0.0, self.resources[resource_id])
 
     def tick(self, game):
         """

@@ -1,4 +1,5 @@
 from basic_types.enums import *
+from basic_types.resource import Resource
 from common import *
 
 class Dest():
@@ -11,22 +12,35 @@ class Robot():
         self.player_id = player_id
         self.game = game
         self.dest : Dest = None
+    
+    # 这里要做成一个tick内的判断，rule里也要对应修改
+    def can_afford_building_cost(self, player, building_config):
+        for modifier_config in building_config.modifier_configs:
+            if modifier_config.modifier_type == ModifierType.LOSS:
+                resource = modifier_config.data_type
+                quantity = modifier_config.quantity
+                avaliable = player.resources.get(resource.id, 0)
+                if avaliable < quantity:
+                    return False
+        return True
 
     def can_build_on_slot(self, planet, building_config):
         """判断是否可以在指定星球的插槽上建造指定建筑, 需要考虑建筑类型和星球槽位类型的匹配"""
         player = self.game.player_manager.get_player_by_id(self.player_id)
 
-        # 1. 检查资源是否足够 (在 BuildingManager 中检查)
-
-        # 2. 检查建筑等级 (只有 1 级建筑才能直接建造)
+       # 1. 检查建筑等级 (只有 1 级建筑才能直接建造)
         if building_config.level != 1:
             return False
         
-        # 4. 检查前置建筑
+        # 2. 检查资源是否足够 (在 BuildingManager 中检查)
+        if not self.can_afford_building_cost(player, building_config):
+            return False 
+        
+        # 3. 检查前置建筑
         if not self.game.building_manager._has_prerequisite_building(building_config, planet.object_id):
             return False
 
-        # 5. 检查是否有空闲的对应类型槽位 (根据 building_config.type 判断)
+        # 4. 检查是否有空闲的对应类型槽位 (根据 building_config.type 判断)
         if building_config.type == BuildingType.RESOURCE:
             slot_type = "resource"
             subtype = building_config.subtype.value  # 获取 subtype
@@ -78,7 +92,7 @@ class Robot():
             key_resource_buildings = [
                 b for b in level_1_buildings
                 if any(
-                    modifier_config.data_type in ("resource.promethium", "resource.energy")
+                    modifier_config.data_type in (Resource.get_resource_by_id("resource.promethium"), Resource.get_resource_by_id("resource.energy"))
                     for modifier_config in b.modifier_configs
                     if modifier_config.modifier_type == ModifierType.PRODUCTION
                 )
@@ -99,7 +113,7 @@ class Robot():
             population_buildings = [
                 b for b in level_1_buildings
                 if any(
-                    modifier.data_type == "resource.population"
+                    modifier.data_type == Resource.get_resource_by_id("resource.population")
                     for modifier in b.modifier_configs
                     if modifier.modifier_type == ModifierType.PRODUCTION
                 )
@@ -141,8 +155,13 @@ class Robot():
 
         for planet_id in player.explored_planets:
             for building_instance in self.game.building_manager.get_buildings_on_world(planet_id):
-                #TODO:增加升级建筑的资源判断逻辑
-                upgradeable_buildings.append(building_instance)
+                # 获取下一级建筑配置
+                next_level_building_config = self.game.building_manager.get_building_config(building_instance.building_config.get_next_level_id())
+                if next_level_building_config:
+                    # 检查资源是否足够
+                    can_afford = self.can_afford_building_cost(player, next_level_building_config)
+                    if can_afford:
+                        upgradeable_buildings.append(building_instance) 
 
         if not upgradeable_buildings:
             return None
@@ -228,7 +247,7 @@ class Robot():
         if current_phase.options and current_phase.phase_id not in event.choices:
             choice = random.choice(list(current_phase.options.keys()))
             return {
-                "action": "select_event_option",
+                "action": PlayerAction.CHOICE,
                 "player_id": player.player_id,
                 "choice": choice,
             }
@@ -265,7 +284,7 @@ class Robot():
                                     # 不在已经探索过的列表里，准备探索
                                     self.game.log.info(f"Robot {player.player_id} 准备探索星球 {world.world_config.world_id} : {world.object_id}。")
                                     actions.append({
-                                        "action": "explore",
+                                        "action": PlayerAction.EXPLORE,
                                         "player_id": player.player_id,
                                         "world_id": world.object_id,
                                     })
@@ -274,14 +293,14 @@ class Robot():
                                     self.dest = None
                                     self.game.log.info(f"Robot {player.player_id} 准备起飞。")
                                     actions.append({
-                                        "action": "takeoff",
+                                        "action": PlayerAction.TAKEOFF,
                                         "player_id": player.player_id,
                                     })
                             else:
                                 # 还没降落，准备降落
                                 self.game.log.info(f"Robot {player.player_id} 尝试降落在星球 {world.world_config.world_id} : {world.object_id}上。")
                                 actions.append({
-                                    "action": "land",
+                                    "action": PlayerAction.LAND,
                                     "player_id": player.player_id,
                                     "world_id": world.object_id,
                                 })
@@ -330,7 +349,7 @@ class Robot():
                         self.dest = Dest(type="world", value=planet.object_id)
                         self.game.log.info(f"Robot {player.player_id} 选择 前往类型为{planet.world_config.world_id}的星球 {planet.object_id}，并找到了路径。")
                         actions.append({
-                            "action": "move",
+                            "action": PlayerAction.MOVE,
                             "path": path,
                             "travel_method": TravelMethod.SLOWTRAVEL,  # 寻路找到路径，肯定是慢速旅行
                             "player_id": player.player_id
@@ -357,7 +376,7 @@ class Robot():
         if building_instance:
             self.game.log.info(f"Robot {player.player_id} 选择升级建筑: {building_instance.building_config.name_id}")
             actions.append({
-                "action": "upgrade",
+                "action": PlayerAction.UPGRADE,
                 "building_id": building_instance.object_id,
                 "player_id": player.player_id
             })
@@ -374,7 +393,7 @@ class Robot():
                     #还有可以建造的建筑(1级)
                     self.game.log.info(f"Robot {player.player_id} 选择在类型为{planet.world_config.world_id}的星球 {planet.object_id} 上建造建筑 {building_config.building_id}")
                     actions.append({
-                        "action": "build",
+                        "action": PlayerAction.BUILD,
                         "planet_id": planet.object_id,
                         "building_id": building_config.building_id,
                         "player_id": player.player_id

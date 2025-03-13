@@ -98,7 +98,7 @@ class PlayerManager:
         """处理操作数据，发送消息"""
         action = action_data['action']
 
-        if action == 'move':
+        if action == PlayerAction.MOVE:
             # 发送 PLAYER_FLEET_MOVE_REQUEST 消息
             self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVE_REQUEST, {
                 "player_id": action_data["player_id"],
@@ -107,37 +107,37 @@ class PlayerManager:
             }, self)
 
         # 处理降落请求
-        elif action == 'land':
+        elif action == PlayerAction.LAND:
             self.game.message_bus.post_message(MessageType.PLAYER_FLEET_LAND_REQUEST, {
                 "player_id": action_data["player_id"],
                 "world_id": action_data["world_id"]
             }, self)
         # 新增起飞
-        elif action == 'takeoff':
+        elif action == PlayerAction.TAKEOFF:
             self.game.message_bus.post_message(MessageType.PLAYER_FLEET_TAKEOFF_REQUEST, {
                 "player_id": action_data["player_id"],
             }, self)
 
-        elif action == 'build':
+        elif action == PlayerAction.BUILD:
             self.game.message_bus.post_message(MessageType.BUILDING_REQUEST, {
                 "player_id": action_data["player_id"],
                 "world_id": action_data["planet_id"],
                 "building_id": action_data["building_id"],
             }, self)
 
-        elif action == 'upgrade':
+        elif action == PlayerAction.UPGRADE:
             self.game.message_bus.post_message(MessageType.BUILDING_UPGRADE_REQUEST, {
                 "player_id": action_data["player_id"],
                 "building_id": action_data["building_id"],
             }, self)
 
-        elif action == "select_event_option":
+        elif action == PlayerAction.CHOICE:
             self.game.message_bus.post_message(MessageType.PLAYER_SELECT_EVENT_OPTION, {
                 "player_id": action_data["player_id"],
                 "choice": action_data["choice"],
             }, self)
 
-        elif action == 'explore':
+        elif action == PlayerAction.EXPLORE:
             self.game.message_bus.post_message(MessageType.PLAYER_EXPLORE_WORLD_REQUEST, {
                 "player_id": action_data["player_id"],
                 "world_id": action_data["world_id"],
@@ -153,8 +153,7 @@ class PlayerManager:
 
         resource = message.data["resource"]
         quantity = message.data["quantity"]
-        player.modify_resource(resource, quantity)
-
+        player.resources[resource.id] += quantity
 
     def allocate_manpower(self, building_instance, count):
         # 1.判断building_instance 是否归属于player

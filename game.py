@@ -1,3 +1,4 @@
+from basic_types.resource import Resource
 from loader.locale import Locale
 from basic_types.enums import *
 from path_finder import Pathfinder
@@ -100,20 +101,20 @@ class Game:
 
             # 以下是为了管理员查看方便
             if(self.tick_counter % 1000) == 0:
-                user_input = input("按回车键继续，输入 'r' 查看资源，输入 'p' 查看已探索星球及建筑：").strip().lower()
-                if user_input == 'r':
-                    self.log.info("当前资源：")
-                    for resource, amount in self.robot.resources.items():
-                        self.log.info(f"{resource}: {amount}")
-                elif user_input == 'p':
-                    self.log.info("已探索的星球及建筑：")
-                    for planet_id in self.robot.explored_planets:
-                        planet = self.world_manager.get_world_by_id(planet_id)
-                        planet_name = Locale.get_text(planet.world_config.world_id)
-                        self.log.info(f"星球: {planet_name} ({planet.location})")
-                        for building_instance in self.building_manager.get_buildings_on_world(planet_id):
-                            building_name = Locale.get_text(building_instance.building_config.name_id)
-                            building_level = building_instance.building_config.level
-                            self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}")
+                self.log.info("-------------------------------------------")
+                self.log.info("当前资源：")
+                for resource, amount in self.robot.resources.items():
+                    self.log.info(f"{Locale.get_text(Resource.get_resource_by_id(resource).name_id)}: {amount}")
+
+                self.log.info("已探索的星球及建筑：")
+                for planet_id in self.robot.explored_planets:
+                    planet = self.world_manager.get_world_by_id(planet_id)
+                    planet_name = Locale.get_text(planet.world_config.world_id)
+                    self.log.info(f"星球: {planet_name} ({planet.location})")
+                    for building_instance in self.building_manager.get_buildings_on_world(planet_id):
+                        building_name = Locale.get_text(building_instance.building_config.name_id)
+                        building_level = building_instance.building_config.level
+                        self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}")
+                self.log.info("-------------------------------------------")
                 input()
 
