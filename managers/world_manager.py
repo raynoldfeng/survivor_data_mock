@@ -1,3 +1,4 @@
+from basic_types.enums import BuildingSubTypeResource, BuildingType
 from common import *
 from basic_types.world import WorldInstance
 class WorldManager:
@@ -65,9 +66,9 @@ class WorldManager:
     def _generate_resource_slots(self, world_config):
         """生成初始的 building_slots 字典 (所有类型均为二级字典)"""
         building_slots = {
-            "resource": {},
-            "general": {},  # 改为二级字典
-            "defense": {}   # 改为二级字典
+            BuildingType.RESOURCE: {},
+            BuildingType.GENERAL: {},
+            BuildingType.DEFENSE: {}
         }
         for res_id in world_config.info:
             if res_id.endswith("_slot"):
@@ -78,13 +79,13 @@ class WorldManager:
                     base_slot += random.randint(adjustment[0], adjustment[1])
 
                 if res_id.startswith("general"):
-                    building_slots["general"]["general"] = base_slot  # 添加到二级字典
+                    building_slots[BuildingType.GENERAL] = base_slot
                 elif res_id.startswith("defense"):
-                    building_slots["defense"]["defense"] = base_slot  # 添加到二级字典
+                    building_slots[BuildingType.DEFENSE] = base_slot
                 else:
                     # 对于 resource 类型，添加到二级字典中
-                    subtype = res_id[:-5].capitalize()  # 首字母大写，例如 "adamantium" -> "Adamantium"
-                    building_slots["resource"][subtype] = base_slot
+                    subtype = BuildingSubTypeResource(res_id[:-5].capitalize())  # 首字母大写，例如 "adamantium" -> "Adamantium"
+                    building_slots[BuildingType.RESOURCE][subtype] = base_slot
         return building_slots
 
     def calculate_distance(self, location1: Tuple[int, int, int], location2: Tuple[int, int, int]) -> int:

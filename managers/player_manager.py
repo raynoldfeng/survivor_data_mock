@@ -122,7 +122,7 @@ class PlayerManager:
             self.game.message_bus.post_message(MessageType.BUILDING_REQUEST, {
                 "player_id": action_data["player_id"],
                 "world_id": action_data["planet_id"],
-                "building_id": action_data["building_id"],
+                "building_config_id": action_data["building_config_id"],
             }, self)
 
         elif action == PlayerAction.UPGRADE:

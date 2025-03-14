@@ -19,7 +19,7 @@ class BuildingSubTypeResource(Enum):
     CERAMITE = "Ceramite"
     PROMETHIUM = "Promethium"
     PROMETHAZINE = "Promethazine"
-    FARM = "Farm"           
+    AGRICULTURE = "Agriculture"           
 
 class BuildingSubTypeGeneral(Enum):
     HABITATION = "Habitation"  # 居民点 (包括城市、教堂、大教堂)

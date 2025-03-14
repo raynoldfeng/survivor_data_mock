@@ -42,13 +42,13 @@ class Robot():
 
         # 4. 检查是否有空闲的对应类型槽位 (根据 building_config.type 判断)
         if building_config.type == BuildingType.RESOURCE:
-            slot_type = "resource"
-            subtype = building_config.subtype.value  # 获取 subtype
+            slot_type = building_config.type
+            subtype = building_config.subtype  # 获取 subtype
         elif building_config.type == BuildingType.GENERAL:
-            slot_type = "general"
+            slot_type = building_config.type
             subtype = None
         elif building_config.type == BuildingType.DEFENSE:
-            slot_type = "defense"
+            slot_type = building_config.type
             subtype = None
         else:
             return False  # 未知建筑类型，无法建造
@@ -78,7 +78,7 @@ class Robot():
         player = self.game.player_manager.get_player_by_id(self.player_id)
         available_buildings = []
 
-        for building_id, building_config in player.avaliable_building_config.items():
+        for config_id, building_config in player.avaliable_building_config.items():
             if self.can_build_on_slot(planet, building_config):
                 available_buildings.append(building_config)
 
@@ -128,7 +128,7 @@ class Robot():
         
     def calculate_building_upgrade_benefit(self, building_instance):
         """计算建筑升级的收益 (简化版，仅考虑资源产出)"""
-        next_level_config = self.game.building_manager.get_building_config(building_instance.building_config.get_next_level_id())
+        next_level_config = self.game.building_manager.get_next_level_config(building_instance.building_config)
         if not next_level_config:
             return 0
 
@@ -156,7 +156,7 @@ class Robot():
         for planet_id in player.explored_planets:
             for building_instance in self.game.building_manager.get_buildings_on_world(planet_id):
                 # 获取下一级建筑配置
-                next_level_building_config = self.game.building_manager.get_building_config(building_instance.building_config.get_next_level_id())
+                next_level_building_config = self.game.building_manager.get_next_level_config(building_instance.building_config)
                 if next_level_building_config:
                     # 检查资源是否足够
                     can_afford = self.can_afford_building_cost(player, next_level_building_config)
@@ -391,11 +391,11 @@ class Robot():
                 building_config = self.select_building_to_build(planet)
                 if building_config:
                     #还有可以建造的建筑(1级)
-                    self.game.log.info(f"Robot {player.player_id} 选择在类型为{planet.world_config.world_id}的星球 {planet.object_id} 上建造建筑 {building_config.building_id}")
+                    self.game.log.info(f"Robot {player.player_id} 选择在类型为{planet.world_config.world_id}的星球 {planet.object_id} 上建造建筑 {building_config.config_id}")
                     actions.append({
                         "action": PlayerAction.BUILD,
                         "planet_id": planet.object_id,
-                        "building_id": building_config.building_id,
+                        "building_config_id": building_config.config_id,
                         "player_id": player.player_id
                     })
 

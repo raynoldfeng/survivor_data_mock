@@ -82,7 +82,7 @@ class RulesManager:
             if player.get_resource_amount("promethium") >= self.SUBSPACE_JUMP_COST:
                 # 发送修改资源的消息 (扣除钷素)
                 modifier_config = ModifierConfig(Target.PLAYER, Resource.get_resource_by_id("resource.promethium"), ModifierType.LOSS, self.SUBSPACE_JUMP_COST, 0, 0)
-                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
                     "target_id": player.player_id,
                     "modifier_config": modifier_config
                 }, self)
@@ -140,11 +140,11 @@ class RulesManager:
         for reward in world.exploration_rewards:
             resource_id, quantity = reward
             modifier_config = ModifierConfig(Target.PLAYER, Resource.get_resource_by_id(resource_id), ModifierType.GAIN, quantity, 0, 0)
-            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
                 "target_id": player.player_id,
                 "modifier_config": modifier_config
             }, self)
-            
+
     def handle_fleet_land_request(self, message: Message):
         """处理降落请求, 检查舰队当前位置是否在星球表面"""
         player = self.game.player_manager.get_player_by_id(message.data["player_id"])

@@ -11,14 +11,14 @@ class BuildingManager():
     def __new__(cls, building_configs: Dict[str, BuildingConfig], game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.building_configs: Dict[str, BuildingConfig] = building_configs # type: ignore
+            cls._instance.building_configs = building_configs
             cls._instance.building_instances: Dict[str, BuildingInstance] = {} # type: ignore
             cls._instance.game = game
             cls._instance.game.building_manager = cls._instance
             cls._instance.tick_interval = 5 
 
             # 存储每个星球上每个槽位的建筑实例 ID
-            cls._instance.world_buildings: Dict[str, Dict[str, Union[List[Optional[str]], Dict[str, List[Optional[str]]]]]] = {}
+            cls._instance.world_buildings = {}
 
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_REQUEST, cls._instance.handle_building_request)
@@ -26,17 +26,14 @@ class BuildingManager():
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_COMPLETED, cls._instance.handle_building_completed)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_ATTRIBUTE_CHANGED, cls._instance.handle_building_attribute_changed)
             
-
+            cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_PLAYER_RESOURCE_RESPONSE, cls._instance.handle_modifier_response)
+            
         return cls._instance
     
     def pick(self):
         if self.building_instances:
             return random.choice(list(self.building_instances.keys()))
         return None
-    
-    def get_building_config(self, building_id: str) -> Optional[BuildingConfig]:
-        """根据 ID 获取建筑配置"""
-        return self.building_configs.get(building_id)
 
     def get_building_by_id(self, building_id: str) -> Optional[BuildingInstance]:
         """根据 ID 获取建筑实例"""
@@ -46,12 +43,13 @@ class BuildingManager():
         """添加星球的初始建筑槽位信息"""
         self.world_buildings[world_id] = {}
         for slot_type, slots in building_slots.items():
-            if slot_type == "resource":
+            if slot_type == BuildingType.RESOURCE:
                 self.world_buildings[world_id][slot_type] = {}
                 for subtype, count in slots.items():
                     self.world_buildings[world_id][slot_type][subtype] = [None] * count
             else:
-                self.world_buildings[world_id][slot_type] = [None] * len(slots)
+                # GENERAL, DEFENSE 类型没有二级分类
+                self.world_buildings[world_id][slot_type] = [None] * slots
 
     def add_world_buildings(self, world_id: str, building_config: Dict):
         pass
@@ -61,7 +59,7 @@ class BuildingManager():
         buildings = []
         if world_id in self.world_buildings:
             for slot_type, slots in self.world_buildings[world_id].items():
-                if slot_type == "resource":
+                if slot_type == BuildingType.RESOURCE:
                     # 对于 resource 类型，需要遍历二级字典
                     for subtype, sub_slots in slots.items():
                         for building_id in sub_slots:
@@ -76,13 +74,34 @@ class BuildingManager():
                         if building:
                             buildings.append(building)
         return buildings
+    
+    def get_next_level_config(self, building_config):
+        for _, config in self.building_configs.items():
+            if config.type == building_config.type:
+                if config.subtype == building_config.subtype:
+                    if config.level == building_config.level + 1:
+                        return config
+        return None
+    
+    def get_pre_level_config(self, building_config):
+        for _, config in self.building_configs.items():
+            if config.type == building_config.type:
+                if config.subtype == building_config.subtype:
+                    if config.level == building_config.level - 1:
+                        return config
+        return None
+    
+    def get_building_config_by_id(self, config_id):
+        for _, config in self.building_configs.items():
+            if config.config_id == config_id:
+                return config
 
     def _add_building_instance(self, building_instance: BuildingInstance, world_id: str, slot_type: str, slot_index: int, subtype: Optional[str] = None):
         """添加建筑实例（内部方法）"""
         self.building_instances[building_instance.object_id] = building_instance
 
         # 更新 world_buildings
-        if slot_type == "resource":
+        if slot_type == BuildingType.RESOURCE:
             self.world_buildings[world_id][slot_type][subtype][slot_index] = building_instance.object_id
         else:
             self.world_buildings[world_id][slot_type][slot_index] = building_instance.object_id # 直接通过 slot_type 访问
@@ -96,34 +115,27 @@ class BuildingManager():
         # 从 world_buildings 中移除
         if world_id in self.world_buildings:
             for slot_type, slots in self.world_buildings[world_id].items():
-                if slot_type == "resource":
+                if slot_type == BuildingType.RESOURCE:
                     for subtype, sub_slots in slots.items():
-                        try:
-                            sub_slots[sub_slots.index(building_instance.object_id)] = None # 设置为None
-                            return
-                        except ValueError:
-                            pass  # 当前 subtype 没有该建筑，继续查找
+                        sub_slots[sub_slots.index(building_instance.object_id)] = None # 设置为None
                 else:
-                    try:
-                        # self.world_buildings[world_id][slot_type][self.world_buildings[world_id][slot_type].index(building_instance.object_id)] = None
-                        self.world_buildings[world_id][slot_type][self.world_buildings[world_id][slot_type].index(building_instance.object_id)] = None # 修正：使用索引
+                    index = self.world_buildings[world_id][slot_type].index(building_instance.object_id)
+                    if index:
+                        self.world_buildings[world_id][slot_type][index] = None
                         return  # 找到并移除后，直接返回
-                    except ValueError:
-                        pass  # 当前 slot_type 没有该建筑，继续查找
+
 
     def _has_prerequisite_building(self, building_config, world_id) -> bool:
         """检查是否有所需的前置建筑"""
         if building_config.level == 1:
             return True  # 1 级建筑没有前置
 
-        # 构建前置建筑的 ID
-        prerequisite_id_parts = building_config.building_id.split('.')
-        prerequisite_id_parts[-1] = f"level{building_config.level - 1}"
-        prerequisite_id = '.'.join(prerequisite_id_parts)
+        # 构建前置建筑的 config
+        prerequisite_id = self.get_pre_level_config(building_config)
 
         # 检查前置建筑是否存在
         for building_instance in self.get_buildings_on_world(world_id):
-            if building_instance.building_config.building_id == prerequisite_id:
+            if building_instance.building_config.config_id == prerequisite_id:
                 return True
 
         return False
@@ -149,23 +161,18 @@ class BuildingManager():
         if slot_type not in self.world_buildings[world_id]:
             return None  # 该星球没有这种类型的槽位
 
-        if slot_type == "resource":
+        if slot_type == BuildingType.RESOURCE:
             # 对于 resource 类型，需要检查 subtype
             if subtype is None:
                 return None  # 如果是 resource 类型，必须提供 subtype
             if subtype not in self.world_buildings[world_id][slot_type]:
                 return None  # 该星球没有这种 subtype 的 resource 槽位
-            try:
-                # 找到 subtype 对应的列表中的第一个空闲槽位 (None)
-                return self.world_buildings[world_id][slot_type][subtype].index(None)
-            except ValueError:
-                return None  # 该 subtype 的 resource 槽位已满
+            return self.world_buildings[world_id][slot_type][subtype].index(None) if None in self.world_buildings[world_id][slot_type][subtype] else None
+
         else:
             # 对于 general 和 defense 类型，直接在列表中查找空闲槽位
-            try:
-                return self.world_buildings[world_id][slot_type].index(None) # 直接使用 slot_type
-            except ValueError:
-                return None  # 该类型的槽位已满
+            return self.world_buildings[world_id][slot_type].index(None) if None in self.world_buildings[world_id][slot_type] else None
+        
 
     def get_world_by_building(self, building_id):
         # 获取建筑所在的星球ID
@@ -205,18 +212,18 @@ class BuildingManager():
         data = message.data
         player_id = data["player_id"]
         world_id = data["world_id"]
-        building_id = data["building_id"]
+        building_config_id = data["building_config_id"]
 
         player = self.game.player_manager.get_player_by_id(player_id)
         world = self.game.world_manager.get_world_by_id(world_id)
-        building_config = self.get_building_config(building_id)
+        building_config = self.get_building_config_by_id(building_config_id)
 
         if not player or not world or not building_config:
             return
 
         # 检查是否有前置建筑
         if not self._has_prerequisite_building(building_config, world_id):
-            self.game.log.info(f"没有前置建筑，无法建造 {building_id}。")
+            self.game.log.info(f"没有前置建筑，无法建造 {building_config}。")
             return
 
         # 检查资源是否足够
@@ -238,28 +245,28 @@ class BuildingManager():
             # 发送资源不足消息
             self.game.message_bus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
                 "player_id": player_id,
-                "building_id": building_id,
+                "building_config": building_config,
             }, self)
             return
 
-        # 发送修改资源的请求 (使用 MODIFIER_PLAYER_RESOURCE 消息)
+        # 发送修改资源的请求
         for modifier_config in building_config.modifier_configs:
             data_type = modifier_config.data_type
             quantity = modifier_config.quantity
-            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
                 "target_id": player_id,
                 "modifier_config" : modifier_config
                 }, self)
 
         # 检查是否有空闲的对应类型槽位, 并获取槽位索引
         if building_config.type == BuildingType.RESOURCE:
-            slot_type = "resource"
-            subtype = building_config.subtype.value
+            slot_type = building_config.type
+            subtype = building_config.subtype
         elif building_config.type == BuildingType.GENERAL:
-            slot_type = "general"
+            slot_type = building_config.type
             subtype = None
         elif building_config.type == BuildingType.DEFENSE:
-            slot_type = "defense"
+            slot_type = building_config.type
             subtype = None
         else:
             return  # 未知建筑类型，无法建造
@@ -296,6 +303,7 @@ class BuildingManager():
     def handle_building_completed(self, message: Message):
         pass 
 
+        
     def handle_upgrade_request(self, message: Message):
         """处理升级请求"""
         data = message.data
@@ -309,7 +317,7 @@ class BuildingManager():
             return
 
         # 获取下一级建筑配置
-        next_level_building_config = self.get_building_config(building_instance.building_config.get_next_level_id())
+        next_level_building_config = self.get_next_level_config(building_instance.building_config)
         if not next_level_building_config:
             return
 
@@ -331,11 +339,11 @@ class BuildingManager():
             }, self)
             return
         
-        # 发送修改资源的请求 (使用 MODIFIER_PLAYER_RESOURCE 消息)
+        # 发送修改资源的请求
         for modifier_config in next_level_building_config.modifier_configs:
             resource_id = modifier_config.data_type
             quantity = modifier_config.quantity
-            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
                 "target_id": player_id,
                 "target_type": Target.PLAYER,
                 "resource_id": resource_id,
@@ -372,3 +380,6 @@ class BuildingManager():
             "modifier_config": modifier_config
         }, self)
     
+    def handle_modifier_response(self, msg):
+
+        pass

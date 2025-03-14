@@ -6,7 +6,7 @@ class WorldInstance(BaseObject):
     def __init__(self, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent):
         super().__init__()
         self.world_config = world_config
-        self.building_slots = building_slots  # 直接使用传入的 building_slots (已经是二级字典)
+        self.building_slots = building_slots 
         self.exploration_rewards = exploration_rewards
         self.location = (0, 0, 0)  # 中心坐标
         self.reachable_half_extent = reachable_half_extent  # 可到达半边长

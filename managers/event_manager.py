@@ -146,7 +146,7 @@ class EventManager():
                     delay = 0,
                 )
             if event.target_type == Target.PLAYER:
-                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE, {
+                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
                     "target_id": target.player_id,  # 使用玩家 ID 作为 target_id
                     "modifier_config": modifier_config
                 }, self)

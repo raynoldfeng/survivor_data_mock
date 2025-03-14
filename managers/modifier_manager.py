@@ -15,7 +15,7 @@ class ModifierManager():
             cls._instance.game.modifier_manager = cls._instance
             cls._instance.modifiers = []
             # 订阅消息
-            cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_PLAYER_RESOURCE, cls._instance.handle_player_resource_modifier)
+            cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, cls._instance.handle_player_resource_modifier)
             cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_BUILDING, cls._instance.handle_building_modifier)
         return cls._instance
 

@@ -5,7 +5,7 @@ from .modifier import ModifierConfig
 
 class BuildingConfig:
     def __init__(self):
-        self.building_id: str = ""
+        self.config_id: str = ""
         self.name_id: str = ""
         self.type = None
         self.subtype = None
@@ -22,7 +22,7 @@ class BuildingConfig:
     @classmethod
     def from_csv_row(cls, row: Dict[str, str]) -> 'BuildingConfig':
         building = cls()
-        building.building_id = row["id"]
+        building.config_id = row["id"]
         building.name_id = row["name"]
         building.type = BuildingType(row["type"])
         building.subtype = cls.get_subtype(building.type, row.get("subtype", ""))
@@ -48,11 +48,3 @@ class BuildingConfig:
         elif building_type == BuildingType.DEFENSE:
             return BuildingSubTypeDefense(subtype_str)
         return None
-
-    def get_next_level_id(self):
-        """获取下一级建筑的 ID"""
-        current_level = self.level
-        next_level = current_level + 1
-        current_id_parts = self.building_id.split('.')
-        current_id_parts[-1] = f"level{next_level}"
-        return '.'.join(current_id_parts)
