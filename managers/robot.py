@@ -9,7 +9,7 @@ class Dest():
 
 class Robot():
     def __init__(self, player_id, game):
-        self.player_id = player_id
+        self.object_id = player_id
         self.game = game
         self.dest : Dest = None
     
@@ -26,7 +26,7 @@ class Robot():
 
     def can_build_on_slot(self, planet, building_config):
         """判断是否可以在指定星球的插槽上建造指定建筑, 需要考虑建筑类型和星球槽位类型的匹配"""
-        player = self.game.player_manager.get_player_by_id(self.player_id)
+        player = self.game.player_manager.get_player_by_id(self.object_id)
 
        # 1. 检查建筑等级 (只有 1 级建筑才能直接建造)
         if building_config.level != 1:
@@ -61,7 +61,7 @@ class Robot():
 
     def can_upgrade_building(self, building_instance):
         """判断是否可以升级指定建筑"""
-        player = self.game.player_manager.get_player_by_id(self.player_id)
+        player = self.game.player_manager.get_player_by_id(self.object_id)
         # 检查是否有下一级建筑
         if not building_instance.building_config.get_next_level_id():
             return False
@@ -75,7 +75,7 @@ class Robot():
 
     def select_building_to_build(self, planet):
         """选择要在指定星球上建造的建筑"""
-        player = self.game.player_manager.get_player_by_id(self.player_id)
+        player = self.game.player_manager.get_player_by_id(self.object_id)
         available_buildings = []
 
         for config_id, building_config in player.avaliable_building_config.items():
@@ -150,7 +150,7 @@ class Robot():
 
     def select_building_to_upgrade(self):
         """选择要升级的建筑 (改进版)"""
-        player = self.game.player_manager.get_player_by_id(self.player_id)
+        player = self.game.player_manager.get_player_by_id(self.object_id)
         upgradeable_buildings = []
 
         for planet_id in player.explored_planets:
@@ -196,7 +196,7 @@ class Robot():
                     resource_value += num_slots * 0.3  # 资源槽位权重较高
 
         # 战略位置 (简化：距离出生点越近，价值越高)
-        player = self.game.player_manager.get_player_by_id(self.player_id)
+        player = self.game.player_manager.get_player_by_id(self.object_id)
         distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.location)
         strategic_value = 10 / (distance + 1)  # 避免除以零
 
@@ -206,7 +206,7 @@ class Robot():
 
     def select_planet_to_explore(self):
         """选择要探索的星球 (返回星球列表，按优先级排序)"""
-        player = self.game.player_manager.get_player_by_id(self.player_id)
+        player = self.game.player_manager.get_player_by_id(self.object_id)
         # 获取未探索的星球
         unexplored_planets = [
             self.game.world_manager.get_world_by_id(planet_id)
@@ -233,9 +233,9 @@ class Robot():
 
     def handle_event(self):
         """处理当前发生的事件 (简化版)"""
-        player = self.game.player_manager.get_player_by_id(self.player_id)
+        player = self.game.player_manager.get_player_by_id(self.object_id)
         # 获取当前玩家的事件
-        event = self.game.event_manager.active_events[Target.PLAYER].get(player.player_id)
+        event = self.game.event_manager.active_events[ObjectType.PLAYER].get(player.object_id)
         if not event:
             return None
 
@@ -248,7 +248,7 @@ class Robot():
             choice = random.choice(list(current_phase.options.keys()))
             return {
                 "action": PlayerAction.CHOICE,
-                "player_id": player.player_id,
+                "player_id": player.object_id,
                 "choice": choice,
             }
 
@@ -257,15 +257,15 @@ class Robot():
     def think(self):
         """模拟玩家思考并返回行动"""
         actions = []
-        player = self.game.player_manager.get_player_by_id(self.player_id)
-        self.game.log.info(f"Robot {player.player_id} 开始思考...")
+        player = self.game.player_manager.get_player_by_id(self.object_id)
+        self.game.log.info(f"Robot {player.object_id} 开始思考...")
 
         # 检查舰队移动状态
         if self.dest is not None:
             # 有已经规划的路线
             if len(player.fleet.path)>0:
                 # 尚未到达，继续移动
-                self.game.log.info(f"Robot {player.player_id} 的舰队正在移动中")
+                self.game.log.info(f"Robot {player.object_id} 的舰队正在移动中")
             else:
                 # 已经到达了某个既定目标
 
@@ -282,26 +282,26 @@ class Robot():
                                 # 已经降落了，有探索吗？
                                 if world.object_id not in player.explored_planets:
                                     # 不在已经探索过的列表里，准备探索
-                                    self.game.log.info(f"Robot {player.player_id} 准备探索星球 {world.world_config.world_id} : {world.object_id}。")
+                                    self.game.log.info(f"Robot {player.object_id} 准备探索星球 {world.world_config.world_id} : {world.object_id}。")
                                     actions.append({
                                         "action": PlayerAction.EXPLORE,
-                                        "player_id": player.player_id,
+                                        "player_id": player.object_id,
                                         "world_id": world.object_id,
                                     })
                                 else:
                                     # 已经探索过了，准备起飞
                                     self.dest = None
-                                    self.game.log.info(f"Robot {player.player_id} 准备起飞。")
+                                    self.game.log.info(f"Robot {player.object_id} 准备起飞。")
                                     actions.append({
                                         "action": PlayerAction.TAKEOFF,
-                                        "player_id": player.player_id,
+                                        "player_id": player.object_id,
                                     })
                             else:
                                 # 还没降落，准备降落
-                                self.game.log.info(f"Robot {player.player_id} 尝试降落在星球 {world.world_config.world_id} : {world.object_id}上。")
+                                self.game.log.info(f"Robot {player.object_id} 尝试降落在星球 {world.world_config.world_id} : {world.object_id}上。")
                                 actions.append({
                                     "action": PlayerAction.LAND,
-                                    "player_id": player.player_id,
+                                    "player_id": player.object_id,
                                     "world_id": world.object_id,
                                 })
                         else:
@@ -321,13 +321,13 @@ class Robot():
             if planets_to_explore:
                 for planet in planets_to_explore:
                     self.game.log.info(
-                        f"Robot {player.player_id} 考虑前往类型为{planet.world_config.world_id}的星球 {planet.object_id},坐标({planet.location}...")
+                        f"Robot {player.object_id} 考虑前往类型为{planet.world_config.world_id}的星球 {planet.object_id},坐标({planet.location}...")
 
                     # 获取星球表面的一个可用坐标
                     end_location = planet.get_spawn_location()
                     if not end_location:
                         self.game.log.warn(
-                            f"Robot {player.player_id} 无法找到星球 {planet.object_id} 的可到达位置, 跳过该星球。")
+                            f"Robot {player.object_id} 无法找到星球 {planet.object_id} 的可到达位置, 跳过该星球。")
                         continue
 
                     # 尝试寻路
@@ -342,43 +342,43 @@ class Robot():
                     if path == []:
                         # 情况 1: 已经到达星球表面
                         self.dest = Dest(type="world", value=planet.object_id)
-                        self.game.log.info(f"Robot {player.player_id} 已经位于星球 {planet.object_id} 表面，无需移动，准备降落。")
+                        self.game.log.info(f"Robot {player.object_id} 已经位于星球 {planet.object_id} 表面，无需移动，准备降落。")
                         break
                     elif path:
                         # 情况 2: 找到路径
                         self.dest = Dest(type="world", value=planet.object_id)
-                        self.game.log.info(f"Robot {player.player_id} 选择 前往类型为{planet.world_config.world_id}的星球 {planet.object_id}，并找到了路径。")
+                        self.game.log.info(f"Robot {player.object_id} 选择 前往类型为{planet.world_config.world_id}的星球 {planet.object_id}，并找到了路径。")
                         actions.append({
                             "action": PlayerAction.MOVE,
                             "path": path,
                             "travel_method": TravelMethod.SLOWTRAVEL,  # 寻路找到路径，肯定是慢速旅行
-                            "player_id": player.player_id
+                            "player_id": player.object_id
                         })
                         break
                     else:
                         # 情况 3: 无法找到路径
-                        self.game.log.warn(f"Robot {player.player_id} 无法找到前往星球 {planet.object_id} 的路径,尝试下一个星球。")
+                        self.game.log.warn(f"Robot {player.object_id} 无法找到前往星球 {planet.object_id} 的路径,尝试下一个星球。")
                         continue
                 if not self.dest:
-                    self.game.log.warn(f"Robot {player.player_id} 已遍历所有目标星球，所有目标都无法到达。")
+                    self.game.log.warn(f"Robot {player.object_id} 已遍历所有目标星球，所有目标都无法到达。")
             else:
-                self.game.log.warn(f"Robot {player.player_id} 没有找到合适的移动目标。")
+                self.game.log.warn(f"Robot {player.object_id} 没有找到合适的移动目标。")
 
  
         # 处理事件
         event_action = self.handle_event()
         if event_action:
-            self.game.log.info(f"Robot {player.player_id} 选择处理事件: ")
+            self.game.log.info(f"Robot {player.object_id} 选择处理事件: ")
             actions.append(event_action)
 
         # 尝试升级
         building_instance = self.select_building_to_upgrade()
         if building_instance:
-            self.game.log.info(f"Robot {player.player_id} 选择升级建筑: {building_instance.building_config.name_id}")
+            self.game.log.info(f"Robot {player.object_id} 选择升级建筑: {building_instance.building_config.name_id}")
             actions.append({
                 "action": PlayerAction.UPGRADE,
                 "building_id": building_instance.object_id,
-                "player_id": player.player_id
+                "player_id": player.object_id
             })
 
         # 尝试建造
@@ -386,17 +386,17 @@ class Robot():
         available_planets = [p for p in explored_planets if p]
         if available_planets:
             available_planets.sort(key=self.evaluate_planet, reverse=True)
-            self.game.log.info(f"Robot {player.player_id} 正在评估可建造星球...")
+            self.game.log.info(f"Robot {player.object_id} 正在评估可建造星球...")
             for planet in available_planets:
                 building_config = self.select_building_to_build(planet)
                 if building_config:
                     #还有可以建造的建筑(1级)
-                    self.game.log.info(f"Robot {player.player_id} 选择在类型为{planet.world_config.world_id}的星球 {planet.object_id} 上建造建筑 {building_config.config_id}")
+                    self.game.log.info(f"Robot {player.object_id} 选择在类型为{planet.world_config.world_id}的星球 {planet.object_id} 上建造建筑 {building_config.config_id}")
                     actions.append({
                         "action": PlayerAction.BUILD,
                         "planet_id": planet.object_id,
                         "building_config_id": building_config.config_id,
-                        "player_id": player.player_id
+                        "player_id": player.object_id
                     })
 
         return actions

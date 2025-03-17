@@ -1,3 +1,4 @@
+from basic_types.base_object import BaseObject
 from basic_types.modifier import ModifierConfig
 from basic_types.resource import Resource
 from common import *
@@ -5,7 +6,7 @@ from basic_types.enums import *
 from .message_bus import MessageType, Message
 
 
-class RulesManager:
+class RulesManager(BaseObject):
     _instance = None
 
     SUBSPACE_JUMP_COST = 10  # 假设的跃迁消耗
@@ -81,13 +82,13 @@ class RulesManager:
             player.set_path(path[:1])
             if player.get_resource_amount("promethium") >= self.SUBSPACE_JUMP_COST:
                 # 发送修改资源的消息 (扣除钷素)
-                modifier_config = ModifierConfig(Target.PLAYER, Resource.get_resource_by_id("resource.promethium"), ModifierType.LOSS, self.SUBSPACE_JUMP_COST, 0, 0)
+                modifier_config = ModifierConfig(ObjectType.PLAYER, Resource.get_resource_by_id("resource.promethium"), ModifierType.LOSS, self.SUBSPACE_JUMP_COST, 0, 0)
                 self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
-                    "target_id": player.player_id,
+                    "target_id": player.object_id,
                     "modifier_config": modifier_config
                 }, self)
             else:
-                self.game.log.warn(f"玩家 {player.player_id} 尝试亚空间跳跃，但钷素不足")
+                self.game.log.warn(f"玩家 {player.object_id} 尝试亚空间跳跃，但钷素不足")
         else:
             # TODO: 判断普通航行情况下，下一次坐标是否符合速度要求
             player.fleet.set_path(path)
@@ -124,24 +125,24 @@ class RulesManager:
 
         # 检查是否已经探索过
         if world_id in player.explored_planets:
-            self.game.log.info(f"玩家 {player.player_id} 已经探索过星球 {world_id}。")
+            self.game.log.info(f"玩家 {player.object_id} 已经探索过星球 {world_id}。")
             return
 
         # 检查是否已降落
         if player.fleet.landed_on != world_id:
-            self.game.log.info(f"玩家 {player.player_id} 的舰队未降落在星球 {world_id} 上，无法探索。")
+            self.game.log.info(f"玩家 {player.object_id} 的舰队未降落在星球 {world_id} 上，无法探索。")
             return
 
         # 标记为已探索
         player.explored_planets.append(world_id)
-        self.game.log.info(f"玩家 {player.player_id} 成功探索星球 {world_id}！")
+        self.game.log.info(f"玩家 {player.object_id} 成功探索星球 {world_id}！")
 
         # 计算并应用探索奖励
         for reward in world.exploration_rewards:
             resource_id, quantity = reward
-            modifier_config = ModifierConfig(Target.PLAYER, Resource.get_resource_by_id(resource_id), ModifierType.GAIN, quantity, 0, 0)
-            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
-                "target_id": player.player_id,
+            modifier_config = ModifierConfig(ObjectType.PLAYER, Resource.get_resource_by_id(resource_id), ModifierType.GAIN, quantity, 0, 0)
+            self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
+                "target_id": player.object_id,
                 "modifier_config": modifier_config
             }, self)
 
@@ -163,7 +164,7 @@ class RulesManager:
             player.fleet.set_path([])
             # 添加到星球的 docked_fleets
             if world.object_id not in world.docked_fleets:
-                world.docked_fleets[player.player_id] = player.fleet.location
+                world.docked_fleets[player.object_id] = player.fleet.location
             self.game.log.info(f"玩家 {message.data['player_id']} 的舰队降落在星球 {world.world_config.world_id}！")
         else:
             self.game.log.warn(f"玩家 {message.data['player_id']} 的舰队未到达星球 {world_id} 表面，无法降落。")
@@ -177,7 +178,7 @@ class RulesManager:
 
         # 检查是否已经降落
         if player.fleet.landed_on is None:
-            self.game.log.warn(f"玩家 {player.player_id} 的舰队未降落，无法起飞。")
+            self.game.log.warn(f"玩家 {player.object_id} 的舰队未降落，无法起飞。")
             return
 
         world = self.game.world_manager.get_world_by_id(player.fleet.landed_on)
@@ -185,13 +186,13 @@ class RulesManager:
             return
 
         # 从星球的 docked_fleets 中移除
-        if player.player_id in world.docked_fleets:
-            del world.docked_fleets[player.player_id]
+        if player.object_id in world.docked_fleets:
+            del world.docked_fleets[player.object_id]
 
         # 取消降落状态
         player.fleet.landed_on = None
         player.fleet.set_path([])
-        self.game.log.info(f"玩家 {player.player_id} 的舰队从星球起飞！")
+        self.game.log.info(f"玩家 {player.object_id} 的舰队从星球起飞！")
 
     def move_fleet(self, player_id: str):
         """移动舰队 (每个 tick 调用)"""

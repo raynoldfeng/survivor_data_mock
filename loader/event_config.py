@@ -78,7 +78,7 @@ def load_events_from_csv(**kwargs):
                     float(row['trigger_probability']),
                     row['trigger_text_id'],
                     row['initial_phase'],
-                    Target(row['target'])
+                    ObjectType(row['target'])
                 )
                 events[event_id] = event
 

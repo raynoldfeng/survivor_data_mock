@@ -1,3 +1,4 @@
+from basic_types.base_object import BaseObject
 from basic_types.player import Player
 from basic_types.basic_typs import Vector3
 from basic_types.enums import *
@@ -6,19 +7,19 @@ from loader.resource import Resource
 from .message_bus import MessageType, Message
 from .robot import Robot
 
-class PlayerManager:
+class PlayerManager(BaseObject):
     _instance = None
 
     def __new__(cls, game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.game = game
-            cls._instance.players: Dict[str, Player] = {}
-            cls._instance.robots: Dict[str, Robot] = {}
+            cls._instance.players: Dict[str, Player] = {} # type: ignore
+            cls._instance.robots: Dict[str, Robot] = {} # type: ignore
             cls._instance.game.player_manager = cls._instance
             cls._instance.tick_interval = 1
             # 新增：存储每个玩家舰队的位置
-            cls._instance.fleet_locations: Dict[Vector3, List[str]] = {}
+            cls._instance.fleet_locations: Dict[Vector3, List[str]] = {} # type: ignore
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_RESOURCE_CHANGED, cls._instance.handle_player_resource_changed)
         return cls._instance
@@ -33,7 +34,7 @@ class PlayerManager:
                 self.game.log.warn(f"初始星球{initial_world.object_id}，舰队位置 {spawn_location}")
                 player.fleet.location = spawn_location
                 # 新增：将玩家的初始舰队位置添加到 fleet_locations
-                self.fleet_locations[player.fleet.location] = [player.player_id]
+                self.fleet_locations[player.fleet.location] = [player.object_id]
             else:
                 self.game.log.warn(f"无法为星球 {initial_world.object_id} 找到可到达的出生点，将舰队位置设置为 (0, 0, 0)")
                 player.fleet.location = (0, 0, 0)
@@ -44,11 +45,11 @@ class PlayerManager:
         return player
 
     def add_player(self, player: Player):
-        self.players[player.player_id] = player
+        self.players[player.object_id] = player
 
     def add_robot(self, player):
         """添加 Robot"""
-        self.robots[player.player_id] = Robot(player.player_id, self.game)
+        self.robots[player.object_id] = Robot(player.object_id, self.game)
         return player
 
     def remove_player(self, player_id: str):

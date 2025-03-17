@@ -1,16 +1,18 @@
+from basic_types.base_object import BaseObject
 from basic_types.enums import BuildingSubTypeResource, BuildingType
 from common import *
 from basic_types.world import WorldInstance
-class WorldManager:
+
+class WorldManager(BaseObject):
     _instance = None
 
     def __new__(cls, world_configs, game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.impenetrable_locations: Dict[Tuple[int, int, int], str] = {} # 新增
+            cls._instance.impenetrable_locations: Dict[Tuple[int, int, int], str] = {} # type: ignore
 
             cls._instance.world_configs = world_configs
-            cls._instance.world_instances: Dict[str, World] = {}
+            cls._instance.world_instances: Dict[str, WorldInstance] = {} # type: ignore
             cls._instance.game = game
             cls._instance.game.world_manager = cls._instance
             cls._instance.tick_interval = 60

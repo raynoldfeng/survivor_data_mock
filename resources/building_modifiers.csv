@@ -85,13 +85,11 @@ building.foundry.level3,resource.components,Production,0.33
 building.armory.level2,resource.plasteel,Loss,8.0
 building.armory.level2,resource.ceramite,Loss,4.0
 building.armory.level2,resource.promethazine,Loss,3.0
-building.armory.level2,resource.weaponry,Loss,2.0
 building.armory.level2,resource.weaponry,Production,0.12
 building.advanced_armory.level3,resource.adamantium,Loss,15.0
 building.advanced_armory.level3,resource.plasteel,Loss,10.0
 building.advanced_armory.level3,resource.ceramite,Loss,5.0
 building.advanced_armory.level3,resource.promethazine,Loss,9.0
-building.advanced_armory.level3,resource.weaponry,Loss,5.0
 building.advanced_armory.level3,resource.weaponry,Production,0.25
 building.laboratory.level1,resource.chemicals,Production,0.04
 building.chemical_plant.level2,resource.plasteel,Loss,4.0

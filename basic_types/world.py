@@ -1,10 +1,12 @@
 from common import *
+from basic_types.enums import *
 from .basic_typs import Vector3
 from .base_object import BaseObject
 
 class WorldInstance(BaseObject):
     def __init__(self, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent):
         super().__init__()
+        self.type = ObjectType.WORLD
         self.world_config = world_config
         self.building_slots = building_slots 
         self.exploration_rewards = exploration_rewards

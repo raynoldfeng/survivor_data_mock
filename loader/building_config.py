@@ -28,7 +28,7 @@ class BuildingDataMapper:
             data_type = Resource.get_resource_by_id(row['resource']),
             modifier_type = ModifierType(row['modifier']),
             quantity = float(row['quantity']),
-            target_type = Target.PLAYER,
+            target_type = ObjectType.PLAYER,
             duration = 0,
             delay = 0,
         )

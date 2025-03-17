@@ -27,10 +27,9 @@ class MessageType(Enum):
     BUILDING_REQUEST = 22
     BUILDING_UPGRADE_REQUEST = 23
     BUILDING_ATTRIBUTE_CHANGED = 24
-    MODIFIER_PLAYER_RESOURCE_REQUEST = 25
-    MODIFIER_PLAYER_RESOURCE_RESPONSE = 26
-    MODIFIER_BUILDING = 26
-    MODIFIER_WORLD = 27
+    MODIFIER_APPLY_REQUEST = 25
+    MODIFIER_DISABLE_REQUEST = 26
+    MODIFIER_RESPONSE = 27
     INTERSECTION_EVENT = 28
 
 
@@ -43,10 +42,8 @@ class Message:
         self.type: MessageType = type
         self.data: Dict[str, Any] = data
         self.sender: Any = sender
-        # self.age: int = 0 #移除
         self.delay: int = delay
-        self.retries: int = 0  # 新增：重试次数
-        # self.is_consumed = False  # 移除 is_consumed 属性
+        self.retries: int = 0
 
 class MessageBus:
 
@@ -74,6 +71,7 @@ class MessageBus:
             self.messages.append(msg)  # 延迟消息添加到 messages 列表
         else:
             self.publish_message(msg)  # 立即发布消息
+        return msg.id
 
     def publish_message(self, msg: Message):
         """发布消息 (立即触发回调函数)"""

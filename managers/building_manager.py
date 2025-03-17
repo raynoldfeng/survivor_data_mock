@@ -1,3 +1,4 @@
+from basic_types.base_object import BaseObject
 from basic_types.modifier import ModifierConfig
 from common import *
 from loader.building_config import BuildingConfig
@@ -5,7 +6,7 @@ from basic_types.enums import *
 from basic_types.building import BuildingInstance
 from .message_bus import Message, MessageType
 
-class BuildingManager():
+class BuildingManager(BaseObject):
     _instance = None
 
     def __new__(cls, building_configs: Dict[str, BuildingConfig], game):
@@ -16,17 +17,18 @@ class BuildingManager():
             cls._instance.game = game
             cls._instance.game.building_manager = cls._instance
             cls._instance.tick_interval = 5 
-
-            # 存储每个星球上每个槽位的建筑实例 ID
             cls._instance.world_buildings = {}
+
+            # 管理玩家尝试进行的建筑（发送了扣资源消息等待回应） ———— 这里要补充超时删除的逻辑，避免等待队列堆积
+            cls._instance.pending_modifier = {}
+            cls._instance.pening_building = {}
 
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_REQUEST, cls._instance.handle_building_request)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_UPGRADE_REQUEST, cls._instance.handle_upgrade_request)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_COMPLETED, cls._instance.handle_building_completed)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_ATTRIBUTE_CHANGED, cls._instance.handle_building_attribute_changed)
-            
-            cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_PLAYER_RESOURCE_RESPONSE, cls._instance.handle_modifier_response)
+            cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_RESPONSE, cls._instance.handle_modifier_response)
             
         return cls._instance
     
@@ -249,15 +251,6 @@ class BuildingManager():
             }, self)
             return
 
-        # 发送修改资源的请求
-        for modifier_config in building_config.modifier_configs:
-            data_type = modifier_config.data_type
-            quantity = modifier_config.quantity
-            self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
-                "target_id": player_id,
-                "modifier_config" : modifier_config
-                }, self)
-
         # 检查是否有空闲的对应类型槽位, 并获取槽位索引
         if building_config.type == BuildingType.RESOURCE:
             slot_type = building_config.type
@@ -276,6 +269,35 @@ class BuildingManager():
             self.game.log.info("没有空闲的槽位")
             return  # 没有可用的槽位
 
+
+        one_shot_modifiers = 0
+        building_params = {
+            "building_config" : building_config, 
+            "world_id" : world_id, 
+            "slot_type" : slot_type, 
+            "slot_index" : slot_index, 
+            "subtype" :subtype
+        }
+        # 发送修改资源的请求
+        for modifier_config in building_config.modifier_configs:
+            data_type = modifier_config.data_type
+            quantity = modifier_config.quantity
+
+            # 这里如果直接发送，就会导致建筑还没instance就先生产了
+            if modifier_config.modifier_type in(ModifierType.GAIN , ModifierType.LOSS):
+                msg_id = self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
+                "target_id": player_id,
+                "modifier_config" : modifier_config
+                },self)
+
+                self.pending_modifier[msg_id] = building_params
+                self.pening_building[building_params].append(modifier_config)
+                one_shot_modifiers += 1
+       
+        if one_shot_modifiers == 0:
+            self.place_building(**building_params)
+
+    def place_building(self, world_id, slot_type, slot_index, subtype, building_config):
         # 创建建筑实例
         building_instance = BuildingInstance(building_config)
         self._add_building_instance(building_instance, world_id, slot_type, slot_index, subtype)
@@ -283,24 +305,26 @@ class BuildingManager():
         # 发送建筑开始建造消息, 并请求modifier
         self.game.message_bus.post_message(MessageType.BUILDING_START, {
             "building_id": building_instance.object_id,
-            "world_id": world_id,
-            "player_id": player_id
+            "world_id": world_id
         }, self)
         
         modifier_config =  ModifierConfig(
             data_type = "remaining_ticks",  # 修改为 remaining_ticks
             modifier_type = ModifierType.LOSS,
             quantity = self.tick_interval,  # 每次tick减少的量
-            target_type = Target.BUILDING,
+            target_type = ObjectType.BUILDING,
             duration = building_instance.building_config.build_period // self.tick_interval,  # 持续tick次数, 改为使用升级时间
             delay = 0,
         )
-        self.game.message_bus.post_message(MessageType.MODIFIER_BUILDING, {
+        self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
             "target_id": building_instance.object_id,
             "modifier_config": modifier_config
         }, self)
 
+
+
     def handle_building_completed(self, message: Message):
+        # 处理PRODUCTION
         pass 
 
         
@@ -345,7 +369,7 @@ class BuildingManager():
             quantity = modifier_config.quantity
             self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
                 "target_id": player_id,
-                "target_type": Target.PLAYER,
+                "target_type": ObjectType.PLAYER,
                 "resource_id": resource_id,
                 "modifier_config": modifier_config,
                 "quantity": quantity,
@@ -362,15 +386,14 @@ class BuildingManager():
         # 发送建筑开始升级消息(其实就是start消息)
         self.game.message_bus.post_message(MessageType.BUILDING_START, {
             "building_id": building_id,  # 保持原有id
-            "world_id": world_id,
-            "player_id": player_id
+            "world_id": world_id
         }, self)
 
         modifier_config =  ModifierConfig(
             data_type = "remaining_ticks",
             modifier_type = ModifierType.LOSS,
             quantity = self.tick_interval,  # 每次tick减少的量
-            target_type = Target.BUILDING,
+            target_type = ObjectType.BUILDING,
             duration = next_level_building_config.build_period // self.tick_interval,  # 持续tick次数, 改为使用升级时间
             delay = 0,
         )
@@ -381,5 +404,13 @@ class BuildingManager():
         }, self)
     
     def handle_modifier_response(self, msg):
+        index = msg.data["request_id"]
+        if index in self.pending_modifier:
+            param = self.pending_modifier[index]
+            self.pening_building[param].remove(param.building_config)
 
+    def tick(self, tick_counter):
+        for param, pending_modifiers in self.pening_building.items():
+            if len(pending_modifiers) == 0:
+                self.place_building(**param)
         pass

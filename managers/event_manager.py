@@ -15,7 +15,7 @@ class Event(BaseObject):
         self.start_tick: int = 0
         self.phase_start_tick: int = 0
         self.choices: Dict[str, str] = {}  # phase_id -> option_id
-        self.target_type: Optional[Target] = None
+        self.target_type: Optional[ObjectType] = None
         self.target_id: Optional[str] = None
         self.ended: bool = False
 
@@ -25,11 +25,11 @@ class EventManager():
     def __new__(cls, event_configs: List[EventConfig], game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.event_configs: List[EventConfig] = event_configs
-            cls._instance.active_events: Dict[Target, Dict[str, Event]] = {
-                Target.PLAYER: {},
-                Target.WORLD: {},
-                Target.BUILDING: {},
+            cls._instance.event_configs: List[EventConfig] = event_configs # type: ignore
+            cls._instance.active_events: Dict[ObjectType, Dict[str, Event]] = { # type: ignore
+                ObjectType.PLAYER: {},
+                ObjectType.WORLD: {},
+                ObjectType.BUILDING: {},
             }
             cls._instance.game = game
             cls._instance.game.event_manager = cls._instance
@@ -48,11 +48,11 @@ class EventManager():
                 event.target_type = event_config.target
 
                 # 根据目标类型选择目标
-                if event.target_type == Target.PLAYER:
+                if event.target_type == ObjectType.PLAYER:
                     event.target_id = self.game.player_manager.pick()
-                elif event.target_type == Target.WORLD:
+                elif event.target_type == ObjectType.WORLD:
                     event.target_id = self.game.world_manager.pick()
-                elif event.target_type == Target.BUILDING:
+                elif event.target_type == ObjectType.BUILDING:
                     event.target_id = self.game.building_manager.pick()
 
                 if event.target_id:
@@ -68,10 +68,10 @@ class EventManager():
 
     def process_player_choice_callback(self, message: Message): #修改
         """处理玩家的选择"""
-        # event = self.active_events[Target.PLAYER].get(player_id) #移除
+        # event = self.active_events[ObjectType.PLAYER].get(player_id) #移除
         player_id = message.data["player_id"]
         choice = message.data["choice"]
-        event = self.active_events[Target.PLAYER].get(player_id)
+        event = self.active_events[ObjectType.PLAYER].get(player_id)
         if not event:
             return
 
@@ -91,11 +91,11 @@ class EventManager():
     def evaluate_challenges(self, event: Event, option: EventOption) -> bool:
         """评估挑战是否成功"""
         target = None
-        if event.target_type == Target.PLAYER:
+        if event.target_type == ObjectType.PLAYER:
             target = self.game.player_manager.get_player_by_id(event.target_id)
-        elif event.target_type == Target.WORLD:
+        elif event.target_type == ObjectType.WORLD:
             target = self.game.world_manager.get_world_by_id(event.target_id)
-        elif event.target_type == Target.BUILDING:
+        elif event.target_type == ObjectType.BUILDING:
             target = self.game.building_manager.get_building_by_id(event.target_id)
         if not target:
             return False
@@ -126,11 +126,11 @@ class EventManager():
             return
 
         target = None
-        if event.target_type == Target.PLAYER:
+        if event.target_type == ObjectType.PLAYER:
             target = self.game.player_manager.get_player_by_id(event.target_id)
-        elif event.target_type == Target.WORLD:
+        elif event.target_type == ObjectType.WORLD:
             target = self.game.world_manager.get_world_by_id(event.target_id)
-        elif event.target_type == Target.BUILDING:
+        elif event.target_type == ObjectType.BUILDING:
             target = self.game.building_manager.get_building_by_id(event.target_id)
 
         if not target:
@@ -145,22 +145,22 @@ class EventManager():
                     duration = result.duration,
                     delay = 0,
                 )
-            if event.target_type == Target.PLAYER:
-                self.game.message_bus.post_message(MessageType.MODIFIER_PLAYER_RESOURCE_REQUEST, {
-                    "target_id": target.player_id,  # 使用玩家 ID 作为 target_id
-                    "modifier_config": modifier_config
-                }, self)
+            if event.target_type == ObjectType.PLAYER:
+                self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
+                    "target_id" : target.object_id,  # 使用玩家 ID 作为 target_id
+                    "modifier_config" : modifier_config,
+                }, event)
             # 其他目标类型的处理 (例如，如果是 World 或 Building，可能需要发送其他类型的消息)
-            elif event.target_type == Target.WORLD:
-                self.game.message_bus.post_message(MessageType.MODIFIER_WORLD, {
+            elif event.target_type == ObjectType.WORLD:
+                self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
                     "target_id": target.object_id,
-                    "modifier_config": modifier_config
-                }, self)
-            elif event.target_type == Target.BUILDING:
-                self.game.message_bus.post_message(MessageType.MODIFIER_BUILDING, {
+                    "modifier_config": modifier_config,
+                }, event)
+            elif event.target_type == ObjectType.BUILDING:
+                self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
                     "target_id": target.object_id,
-                    "modifier_config" :modifier_config
-                }, self)
+                    "modifier_config" :modifier_config,
+                }, event)
 
     def update_event_state(self):
         """更新事件状态"""
@@ -186,7 +186,7 @@ class EventManager():
 
                 # 如果当前阶段有选项，并且玩家还没有做出选择，发送消息请求选择
                 if event.current_phase.options and event.current_phase.phase_id not in event.choices:
-                    if event.target_type == Target.PLAYER:
+                    if event.target_type == ObjectType.PLAYER:
                         self.game.message_bus.post_message(MessageType.EVENT_NEED_OPTION, {
                             "player_id": event.target_id,
                             "event_id": event.config.event_id,

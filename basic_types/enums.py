@@ -58,10 +58,12 @@ class ModifierType(Enum):
     GAIN = "Gain"  # 一次性增加
     LOSS = "Loss"  # 一次性扣除
 
-class Target(Enum):
+class ObjectType(Enum):
     WORLD = "World"
     BUILDING = "Building"
     PLAYER = "Player"
+    EVENT = "Event"
+    SYSTEM = "System"
 
 class TravelMethod(Enum):
     SLOWTRAVEL = "SlowTravel"

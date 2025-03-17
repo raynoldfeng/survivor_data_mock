@@ -1,3 +1,4 @@
+from basic_types.enums import ObjectType
 from common import *
 from .resource import Resource
 from .base_object import BaseObject
@@ -30,7 +31,7 @@ class Fleet:
 class Player(BaseObject):
     def __init__(self, resources: Dict[str, Resource], building_config):
         super().__init__()
-        self.player_id = str(uuid.uuid4())
+        self.type = ObjectType.PLAYER
         self.resources: Dict[Resource, float] = {resource: 0.0 for resource in resources}
         self.manpower_allocation = {}
         self.avaliable_manpower = 0
