@@ -35,29 +35,60 @@ class ModifierManager(BaseObject):
             # 开始apply
             if config.modifier_type in(ModifierType.GAIN , ModifierType.LOSS):
                 if config.target_type == ObjectType.PLAYER:
-                    self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
-                        "player_id": modifier.target_id,
-                        "resource": config.data_type,
-                        "quantity": quantity
-                    }, self)
-                elif config.target_type == ObjectType.BUILDING:
-                    self.game.message_bus.post_message(MessageType.BUILDING_ATTRIBUTE_CHANGED, {
-                        "building_id": modifier.target_id,
-                        "attribute": config.data_type,
-                        "quantity": quantity
-                    }, self)
+                    player = self.game.player_manager.get_player_by_id(modifier.target_id)
+                    if not player:
+                        succ = False
+                    else:
+                        resource = config.data_type
+                        # 后续可以展开处理一些可以允许负值的情况
+                        if  player.resources[resource.id] + quantity >=0:
+                            succ = True
+                            player.resources[resource.id] += quantity
 
+                            self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
+                            "player_id": modifier.target_id,
+                            "resource": config.data_type,
+                            "quantity": quantity
+                        }, self)
+                        else:
+                            succ = False
+
+                elif config.target_type == ObjectType.BUILDING:
+                    building = self.game.building_manager.get_building_by_id(modifier.target_id)
+                    if not building:
+                        succ = False
+                    else:
+                        attribute = config.data_type
+                        quantity = quantity
+                        old_value = getattr(building, attribute, 0)
+                        new_value = old_value + quantity
+
+                        setattr(building, attribute, new_value )
+
+                        self.game.message_bus.post_message(MessageType.BUILDING_ATTRIBUTE_CHANGED, {
+                            "building_id": modifier.target_id,
+                            "attribute": config.data_type,
+                            "quantity": quantity
+                        }, self)
+
+                        succ = True
+                        
                 if modifier.life < config.duration:
                     modifiers_next_round.append(modifier)
                 else:
                     self.game.message_bus.post_message(MessageType.MODIFIER_RESPONSE, {
-                        "request_id": modifier.request_id
+                        "request_id": modifier.request_id,
+                        "status" : succ
                     }, self)
                     
             else:
                 # ModifierType.CONSUME or ModifierType.PRODUCTION
                 modifiers_next_round.append(modifier)
                 if config.target_type == ObjectType.PLAYER:
+                    player = self.game.player_manager.get_player_by_id(modifier.target_id)
+                    resource = config.data_type
+                    player.resources[resource.id] += quantity
+
                     self.game.message_bus.post_message(
                         MessageType.PLAYER_RESOURCE_CHANGED, {
                         "player_id": modifier.target_id,
@@ -66,6 +97,12 @@ class ModifierManager(BaseObject):
                     }, self)
 
                 elif config.target_type == ObjectType.BUILDING:
+                    attribute = config.data_type
+                    quantity = quantity
+                    old_value = getattr(building, attribute, 0)
+                    new_value = old_value + quantity
+                    setattr(building, attribute, new_value )
+
                     self.game.message_bus.post_message(MessageType.BUILDING_ATTRIBUTE_CHANGED, {
                         "building_id": modifier.target_id,
                         "attribute": config.data_type,

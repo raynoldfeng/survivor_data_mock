@@ -4,7 +4,7 @@ from .basic_typs import Vector3
 from .base_object import BaseObject
 
 class WorldInstance(BaseObject):
-    def __init__(self, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent):
+    def __init__(self, world_config, building_slots, exploration_rewards, reachable_half_extent, impenetrable_half_extent, player_id):
         super().__init__()
         self.type = ObjectType.WORLD
         self.world_config = world_config
@@ -15,6 +15,7 @@ class WorldInstance(BaseObject):
         self.impenetrable_half_extent = impenetrable_half_extent  # 不可穿透半边长
         self.impenetrable_locations: Set[Tuple[int, int, int]] = self._calculate_impenetrable_locations()  # 不可穿透区域的坐标
         self.docked_fleets: Dict[str, Vector3] = {}  # 停靠的舰队 {player_id: fleet_location}
+        self.owner = player_id
 
     def _parse_adjustment(self, adjustment_str):
         if '~' in adjustment_str:

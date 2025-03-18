@@ -78,14 +78,8 @@ class MessageBus:
         self.game.log.info(f"发布消息: id:{msg.id}, 类型={msg.type.name}, 数据:{msg.data}, 发送者={msg.sender}")
         if msg.type in self.subscribers:
             for callback in self.subscribers[msg.type]:
-                try:
-                    callback(msg)  # 调用回调函数
-                except Exception as e:
-                    self.game.log.error(f"处理消息 {msg.id} ({msg.type.name}) 时发生错误: {e}")
-                    # 将消息添加到 pending_messages 列表，稍后重试
-                    # msg.retries = 0 # 这里不能初始化0
-                    self.pending_messages.append(msg)
-                    return  # 如果有回调函数出错，则停止处理
+                callback(msg)  # 调用回调函数
+
 
     def tick(self, tick_counter):
         # 处理延迟消息

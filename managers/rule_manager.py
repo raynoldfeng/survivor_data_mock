@@ -136,6 +136,7 @@ class RulesManager(BaseObject):
         # 标记为已探索
         player.explored_planets.append(world_id)
         self.game.log.info(f"玩家 {player.object_id} 成功探索星球 {world_id}！")
+        world.owner = player.object_id
 
         # 计算并应用探索奖励
         for reward in world.exploration_rewards:

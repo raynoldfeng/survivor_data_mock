@@ -148,13 +148,7 @@ class PlayerManager(BaseObject):
         """
         处理玩家资源变化的消息 (由 ModifierManager 发送)
         """
-        player = self.get_player_by_id(message.data["player_id"])
-        if not player:
-            return
-
-        resource = message.data["resource"]
-        quantity = message.data["quantity"]
-        player.resources[resource.id] += quantity
+        pass
 
     def allocate_manpower(self, building_instance, count):
         # 1.判断building_instance 是否归属于player

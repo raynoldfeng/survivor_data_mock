@@ -28,7 +28,8 @@ class WorldManager(BaseObject):
             building_slots,
             exploration_rewards,
             reachable_half_extent,
-            impenetrable_half_extent
+            impenetrable_half_extent,
+            None
         )
         temp_world.location = location
 

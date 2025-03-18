@@ -100,7 +100,7 @@ class Game:
             self.message_bus.tick(self.tick_counter)
 
             # 以下是为了管理员查看方便
-            if(self.tick_counter % 1000) == 0:
+            if(self.tick_counter % 10) == 0:
                 self.log.info("-------------------------------------------")
                 self.log.info("当前资源：")
                 for resource, amount in self.robot.resources.items():
