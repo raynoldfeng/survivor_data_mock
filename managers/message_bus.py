@@ -31,7 +31,8 @@ class MessageType(Enum):
     MODIFIER_DISABLE_REQUEST = 26
     MODIFIER_RESPONSE = 27
     INTERSECTION_EVENT = 28
-
+    WORLD_ADDED = 29
+    WORLD_REMOVED = 30
 
 
 class Message:
@@ -75,11 +76,65 @@ class MessageBus:
 
     def publish_message(self, msg: Message):
         """发布消息 (立即触发回调函数)"""
-        self.game.log.info(f"发布消息: id:{msg.id}, 类型={msg.type.name}, 数据:{msg.data}, 发送者={msg.sender}")
         if msg.type in self.subscribers:
             for callback in self.subscribers[msg.type]:
                 callback(msg)  # 调用回调函数
+                log_msg = f"[MSG-{msg.type.name}]"
+        
+        # 按类型处理日志输出
+        log_msg = f"[MSG-{msg.type.name}]"
+        if msg.type == MessageType.WORLD_ADDED:
+            world = msg.data.get("world")
+            log_msg += f" 星球ID:{world.object_id}, 类型:{world.world_config.world_id}, 位置:{world.location}"
+        elif msg.type == MessageType.WORLD_REMOVED:
+            world = msg.data.get("world")
+            log_msg += f" 移除星球ID:{world.object_id}, 类型:{world.world_config.world_id}"    
+        elif msg.type == MessageType.EVENT_BEGIN:
+            log_msg += f" 目标类型:{msg.data['target_type'].name}, 目标ID:{msg.data['target_id']}, 事件ID:{msg.data['event_id']}, 文本ID:{msg.data['text_id']}"
+        elif msg.type == MessageType.EVENT_PHASE_CHANGE:
+            log_msg += f" 目标类型:{msg.data['target_type'].name}, 目标ID:{msg.data['target_id']}, 事件ID:{msg.data['event_id']}, 阶段ID:{msg.data['phase_id']}"
+        elif msg.type == MessageType.EVENT_NEED_OPTION:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 事件ID:{msg.data['event_id']}, 阶段ID:{msg.data['phase_id']}, 选项数:{len(msg.data['options'])}"
+        elif msg.type == MessageType.EVENT_END:
+            log_msg += f" 目标类型:{msg.data['target_type'].name}, 目标ID:{msg.data['target_id']}, 事件ID:{msg.data['event_id']}"
+        elif msg.type == MessageType.PLAYER_SELECT_EVENT_OPTION:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 选择选项:{msg.data['choice']}"
+        elif msg.type == MessageType.PLAYER_RESOURCE_CHANGED:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 资源:{msg.data['resource']}, 变化量:{msg.data['quantity']}"
+        elif msg.type == MessageType.PLAYER_FLEET_MOVE_REQUEST:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 路径长度:{len(msg.data['path'])}, 方式:{msg.data['travel_method'].name}"
+        elif msg.type == MessageType.PLAYER_FLEET_LAND_REQUEST:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 星球ID:{msg.data['world_id']}"
+        elif msg.type == MessageType.PLAYER_FLEET_TAKEOFF_REQUEST:
+            log_msg += f" 玩家ID:{msg.data['player_id']}"
+        elif msg.type == MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT:
+            log_msg += f" 玩家ID:{msg.data['player_id']}"
+        elif msg.type == MessageType.PLAYER_FLEET_ARRIVE:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 位置:{msg.data['location']}, 类型:{msg.data['arrival_type']}"
+        elif msg.type == MessageType.PLAYER_EXPLORE_WORLD_REQUEST:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 星球ID:{msg.data['world_id']}"
+        elif msg.type == MessageType.BUILDING_START:
+            log_msg += f" 建筑ID:{msg.data['building_id']}, 星球ID:{msg.data['world_id']}"
+        elif msg.type == MessageType.BUILDING_DESTROYED:
+            log_msg += f" 建筑ID:{msg.data['building_id']}, 所在星球:{self.game.building_manager.get_building_by_id(msg.data['building_id']).build_on if msg.data['building_id'] in self.game.building_manager.building_instances else '未知'}"
+        elif msg.type == MessageType.BUILDING_INSUFFICIENT_RESOURCES:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 建筑ID:{msg.data['building_config'].config_id}"
+        elif msg.type == MessageType.BUILDING_REQUEST:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 星球ID:{msg.data['world_id']}, 建筑ID:{msg.data['building_config_id']}"
+        elif msg.type == MessageType.BUILDING_UPGRADE_REQUEST:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 建筑ID:{msg.data['building_id']}"
+        elif msg.type == MessageType.BUILDING_ATTRIBUTE_CHANGED:
+            log_msg += f" 建筑ID:{msg.data['building_id']}, 属性:{msg.data['attribute']}, 变化量:{msg.data['quantity']}"
+        elif msg.type == MessageType.MODIFIER_APPLY_REQUEST:
+            log_msg += f" 目标ID:{msg.data['target_id']}, 类型:{msg.data['modifier_config'].modifier_type.name}, 数值:{msg.data['modifier_config'].quantity}"
+        elif msg.type == MessageType.MODIFIER_RESPONSE:
+            log_msg += f" 请求ID:{msg.data['request_id']}, 状态:{msg.data['status']}"
+        elif msg.type == MessageType.INTERSECTION_EVENT:
+            log_msg += f" 位置:{msg.data['location']}, 对象:{msg.data['objects']}, 坠毁:{msg.data['crash']}"
+        else:
+            log_msg += f" 数据:{json.dumps(msg.data, indent=None, ensure_ascii=False)[:100]}"  # 截断过长数据
 
+        self.game.log.info(log_msg)
 
     def tick(self):
         # 处理延迟消息
@@ -89,7 +144,7 @@ class MessageBus:
                 msg.delay -= 1  # delay的单位与基本tick间隔一致 (分钟/秒)
                 new_messages.append(msg)
             else:
-                self.game.log.info(f"延迟后处理消息: id:{msg.id} ,类型={msg.type.name}, 数据:{msg.data}, 发送者={msg.sender}")
+                self.game.log.info(f"延迟后处理消息: id:{msg.id} ,类型={msg.type.name}")
                 # 立即发布消息
                 self.publish_message(msg)
         self.messages = new_messages

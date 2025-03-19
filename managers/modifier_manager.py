@@ -31,7 +31,7 @@ class ModifierManager(BaseObject):
         for modifier in self.modifiers:
             modifier.life += 1
             config : ModifierConfig = modifier.config
-            quantity = config.quantity * -1 if config.modifier_type is ModifierType.LOSS else 1
+            quantity = config.quantity * -1 if config.modifier_type is ModifierType.LOSS else config.quantity * 1
             
             # 还在Delay中
             if config.delay > 0:
@@ -47,9 +47,9 @@ class ModifierManager(BaseObject):
                     else:
                         resource = config.data_type
                         # 后续可以展开处理一些可以允许负值的情况
-                        if  player.resources[resource.id] + quantity >=0:
+                        if  player.resources[resource] + quantity >=0:
                             succ = True
-                            player.resources[resource.id] += quantity
+                            player.resources[resource] += quantity
 
                             self.game.message_bus.post_message(MessageType.PLAYER_RESOURCE_CHANGED, {
                             "player_id": modifier.target_id,
@@ -93,7 +93,7 @@ class ModifierManager(BaseObject):
                 if config.target_type == ObjectType.PLAYER:
                     player = self.game.player_manager.get_player_by_id(modifier.target_id)
                     resource = config.data_type
-                    player.resources[resource.id] += quantity
+                    player.resources[resource] += quantity
 
                     self.game.message_bus.post_message(
                         MessageType.PLAYER_RESOURCE_CHANGED, {

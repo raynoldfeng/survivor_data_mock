@@ -25,7 +25,7 @@ class BuildingDataMapper:
     @staticmethod
     def map_building_modifier(row):
         modifier_config =  ModifierConfig(
-            data_type = Resource.get_resource_by_id(row['resource']),
+            data_type = row['resource'],
             modifier_type = ModifierType(row['modifier']),
             quantity = float(row['quantity']),
             target_type = ObjectType.PLAYER,

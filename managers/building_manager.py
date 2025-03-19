@@ -241,12 +241,12 @@ class BuildingManager(BaseObject):
 
         # 发送建筑开始升级消息(其实就是start消息)
         self.game.message_bus.post_message(MessageType.BUILDING_START, {
-            "building_id": building_id,  # 保持原有id
+            "building_id": building_id, 
             "world_id": world_id
         }, self)
 
         modifier_config =  ModifierConfig(
-            data_type = "tick_interval",
+            data_type = "remaining_secs",
             modifier_type = ModifierType.LOSS,
             quantity = 1,
             target_type = ObjectType.BUILDING,
@@ -285,7 +285,7 @@ class BuildingManager(BaseObject):
             if modifier_config.modifier_type == ModifierType.LOSS:
                 resource = modifier_config.data_type
                 quantity = modifier_config.quantity
-                if player.resources.get(resource.id, 0) < quantity:
+                if player.resources.get(resource, 0) < quantity:
                     can_afford = False
                     break
 
@@ -373,7 +373,7 @@ class BuildingManager(BaseObject):
             if modifier_config.modifier_type == ModifierType.LOSS:
                 resource = modifier_config.data_type
                 quantity = modifier_config.quantity
-                if player.resources.get(resource.id, 0) < quantity:
+                if player.resources.get(resource, 0) < quantity:
                     can_afford = False
                     break
 

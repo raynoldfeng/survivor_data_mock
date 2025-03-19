@@ -29,7 +29,7 @@ class WorldInstance(BaseObject):
         """判断给定坐标是否在该星球表面"""
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
-        dz = abs(location.x - self.location.z)
+        dz = abs(location.z - self.location.z)
 
         return (
             dx <= self.reachable_half_extent and

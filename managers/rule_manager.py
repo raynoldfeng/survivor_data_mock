@@ -142,11 +142,32 @@ class RulesManager(BaseObject):
         # 计算并应用探索奖励
         for reward in world.exploration_rewards:
             resource_id, quantity = reward
-            modifier_config = ModifierConfig(ObjectType.PLAYER, Resource.get_resource_by_id(resource_id), ModifierType.GAIN, quantity, 0, 0)
-            self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
-                "target_id": player.object_id,
-                "modifier_config": modifier_config
-            }, self)
+            # 获取资源配置
+            resource = Resource.get_resource_by_id(resource_id)
+            if not resource:
+                self.game.log.error(f"无效的资源ID: {resource_id}")
+                continue
+            
+            # 创建奖励修正
+            modifier_config = ModifierConfig(
+                target_type=ObjectType.PLAYER,
+                data_type=resource.id,
+                modifier_type=ModifierType.GAIN,
+                quantity=quantity,
+                duration=0,
+                delay=0
+            )
+            
+            # 发送奖励消息
+            self.game.message_bus.post_message(
+                MessageType.MODIFIER_APPLY_REQUEST,
+                {
+                    "target_id": player.object_id,
+                    "modifier_config": modifier_config
+                },
+                self
+            )
+            self.game.log.info(f"应用探索奖励: {quantity} {resource.name_id}")
 
     def handle_fleet_land_request(self, message: Message):
         """处理降落请求, 检查舰队当前位置是否在星球表面"""

@@ -20,7 +20,7 @@ class Robot():
             if modifier_config.modifier_type == ModifierType.LOSS:
                 resource = modifier_config.data_type
                 quantity = modifier_config.quantity
-                avaliable = player.resources.get(resource.id, 0)
+                avaliable = player.resources.get(resource, 0)
                 if avaliable < quantity:
                     return False
         return True
@@ -338,7 +338,7 @@ class Robot():
 
                     # 尝试寻路
                     start_location = player.fleet.location
-                    path = self.game.pathfinder.find_path(
+                    path = self.game.path_finder.find_path(
                         start_location,
                         end_location,
                         target_type="world",

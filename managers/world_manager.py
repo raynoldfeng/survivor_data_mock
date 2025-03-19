@@ -3,6 +3,7 @@ from basic_types.basic_typs import Vector3
 from basic_types.enums import BuildingSubTypeResource, BuildingType
 from common import *
 from basic_types.world import WorldInstance
+from managers.message_bus import MessageType
 
 class WorldManager(BaseObject):
     _instance = None
@@ -16,7 +17,8 @@ class WorldManager(BaseObject):
             cls._instance.world_instances: Dict[str, WorldInstance] = {} # type: ignore
             cls._instance.game = game
             cls._instance.game.world_manager = cls._instance
-            cls._instance.tick_interval = 60
+            cls._instance._dirty_impenetrable_grid = True
+            
         return cls._instance
 
     def generate_world(self, world_config, location, reachable_half_extent, impenetrable_half_extent):
@@ -59,14 +61,41 @@ class WorldManager(BaseObject):
                 return None
 
         # 没有碰撞，添加到管理器
+        self._dirty_impenetrable_grid = True 
         self.world_instances[temp_world.object_id] = temp_world
         for dx in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
             for dy in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
                 for dz in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
                     self.impenetrable_locations[(temp_world.location.x + dx, temp_world.location.y + dy, temp_world.location.z + dz)] = temp_world.object_id
         self.game.log.info(f"成功生成星球 {temp_world.world_config.world_id}，位置：{temp_world.location}")
+
+        self.game.message_bus.post_message(
+            MessageType.WORLD_ADDED,
+            {"world": temp_world},
+            self
+        )
         return temp_world
-     
+    
+    def remove_world(self, world_id: str):
+        if world_id in self.world_instances:
+            world = self.world_instances[world_id]
+            # 发送世界移除消息
+            self.game.message_bus.post_message(
+                MessageType.WORLD_REMOVED,
+                {"world": world},
+                self
+            )
+            self._dirty_impenetrable_grid = True 
+            del self.world_instances[world_id]
+            # 移除不可穿透位置
+            for loc in world.impenetrable_locations:
+                if loc in self.impenetrable_locations:
+                    del self.impenetrable_locations[loc]
+
+    def get_impenetrable_grid(self) -> Dict[Vector3, str]:
+        """生成预计算的碰撞网格"""
+        return self.impenetrable_locations.copy()
+    
     def _generate_resource_slots(self, world_config):
         """生成初始的 building_slots 字典 (所有类型均为二级字典)"""
         building_slots = {

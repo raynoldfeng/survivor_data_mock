@@ -2,7 +2,6 @@ from basic_types.basic_typs import Vector3
 from basic_types.resource import Resource
 from loader.locale import Locale
 from basic_types.enums import *
-from path_finder import Pathfinder
 from logger import Log
 import logging
 from time import sleep
@@ -19,7 +18,7 @@ class Game:
         self.robot = None
         self.tick_counter = 0
         self.log = Log(level=logging.DEBUG, filename="log.txt")
-        self.pathfinder = Pathfinder(self) 
+        self.pathfinder = None
 
     def add_robot(self, resources, building_configs):
         player = self.player_manager.create_player(resources, building_configs)
@@ -29,7 +28,7 @@ class Game:
         """生成指定数量的星球"""
 
         # --- 参数设置 (可调整) ---
-        density_factor = 5  # 密度因子：控制星球之间的平均距离。增大该值会使星球更稀疏。
+        density_factor = 50  # 密度因子：控制星球之间的平均距离。增大该值会使星球更稀疏。
         min_reachable_half_extent = 1  # 星球可到达区域的最小半边长（单元格数）
         max_reachable_half_extent = 10  # 星球可到达区域的最大半边长（单元格数）
         impenetrable_ratio_min = 0.1  # 星球不可穿透区域占可到达区域的最小比例

@@ -23,3 +23,8 @@ def deserialize_object(serialized_bytes):
     except pickle.UnpicklingError:
         print("反序列化失败，输入可能不是有效的序列化字节串。")
         return None
+
+def custom_serializer(obj):
+    if hasattr(obj, '__dict__'):
+        return obj.__dict__
+    return str(obj)

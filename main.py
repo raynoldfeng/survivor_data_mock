@@ -10,7 +10,9 @@ from managers.world_manager import WorldManager
 from managers.player_manager import PlayerManager
 from managers.rule_manager import RulesManager
 from managers.message_bus import MessageBus
+from path_finder import Pathfinder
 from game import Game
+
 
 def main():
     Locale.load_from_csv('resources/locale.csv')
@@ -47,6 +49,7 @@ def main():
     player_manager = PlayerManager(game)
     modifier_manager = ModifierManager(game)
     rule_manager = RulesManager(game)
+    path_finder = Pathfinder(game)
 
     game.building_manager = building_manager
     game.event_manager = event_manager
@@ -54,9 +57,10 @@ def main():
     game.world_manager = world_manager
     game.player_manager = player_manager
     game.rule_manager = rule_manager
+    game.path_finder = path_finder
 
     game.generate_worlds(100)
-
+    game.path_finder.update_octree()  # 生成星球后更新八叉树
     game.add_robot(resource_configs, building_configs)
 
     game.run()
