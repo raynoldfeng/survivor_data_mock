@@ -11,9 +11,7 @@ class Event(BaseObject):
         super().__init__()
         self.config: EventConfig = config
         self.current_phase: Optional[EventPhase] = None
-        self.current_tick: int = 0
-        self.start_tick: int = 0
-        self.phase_start_tick: int = 0
+        self.phase_start: datetime = datetime.datetime.now()
         self.choices: Dict[str, str] = {}  # phase_id -> option_id
         self.target_type: Optional[ObjectType] = None
         self.target_id: Optional[str] = None
@@ -25,6 +23,7 @@ class EventManager():
     def __new__(cls, event_configs: List[EventConfig], game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance.last_generate = datetime.datetime.now()
             cls._instance.event_configs: List[EventConfig] = event_configs # type: ignore
             cls._instance.active_events: Dict[ObjectType, Dict[str, Event]] = { # type: ignore
                 ObjectType.PLAYER: {},
@@ -33,7 +32,6 @@ class EventManager():
             }
             cls._instance.game = game
             cls._instance.game.event_manager = cls._instance
-            cls._instance.tick_interval = 30  # 每30分钟tick一次 (根据需要调整)
 
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_SELECT_EVENT_OPTION, cls._instance.process_player_choice_callback)
@@ -166,13 +164,13 @@ class EventManager():
         """更新事件状态"""
         for target_type, events in list(self.active_events.items()):
             for target_id, event in list(events.items()):
-                event.current_tick += 1
 
                 if not event.current_phase:
                     continue
 
-                # 检查阶段持续时间, 修改为tick判断
-                if event.current_phase.duration != -1 and event.current_tick - event.phase_start_tick >= event.current_phase.duration * self.tick_interval:
+                # 检查阶段持续时间
+                lasted_secs = (datetime.datetime.now() - event.phase_start).total_seconds()
+                if event.current_phase.duration != -1 and  lasted_secs >= event.current_phase.duration:
                     # 阶段超时，根据情况进入下一个阶段或结束事件
                     # 这里简化处理，直接结束事件
                     event.ended = True
@@ -212,7 +210,7 @@ class EventManager():
                             self.apply_event_result(event, option.success_result_id)
                         if event.current_phase.next_phase_success:
                             event.current_phase = event.config.phases.get(event.current_phase.next_phase_success)
-                            event.phase_start_tick = event.current_tick
+                            event.phase_start = datetime.datetime.now()
                             # 发送事件阶段变更消息
                             self.game.message_bus.post_message(MessageType.EVENT_PHASE_CHANGE, {
                                 "target_type": event.target_type,
@@ -236,7 +234,7 @@ class EventManager():
                             self.apply_event_result(event, option.fail_result_id)
                         if event.current_phase.next_phase_failure:
                             event.current_phase = event.config.phases.get(event.current_phase.next_phase_failure)
-                            event.phase_start_tick = event.current_tick
+                            event.phase_start = datetime.datetime.now()
                             # 发送事件阶段变更消息
                             self.game.message_bus.post_message(MessageType.EVENT_PHASE_CHANGE, {
                                 "target_type": event.target_type,
@@ -255,10 +253,13 @@ class EventManager():
                             }, self)
                             del self.active_events[target_type][target_id]
 
-    def tick(self, tick_counter):
+    def tick(self):
         """
         修改后的tick方法，增加tick_counter参数, 并通过tick_interval控制频率
         """
-        if tick_counter % self.tick_interval == 0:
+        now = datetime.datetime.now()
+        if (now- self.last_generate).seconds >= 1:
             self.generate_events()
-            self.update_event_state()
+            self.last_generate = now
+            
+        self.update_event_state()

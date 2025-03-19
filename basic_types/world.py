@@ -10,10 +10,10 @@ class WorldInstance(BaseObject):
         self.world_config = world_config
         self.building_slots = building_slots 
         self.exploration_rewards = exploration_rewards
-        self.location = (0, 0, 0)  # 中心坐标
+        self.location :Vector3 = Vector3(0,0,0)
         self.reachable_half_extent = reachable_half_extent  # 可到达半边长
         self.impenetrable_half_extent = impenetrable_half_extent  # 不可穿透半边长
-        self.impenetrable_locations: Set[Tuple[int, int, int]] = self._calculate_impenetrable_locations()  # 不可穿透区域的坐标
+        self.impenetrable_locations: Set[Vector3] = self._calculate_impenetrable_locations()  # 不可穿透区域的坐标
         self.docked_fleets: Dict[str, Vector3] = {}  # 停靠的舰队 {player_id: fleet_location}
         self.owner = player_id
 
@@ -25,11 +25,11 @@ class WorldInstance(BaseObject):
             num = int(adjustment_str)
             return num, num
 
-    def is_on_surface(self, location: Tuple[int, int, int]) -> bool:
+    def is_on_surface(self, location: Vector3) -> bool:
         """判断给定坐标是否在该星球表面"""
-        dx = abs(location[0] - self.location[0])
-        dy = abs(location[1] - self.location[1])
-        dz = abs(location[2] - self.location[2])
+        dx = abs(location.x - self.location.x)
+        dy = abs(location.y - self.location.y)
+        dz = abs(location.x - self.location.z)
 
         return (
             dx <= self.reachable_half_extent and
@@ -42,34 +42,27 @@ class WorldInstance(BaseObject):
             )
         )
 
-    def check_collision(self, location: Tuple[int, int, int]) -> bool:
+    def check_collision(self, location: Vector3) -> bool:
         """检查给定坐标是否与星球发生碰撞（即坐标位于星球表面, 或不可穿透区域）"""
-        dx = abs(location[0] - self.location[0])
-        dy = abs(location[1] - self.location[1])
-        dz = abs(location[2] - self.location[2])
+        dx = abs(location.x - self.location.x)
+        dy = abs(location.y - self.location.y)
+        dz = abs(location.z - self.location.z)
         return (
             dx <= self.reachable_half_extent and
             dy <= self.reachable_half_extent and
             dz <= self.reachable_half_extent
         )
 
-    def calculate_distance_to_center(self, location: Tuple[int, int, int]) -> float:
-        """计算给定位置到星球中心的距离（欧几里得距离）"""
-        dx = location[0] - self.location[0]
-        dy = location[1] - self.location[1]
-        dz = location[2] - self.location[2]
-        return math.sqrt(dx*dx + dy*dy + dz*dz)
-    
-    def _calculate_impenetrable_locations(self) -> Set[Tuple[int, int, int]]:
+    def _calculate_impenetrable_locations(self) -> Set[Vector3]:
         """计算星球不可穿透区域的所有坐标"""
         locations = set()
         for dx in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
             for dy in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
                 for dz in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
-                    locations.add((self.location[0] + dx, self.location[1] + dy, self.location[2] + dz))
+                    locations.add((self.location.x + dx, self.location.y + dy, self.location.z + dz))
         return locations
 
-    def get_spawn_location(self) -> Optional[Tuple[int, int, int]]:
+    def get_spawn_location(self) -> Vector3:
         """获取星球上一个可用的出生点 (单元格坐标)"""
         while True:  # 使用循环，直到找到一个可用的出生点
             # 随机选择一个轴 (x, y, 或 z)
@@ -93,10 +86,10 @@ class WorldInstance(BaseObject):
                 offset_z = sign * (self.impenetrable_half_extent + 1)
 
             # 计算出生点坐标
-            spawn_location = (
-                self.location[0] + offset_x,
-                self.location[1] + offset_y,
-                self.location[2] + offset_z,
+            spawn_location = Vector3(
+                self.location.x + offset_x,
+                self.location.y + offset_y,
+                self.location.z + offset_z,
             )
             return spawn_location
         

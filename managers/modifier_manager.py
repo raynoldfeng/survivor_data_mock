@@ -13,13 +13,19 @@ class ModifierManager(BaseObject):
             cls._instance = super().__new__(cls)
             cls._instance.game = game
             cls._instance.game.modifier_manager = cls._instance
+            cls._instance.last_tick = datetime.datetime.now()
             cls._instance.modifiers= []# type: ignore
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_APPLY_REQUEST, cls._instance.handle_apply_request)
         return cls._instance
 
-    
-    def tick(self, tick_counter):
+    # modifier tick最小单位1秒
+    def tick(self):
+        now = datetime.datetime.now()
+        if (now - self.last_tick).seconds <= 1:
+            return
+        
+        self.last_tick = now
         """更新修饰符状态"""
         modifiers_next_round = []
         for modifier in self.modifiers:

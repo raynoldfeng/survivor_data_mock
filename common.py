@@ -7,13 +7,9 @@ import random
 import math
 import json
 import pickle
+import datetime
 
 def serialize_object(obj):
-    """
-    将对象序列化为可以作为字典键的字节串
-    :param obj: 待序列化的对象
-    :return: 序列化后的字节串
-    """
     try:
         return pickle.dumps(obj)
     except pickle.PicklingError:
@@ -22,11 +18,6 @@ def serialize_object(obj):
 
 
 def deserialize_object(serialized_bytes):
-    """
-    将序列化的字节串反序列化为原始对象
-    :param serialized_bytes: 序列化后的字节串
-    :return: 反序列化后的对象
-    """
     try:
         return pickle.loads(serialized_bytes)
     except pickle.UnpicklingError:

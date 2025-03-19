@@ -1,3 +1,4 @@
+from basic_types.basic_typs import Vector3
 from basic_types.resource import Resource
 from loader.locale import Locale
 from basic_types.enums import *
@@ -64,7 +65,7 @@ class Game:
                 impenetrable_half_extent = int(reachable_half_extent * random.uniform(impenetrable_ratio_min, impenetrable_ratio_max))
 
                 # 4. 随机生成位置
-                location = (
+                location = Vector3(
                     random.randint(-max_coord, max_coord),
                     random.randint(-max_coord, max_coord),
                     random.randint(-max_coord, max_coord),
@@ -91,16 +92,15 @@ class Game:
     def run(self):
         while True:
             self.tick_counter += 1  # 增加总tick计数
-            self.log.info(f"当前tick: {self.tick_counter}")
-            self.event_manager.tick(self.tick_counter) 
-            self.player_manager.tick(self.tick_counter) 
-            self.building_manager.tick(self.tick_counter) 
-            self.modifier_manager.tick(self.tick_counter) 
-            self.rule_manager.tick(self.tick_counter)
-            self.message_bus.tick(self.tick_counter)
+            self.event_manager.tick() 
+            self.player_manager.tick() 
+            self.building_manager.tick() 
+            self.modifier_manager.tick() 
+            self.rule_manager.tick()
+            self.message_bus.tick()
 
             # 以下是为了管理员查看方便
-            if(self.tick_counter % 10) == 0:
+            if(self.tick_counter % 100000) == 0:
                 self.log.info("-------------------------------------------")
                 self.log.info("当前资源：")
                 for resource, amount in self.robot.resources.items():
@@ -114,7 +114,9 @@ class Game:
                     for building_instance in self.building_manager.get_buildings_on_world(planet_id):
                         building_name = Locale.get_text(building_instance.building_config.name_id)
                         building_level = building_instance.building_config.level
-                        self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}")
+                        if building_instance.remaining_secs > 0:
+                            self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}" + "(建造/升级中)")
+                        else:
+                            self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}")
                 self.log.info("-------------------------------------------")
-                input()
 

@@ -81,7 +81,7 @@ class MessageBus:
                 callback(msg)  # 调用回调函数
 
 
-    def tick(self, tick_counter):
+    def tick(self):
         # 处理延迟消息
         new_messages = []
         for msg in self.messages:

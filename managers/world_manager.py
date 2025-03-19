@@ -1,4 +1,5 @@
 from basic_types.base_object import BaseObject
+from basic_types.basic_typs import Vector3
 from basic_types.enums import BuildingSubTypeResource, BuildingType
 from common import *
 from basic_types.world import WorldInstance
@@ -9,7 +10,7 @@ class WorldManager(BaseObject):
     def __new__(cls, world_configs, game):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.impenetrable_locations: Dict[Tuple[int, int, int], str] = {} # type: ignore
+            cls._instance.impenetrable_locations: Dict[Vector3, str] = {} # type: ignore
 
             cls._instance.world_configs = world_configs
             cls._instance.world_instances: Dict[str, WorldInstance] = {} # type: ignore
@@ -38,9 +39,9 @@ class WorldManager(BaseObject):
         for existing_world in self.world_instances.values():
             # 计算两个星球“可到达区域”的边界之间的最小距离
             min_distance = (temp_world.reachable_half_extent + existing_world.reachable_half_extent) * safe_distance_factor
-            distance_x = abs(temp_world.location[0] - existing_world.location[0])
-            distance_y = abs(temp_world.location[1] - existing_world.location[1])
-            distance_z = abs(temp_world.location[2] - existing_world.location[2])
+            distance_x = abs(temp_world.location.x - existing_world.location.x)
+            distance_y = abs(temp_world.location.y - existing_world.location.y)
+            distance_z = abs(temp_world.location.z - existing_world.location.z)
 
             if (distance_x < min_distance and
                 distance_y < min_distance and
@@ -51,9 +52,9 @@ class WorldManager(BaseObject):
         # --- 碰撞检测 (简化) ---
         # 检查新星球的“不可穿透区域”是否与现有星球的“不可穿透区域”重叠
         for existing_world in self.world_instances.values():
-            if (abs(temp_world.location[0] - existing_world.location[0]) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1 and
-                abs(temp_world.location[1] - existing_world.location[1]) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1 and
-                abs(temp_world.location[2] - existing_world.location[2]) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1):
+            if (abs(temp_world.location.x - existing_world.location.x) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1 and
+                abs(temp_world.location.y - existing_world.location.y) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1 and
+                abs(temp_world.location.z - existing_world.location.z) < temp_world.impenetrable_half_extent + existing_world.impenetrable_half_extent + 1):
                 self.game.log.info(f"生成星球 {temp_world.world_config.world_id} 失败：与星球 {existing_world.world_config.world_id} 发生碰撞")
                 return None
 
@@ -62,7 +63,7 @@ class WorldManager(BaseObject):
         for dx in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
             for dy in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
                 for dz in range(-temp_world.impenetrable_half_extent, temp_world.impenetrable_half_extent + 1):
-                    self.impenetrable_locations[(temp_world.location[0] + dx, temp_world.location[1] + dy, temp_world.location[2] + dz)] = temp_world.object_id
+                    self.impenetrable_locations[(temp_world.location.x + dx, temp_world.location.y + dy, temp_world.location.z + dz)] = temp_world.object_id
         self.game.log.info(f"成功生成星球 {temp_world.world_config.world_id}，位置：{temp_world.location}")
         return temp_world
      
@@ -90,13 +91,6 @@ class WorldManager(BaseObject):
                     subtype = BuildingSubTypeResource(res_id[:-5].capitalize())  # 首字母大写，例如 "adamantium" -> "Adamantium"
                     building_slots[BuildingType.RESOURCE][subtype] = base_slot
         return building_slots
-
-    def calculate_distance(self, location1: Tuple[int, int, int], location2: Tuple[int, int, int]) -> int:
-        """计算两个位置之间的距离 (欧几里得距离, 向下取整)"""
-        dx = location1[0] - location2[0]
-        dy = location1[1] - location2[1]
-        dz = location1[2] - location2[2]
-        return int(math.sqrt(dx*dx + dy*dy + dz*dz))
 
     def is_world(self, object_id: str) -> bool:
         """判断给定的对象 ID 是否是星球"""
@@ -136,7 +130,7 @@ class WorldManager(BaseObject):
                 rewards.append((reward['resource'], quantity))
         return rewards
     
-    def _is_location_reachable(self, location: Tuple[int, int, int]) -> bool:
+    def _is_location_reachable(self, location: Vector3) -> bool:
         """判断位置是否可到达"""
         # 遍历所有星球，检查是否在任何一个星球的不可穿透区域内
         for world in self.game.world_manager.world_instances.values():
@@ -144,7 +138,7 @@ class WorldManager(BaseObject):
                 return False  # 在不可穿透区域内，不可到达
         return True  # 不在任何星球的不可穿透区域内，可到达
     
-    def is_impenetrable(self, location: Tuple[int, int, int]) -> bool:
+    def is_impenetrable(self, location: Vector3) -> bool:
         """检查给定位置是否不可到达"""
         if location in self.impenetrable_locations:
             self.game.log.info(f"{location} 不可到达,与{self.impenetrable_locations[location]} 碰撞")

@@ -1,5 +1,6 @@
 import heapq
 from typing import Tuple, List, Dict, Optional
+from basic_types.basic_typs import *
 
 class Pathfinder:
     def __init__(self, game):
@@ -10,7 +11,7 @@ class Pathfinder:
         self.max_search_distance = 100  # 最大搜索距离 (曼哈顿距离)
         self.heuristic_weight = 1.2  # 启发式函数权重
 
-    def find_path(self, start_location: Tuple[int, int, int], end_location: Tuple[int, int, int], target_type: str = "coordinate", target_world_id: Optional[str] = None) -> Optional[List[Tuple[int, int, int]]]:
+    def find_path(self, start_location: Vector3, end_location: Vector3, target_type: str = "coordinate", target_world_id: Optional[str] = None) -> Optional[List[Vector3]]:
         """
         使用 A* 算法寻找从 start_location 到 end_location 的最短路径。
 
@@ -97,7 +98,7 @@ class Pathfinder:
         # 循环结束，未找到路径
         return None
 
-    def _get_neighbors(self, location: Tuple[int, int, int]) -> List[Tuple[int, int, int]]:
+    def _get_neighbors(self, location: Vector3) -> List[Vector3]:
         """获取指定位置的相邻可通行位置"""
         neighbors = []
         x, y, z = location
@@ -106,27 +107,27 @@ class Pathfinder:
                 for dz in [-1, 0, 1]:
                     if dx == 0 and dy == 0 and dz == 0:
                         continue  # 跳过自身
-                    neighbor_location = (x + dx, y + dy, z + dz)
+                    neighbor_location = Vector3(x + dx, y + dy, z + dz)
                     if self._is_location_reachable(neighbor_location):
                         neighbors.append(neighbor_location)
         return neighbors
 
-    def _is_location_reachable(self, location: Tuple[int, int, int]) -> bool:
+    def _is_location_reachable(self, location: Vector3) -> bool:
         """判断位置是否可到达"""
         # 使用 WorldManager 的 is_cell_available 方法
         return self.game.world_manager._is_location_reachable(location)
 
-    def _heuristic_cost(self, location1: Tuple[int, int, int], location2: Tuple[int, int, int]) -> int:
+    def _heuristic_cost(self, location1: Vector3, location2: Vector3) -> int:
         """计算两个位置之间的启发式代价 (曼哈顿距离)"""
-        return abs(location1[0] - location2[0]) + abs(location1[1] - location2[1]) + abs(location1[2] - location2[2])
+        return abs(location1.x - location2.x) + abs(location1.y - location2.y) + abs(location1.z - location2.z)
 
-    def _reconstruct_path(self, end_location: Tuple[int, int, int]) -> List[Tuple[int, int, int]]:
+    def _reconstruct_path(self, end_location: Vector3) -> List[Vector3]:
         """从终点回溯，构建路径"""
         path = []
         current_location = end_location
         while current_location is not None:
             path.append(current_location)
-            current_location = self._node_data[current_location][2]  # 获取父节点
+            current_location = self._node_data[current_location].y  # 获取父节点
         path.reverse()  # 反转列表，得到从起点到终点的路径
         return path
 
@@ -138,7 +139,7 @@ class Pathfinder:
         self.max_search_distance = 100  # 最大搜索距离 (曼哈顿距离)
         self.heuristic_weight = 1.2  # 启发式函数权重
 
-    def find_path(self, start_location: Tuple[int, int, int], end_location: Tuple[int, int, int], target_type: str = "coordinate", target_world_id: Optional[str] = None) -> Optional[List[Tuple[int, int, int]]]:
+    def find_path(self, start_location: Vector3, end_location: Vector3, target_type: str = "coordinate", target_world_id: Optional[str] = None) -> Optional[List[Vector3]]:
         """
         使用 A* 算法寻找从 start_location 到 end_location 的最短路径。
 
@@ -225,30 +226,32 @@ class Pathfinder:
         # 循环结束，未找到路径
         return None
 
-    def _get_neighbors(self, location: Tuple[int, int, int]) -> List[Tuple[int, int, int]]:
+    def _get_neighbors(self, location: Vector3) -> List[Vector3]:
         """获取指定位置的相邻可通行位置"""
         neighbors = []
-        x, y, z = location
+        x = location.x
+        y = location.y
+        z = location.z
         for dx in [-1, 0, 1]:
             for dy in [-1, 0, 1]:
                 for dz in [-1, 0, 1]:
                     if dx == 0 and dy == 0 and dz == 0:
                         continue  # 跳过自身
-                    neighbor_location = (x + dx, y + dy, z + dz)
+                    neighbor_location = Vector3(x + dx, y + dy, z + dz)
                     if self._is_location_reachable(neighbor_location):
                         neighbors.append(neighbor_location)
         return neighbors
 
-    def _is_location_reachable(self, location: Tuple[int, int, int]) -> bool:
+    def _is_location_reachable(self, location: Vector3) -> bool:
         """判断位置是否可到达"""
         # 使用 WorldManager 的 is_cell_available 方法
         return self.game.world_manager._is_location_reachable(location)
 
-    def _heuristic_cost(self, location1: Tuple[int, int, int], location2: Tuple[int, int, int]) -> int:
+    def _heuristic_cost(self, location1: Vector3, location2: Vector3) -> int:
         """计算两个位置之间的启发式代价 (曼哈顿距离)"""
-        return abs(location1[0] - location2[0]) + abs(location1[1] - location2[1]) + abs(location1[2] - location2[2])
+        return abs(location1.x - location2.x) + abs(location1.y - location2.y) + abs(location1.z - location2.z)
 
-    def _reconstruct_path(self, end_location: Tuple[int, int, int]) -> List[Tuple[int, int, int]]:
+    def _reconstruct_path(self, end_location: Vector3) -> List[Vector3]:
         """从终点回溯，构建路径"""
         path = []
         current_location = end_location

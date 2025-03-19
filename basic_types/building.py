@@ -7,7 +7,7 @@ class BuildingInstance(BaseObject):
         super().__init__()
         self.type = ObjectType.BUILDING
         self.building_config: BuildingConfig = building_config
-        self.remaining_ticks: int = building_config.build_period 
+        self.remaining_secs: float = building_config.build_period 
         self.durability: int = building_config.durability
         self.is_under_attack: bool = False
         self.manpower : int = 0 #投入的人口数量，将影响产出

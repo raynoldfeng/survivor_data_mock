@@ -52,7 +52,12 @@ class BuildingManager(BaseObject):
                 # GENERAL, DEFENSE 类型没有二级分类
                 self.world_buildings[world_id][slot_type] = [None] * slots
 
-    def add_world_buildings(self, world_id: str, building_config: Dict):
+    def add_world_buildings(self, world_id: str, building_configs: []):
+        for config_id in building_configs:
+            building_config = self.get_building_config_by_id(config_id)
+            if building_config:
+                building_instance = BuildingInstance(building_config, world_id)
+                # self._add_building_instance(world_id ...  )
         pass
     
     def get_buildings_on_world(self, world_id: str) -> List[BuildingInstance]:
@@ -146,8 +151,8 @@ class BuildingManager(BaseObject):
         attribute = message.data["attribute"]
         quantity = message.data["quantity"]
         player_id = self.game.world_manager.get_world_by_id(building.build_on).owner
-        if attribute == "remaining_ticks":
-            if building.remaining_ticks <=0 and building.remaining_ticks - quantity >0:
+        if attribute == "remaining_secs":
+            if building.remaining_secs <=0 and building.remaining_secs - quantity >0:
                 # 开始PRODUCTION
                 for modifier_config in building.building_config.modifier_configs:
                     if modifier_config.modifier_type in(ModifierType.PRODUCTION , ModifierType.CONSUME):
@@ -179,16 +184,15 @@ class BuildingManager(BaseObject):
         
 
     def tick(self, tick_counter):
-        if tick_counter % self.tick_interval == 0:
-            # 移除被摧毁的建筑
-            for building_id, building_instance in list(self.building_instances.items()):
-                if building_instance.get_destroyed():
-                    world_id = building_instance.build_on
-                    self._remove_building_instance(building_instance, world_id)
-                    # 发送建筑被摧毁的消息
-                    self.game.message_bus.post_message(MessageType.BUILDING_DESTROYED, {
-                        "building_id": building_id,
-                    }, self)
+        # 移除被摧毁的建筑
+        for building_id, building_instance in list(self.building_instances.items()):
+            if building_instance.get_destroyed():
+                world_id = building_instance.build_on
+                self._remove_building_instance(building_instance, world_id)
+                # 发送建筑被摧毁的消息
+                self.game.message_bus.post_message(MessageType.BUILDING_DESTROYED, {
+                    "building_id": building_id,
+                }, self)
 
 
     def place_new_building(self, **kwargs):
@@ -208,11 +212,11 @@ class BuildingManager(BaseObject):
         }, self)
         
         modifier_config =  ModifierConfig(
-            data_type = "remaining_ticks",  # 修改为 remaining_ticks
+            data_type = "remaining_secs", 
             modifier_type = ModifierType.LOSS,
-            quantity = self.tick_interval,  # 每次tick减少的量
+            quantity = 1,
             target_type = ObjectType.BUILDING,
-            duration = building_instance.building_config.build_period // self.tick_interval + 1,  # 持续tick次数, 改为使用升级时间
+            duration = building_instance.building_config.build_period,
             delay = 0,
         )
         self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
@@ -232,7 +236,7 @@ class BuildingManager(BaseObject):
 
         # 替换实例的coinfig，升级了
         building_instance.building_config = next_level_building_config
-        building_instance.remaining_ticks = next_level_building_config.build_period
+        building_instance.remaining_secs = next_level_building_config.build_period
         building_instance.durability = next_level_building_config.durability
 
         # 发送建筑开始升级消息(其实就是start消息)
@@ -242,12 +246,12 @@ class BuildingManager(BaseObject):
         }, self)
 
         modifier_config =  ModifierConfig(
-            data_type = "remaining_ticks",
+            data_type = "tick_interval",
             modifier_type = ModifierType.LOSS,
-            quantity = self.tick_interval,  # 每次tick减少的量
+            quantity = 1,
             target_type = ObjectType.BUILDING,
-            duration = next_level_building_config.build_period // self.tick_interval + 1,  # 持续tick次数, 改为使用升级时间
-            delay = 0,
+            duration = next_level_building_config.build_period,
+            delay = 0
         )
 
         self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
@@ -416,12 +420,13 @@ class BuildingManager(BaseObject):
             del self.pending_modifier_msg[index]
             if not succ:
                 # 失败了，直接去掉后续流程
-                del self.pending_buildings[key]
+                if key in self.pending_buildings:
+                    del self.pending_buildings[key]
             else:
                 if key in self.pending_buildings:
                     self.pending_buildings[key].remove(index)
 
-    def tick(self, tick_counter):
+    def tick(self):
         keys_to_delete = []
         # 遍历字典，收集需要删除的键
         for key, pending_msg in self.pending_buildings.items():

@@ -37,10 +37,10 @@ class PlayerManager(BaseObject):
                 self.fleet_locations[player.fleet.location] = [player.object_id]
             else:
                 self.game.log.warn(f"无法为星球 {initial_world.object_id} 找到可到达的出生点，将舰队位置设置为 (0, 0, 0)")
-                player.fleet.location = (0, 0, 0)
+                player.fleet.location = Vector3(0, 0, 0)
         else:
             self.game.log.warn("找不到初始星球，将舰队位置设置为 (0, 0, 0)")
-            player.fleet.location = (0, 0, 0)
+            player.fleet.location = Vector3(0, 0, 0)
         self.add_player(player)
         return player
 
@@ -65,7 +65,7 @@ class PlayerManager(BaseObject):
     def get_player_by_id(self, player_id: str) -> Optional[Player]:
         return self.players.get(player_id)
     
-    def update_fleet_location(self, player_id: str, old_location: Tuple[int, int, int], new_location: Tuple[int, int, int]):
+    def update_fleet_location(self, player_id: str, old_location: Vector3, new_location: Vector3):
         """更新玩家舰队的位置"""
         # 从旧位置移除
         if old_location in self.fleet_locations:
@@ -78,22 +78,21 @@ class PlayerManager(BaseObject):
             self.fleet_locations[new_location] = []
         self.fleet_locations[new_location].append(player_id)
 
-    def tick(self, tick_counter):
-        if tick_counter % self.tick_interval == 0:
-            for player_id, player in self.players.items():
-                player.action_points += player.action_points_recovery_per_minute
-                player.action_points = min(player.action_points, player.max_action_points)
+    def tick(self):
+        for player_id, player in self.players.items():
+            player.action_points += player.action_points_recovery_per_minute
+            player.action_points = min(player.action_points, player.max_action_points)
 
-                actions = player.tick(self.game)
-                if actions is not None:
-                    for action in actions:
-                        self.process_action_data(action)
+            actions = player.tick(self.game)
+            if actions is not None:
+                for action in actions:
+                    self.process_action_data(action)
 
-            for robot_id, robot in self.robots.items():
-                actions = robot.tick(self.game)
-                if actions is not None:
-                    for action in actions:
-                        self.process_action_data(action)
+        for robot_id, robot in self.robots.items():
+            actions = robot.tick(self.game)
+            if actions is not None:
+                for action in actions:
+                    self.process_action_data(action)
 
     def process_action_data(self, action_data):
         """处理操作数据，发送消息"""

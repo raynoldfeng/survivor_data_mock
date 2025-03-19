@@ -10,6 +10,7 @@ class Dest():
 class Robot():
     def __init__(self, player_id, game):
         self.object_id = player_id
+        self.last_think = datetime.datetime.now()
         self.game = game
         self.dest : Dest = None
     
@@ -197,7 +198,7 @@ class Robot():
 
         # 战略位置 (简化：距离出生点越近，价值越高)
         player = self.game.player_manager.get_player_by_id(self.object_id)
-        distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.location)
+        distance = player.fleet.location.distance(planet.location)
         strategic_value = 10 / (distance + 1)  # 避免除以零
 
         # 总价值
@@ -222,7 +223,7 @@ class Robot():
         for planet in unexplored_planets:
             if not planet:
                 continue
-            distance = self.game.world_manager.calculate_distance(player.fleet.location, planet.location)
+            distance = player.fleet.location.distance(planet.location)
             potential_value = self.evaluate_planet(planet)  # 评估星球价值
             score = potential_value / (distance + 1)  # 距离越近，价值越高
             planet_scores.append((planet, score))
@@ -256,6 +257,11 @@ class Robot():
 
     def think(self):
         """模拟玩家思考并返回行动"""
+        now = datetime.datetime.now()
+        if (now - self.last_think).seconds <=1 :
+            return
+        
+        self.last_think = now
         actions = []
         player = self.game.player_manager.get_player_by_id(self.object_id)
         self.game.log.info(f"Robot {player.object_id} 开始思考...")

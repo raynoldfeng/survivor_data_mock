@@ -8,7 +8,17 @@ class ModifierConfig:
         self.quantity = quantity
         self.duration = duration
         self.delay = delay
-
+    
+    def __str__(self):
+        return f"ModifierConfig(\n" \
+               f"  target_type={self.target_type},\n" \
+               f"  data_type='{self.data_type}',\n" \
+               f"  modifier_type={self.modifier_type},\n" \
+               f"  quantity={self.quantity},\n" \
+               f"  duration={self.duration},\n" \
+               f"  delay={self.delay}\n" \
+               f")"
+    
 class ModifierInstance:
     def __init__(self, target_id, config, request_id, owner_type, owner_id):
         self.target_id = target_id

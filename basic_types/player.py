@@ -1,3 +1,4 @@
+from basic_types.basic_typs import *
 from basic_types.enums import ObjectType
 from common import *
 from .resource import Resource
@@ -13,9 +14,9 @@ class Fleet:
         self.travel_speed = 1.0 # 现在速度的单位是 cell/tick
         self.travel_method = None
         self.landed_on = None
-        self.location = (0,0,0) # 单元格坐标
+        self.location = Vector3(0,0,0) # 单元格坐标
 
-    def set_path(self, path: List[Tuple[int, int, int]]):
+    def set_path(self, path: List[Vector3]):
         """设置路径"""
         self.path = path
 

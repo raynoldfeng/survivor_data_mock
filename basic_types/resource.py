@@ -32,6 +32,15 @@ class ResourceConfig:
         self.desc_id: Optional[str] = None
         self.acquire_id: Optional[str] = None
 
+    def __str__(self):
+        return f"ResourceConfig(\n" \
+               f"  id={self.id},\n" \
+               f"  name_id={self.name_id},\n" \
+               f"  type={self.type},\n" \
+               f"  desc_id={self.desc_id},\n" \
+               f"  acquire_id={self.acquire_id}\n" \
+               f")"
+    
     @classmethod
     def from_csv_row(cls, row: Dict[str, str]) -> 'ResourceConfig':
         resource = cls()

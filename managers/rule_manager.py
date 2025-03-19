@@ -1,4 +1,5 @@
 from basic_types.base_object import BaseObject
+from basic_types.basic_typs import Vector3
 from basic_types.modifier import ModifierConfig
 from basic_types.resource import Resource
 from common import *
@@ -17,7 +18,8 @@ class RulesManager(BaseObject):
             cls._instance = super().__new__(cls)
             cls._instance.game = game
             cls._instance.game.rule_manager = cls._instance
-            cls._instance.tick_interval = 1
+            cls._instance.fleet_spacetime = {}
+
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_MOVE_REQUEST, cls._instance.handle_fleet_move_request)
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, cls._instance.handle_fleet_movement_interrupt)
@@ -27,14 +29,13 @@ class RulesManager(BaseObject):
 
         return cls._instance
 
-    def tick(self, tick_counter):
-        if tick_counter % self.tick_interval == 0:
-            # 1. 处理碰撞检测
-            self.check_collisions()
+    def tick(self):
+        # 1. 处理碰撞检测
+        self.check_collisions()
 
-            # 2. 处理舰队移动
-            for player_id, player in self.game.player_manager.players.items():
-                self.move_fleet(player_id)
+        # 2. 处理舰队移动
+        for player_id, player in self.game.player_manager.players.items():
+            self.move_fleet(player_id)
 
     def check_collisions(self):
         """检查所有玩家舰队与星球的碰撞 (包括不可穿透区域)，以及舰队之间的碰撞"""
@@ -102,7 +103,7 @@ class RulesManager(BaseObject):
 
         player.fleet.set_path([])
 
-    def is_valid_move(self, player_id: str, new_location: Tuple[int, int, int]) -> bool:
+    def is_valid_move(self, player_id: str, new_location: Vector3) -> bool:
         """检查移动是否合法 (新位置是否在星球的不可穿透区域内)"""
         player = self.game.player_manager.get_player_by_id(player_id)
         if not player:
@@ -204,20 +205,30 @@ class RulesManager(BaseObject):
         fleet = player.fleet
         if fleet.path and len(fleet.path) > 0:  # 检查 path 是否为空
             next_location = fleet.path[0]  # 获取下一个目标位置
+
             # 移动到当前寻路目标 (直接使用 cell 坐标)
+            now = datetime.datetime.now()
             if self.is_valid_move(player_id, next_location):
-                player.fleet.location = next_location
-                self.game.player_manager.update_fleet_location(player_id, fleet.location, next_location)
-                fleet.move_to_next_cell()
-                # 记录移动日志
-                self.game.log.info(f"玩家 {player_id} 的舰队通过{fleet.travel_method}移动至 {fleet.location}")
-                # 判断是否到达最终目标 (path 为空)
-                if not fleet.path:
-                    self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
-                        "player_id": player_id,
-                        "location": fleet.location,
-                        "arrival_type": "coordinate",  # 普通坐标
-                    }, self)
+                rounds_needed = fleet.location.distance(next_location) / fleet.travel_speed
+                if player_id not in self.fleet_spacetime:
+                    self.fleet_spacetime[player_id] = (fleet.location, now)
+
+                stayed = self.fleet_spacetime[player_id][1]
+                # 在上个位置停留的时间差是否和速度相乘已经大过距离
+                if rounds_needed <= (now - stayed).seconds:
+                    player.fleet.location = next_location
+                    self.game.player_manager.update_fleet_location(player_id, fleet.location, next_location)
+                    fleet.move_to_next_cell()
+                    # 记录移动日志
+                    self.fleet_spacetime[player_id] = (fleet.location, now)
+                    self.game.log.info(f"玩家 {player_id} 的舰队通过{fleet.travel_method}移动至 {fleet.location}")
+                    # 判断是否到达最终目标 (path 为空)
+                    if not fleet.path:
+                        self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
+                            "player_id": player_id,
+                            "location": fleet.location,
+                            "arrival_type": "coordinate",  # 普通坐标
+                        }, self)
             else:
                 # 目的地坐标不可到达，停止移动
                 player.fleet.set_path([])
