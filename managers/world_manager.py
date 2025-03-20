@@ -138,7 +138,43 @@ class WorldManager(BaseObject):
         else:
             num = int(adjustment_str)
             return num, num
+        
+    def get_map_range(self) -> tuple[float, float, float, float, float, float]:
+        """获取当前所有世界的联合不可穿透区域范围"""
+        if not self.world_instances:
+            return (-float('inf'), float('inf'), -float('inf'), float('inf'), -float('inf'), float('inf'))
+        
+        min_x = max_x = min_y = max_y = min_z = max_z = None
+        for world in self.world_instances.values():
+            # 计算当前世界的不可穿透区域范围
+            x = world.location.x
+            y = world.location.y
+            z = world.location.z
+            half = world.impenetrable_half_extent
+            
+            current_min_x = x - half
+            current_max_x = x + half
+            current_min_y = y - half
+            current_max_y = y + half
+            current_min_z = z - half
+            current_max_z = z + half
 
+            # 更新全局范围
+            if min_x is None or current_min_x < min_x:
+                min_x = current_min_x
+            if max_x is None or current_max_x > max_x:
+                max_x = current_max_x
+            if min_y is None or current_min_y < min_y:
+                min_y = current_min_y
+            if max_y is None or current_max_y > max_y:
+                max_y = current_max_y
+            if min_z is None or current_min_z < min_z:
+                min_z = current_min_z
+            if max_z is None or current_max_z > max_z:
+                max_z = current_max_z
+
+        return (min_x, max_x, min_y, max_y, min_z, max_z)
+    
     def _generate_initial_buildings(self, world_config):
         actual_buildings = []
         for structure in world_config.init_structures:

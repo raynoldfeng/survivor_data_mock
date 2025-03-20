@@ -191,47 +191,36 @@ class Pathfinder:
 
     def _get_jump_points(self, current: Vector3, end: Vector3, speed: int) -> List[Vector3]:
         jump_points = []
-        pathfinding_logger.debug(f"Getting jump points from {current} to {end} with speed {speed}")
         for direction in self.directions:
             jump_point = self._jump(current, direction, end, speed)
             if jump_point:
                 jump_points.append(jump_point)
-                pathfinding_logger.debug(f"Jump point found in direction {direction}: {jump_point}")
             else:
-                pathfinding_logger.debug(f"No jump point found in direction {direction}")
+                pass
         return jump_points
 
     def _jump(self, start: Vector3, direction: Vector3, end: Vector3, speed: int) -> Optional[Vector3]:
         current = start
         last_valid = None
         steps = 0
-        pathfinding_logger.debug(f"Jumping from {start} in direction {direction} with speed {speed}")
         while steps < speed:
             current += direction
-            pathfinding_logger.debug(f"Step {steps + 1}: current position {current}")
             if not self._is_reachable(current):
-                pathfinding_logger.debug(f"Position {current} is not reachable, stopping jump")
                 break
             # 检查是否到达目标
             if self._is_goal(current, end):
-                pathfinding_logger.debug(f"Reached goal {end} at {current}")
                 return current
             # 强制邻居检查
             if self._has_forced_neighbor(current, direction):
-                pathfinding_logger.debug(f"Forced neighbor found at {current}, stopping jump")
                 return current
             last_valid = current
             steps += 1
 
-        if last_valid:
-            pathfinding_logger.debug(f"Last valid position: {last_valid}")
         return last_valid
 
     def _is_reachable(self, loc: Vector3) -> bool:
         """可达性检查"""
-        reachable = (loc.x, loc.y, loc.z) not in self.game.world_manager.get_impenetrable_grid()
-        pathfinding_logger.debug(f"Checking reachability of {loc}: {'reachable' if reachable else 'not reachable'}")
-        return reachable
+        return (loc.x, loc.y, loc.z) not in self.game.world_manager.get_impenetrable_grid()
 
     def _is_goal(self, current: Vector3, end: Vector3) -> bool:
         """增强型目标检查"""
@@ -339,10 +328,10 @@ class Pathfinder:
                         self._octree.remove(loc)
 
     def _heuristic_cost(self, a: Vector3, b: Vector3) -> float:
-        dx = a.x - b.x
-        dy = a.y - b.y
-        dz = a.z - b.z
-        return math.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+        dx = abs(a.x - b.x)
+        dy = abs(a.y - b.y)
+        dz = abs(a.z - b.z)
+        return dx + dy + dz
 
     def _get_orthogonal_directions(self, direction: Vector3) -> List[Vector3]:
         """获取与主方向正交的所有方向"""
@@ -352,13 +341,20 @@ class Pathfinder:
 
     def _has_forced_neighbor(self, pos: Vector3, direction: Vector3) -> bool:
         """三维强制邻居检测"""
-        for d in self._get_orthogonal_directions(direction):
+        orthogonal_directions = self._get_orthogonal_directions(direction)
+        for d in orthogonal_directions:
             check_pos = pos + d
             if not self._is_reachable(check_pos):
                 diagonal_pos = check_pos + direction
-                if self._is_reachable(diagonal_pos):
+                # 检查对角线位置是否在地图范围内
+                if self._is_in_map_range(diagonal_pos) and self._is_reachable(diagonal_pos):
                     return True
         return False
+
+    def _is_in_map_range(self, loc: Vector3) -> bool:
+        # 假设地图范围由游戏世界管理器提供
+        min_x, max_x, min_y, max_y, min_z, max_z = self.game.world_manager.get_map_range()
+        return min_x <= loc.x <= max_x and min_y <= loc.y <= max_y and min_z <= loc.z <= max_z
 
     def update_octree(self):
         worlds = self.game.world_manager.world_instances.values()
