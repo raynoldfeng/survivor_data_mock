@@ -26,7 +26,7 @@ class Fleet:
     def move_to_next_cell(self):
         """移动到路径的下一个单元格 (或朝 dest 移动)"""
         if self.path:
-            self.path.pop(0)  # 移除当前单元格
+            self.location = self.path.pop(0)  # 移除当前单元格
 
 
 class Player(BaseObject):

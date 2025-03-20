@@ -271,7 +271,7 @@ class Robot():
             # 有已经规划的路线
             if len(player.fleet.path)>0:
                 # 尚未到达，继续移动
-                self.game.log.info(f"Robot {player.object_id} 的舰队正在移动中")
+                self.game.log.info(f"Robot {player.object_id} 的舰队正在移动中, 下个目标{player.fleet.path[0]}")
             else:
                 # 已经到达了某个既定目标
 
@@ -326,23 +326,23 @@ class Robot():
             planets_to_explore = self.select_planet_to_explore()
             if planets_to_explore:
                 for planet in planets_to_explore:
-                    self.game.log.info(
-                        f"Robot {player.object_id} 考虑前往类型为{planet.world_config.world_id}的星球 {planet.object_id},坐标({planet.location}...")
-
-                    # 获取星球表面的一个可用坐标
                     end_location = planet.get_spawn_location()
                     if not end_location:
                         self.game.log.warn(
                             f"Robot {player.object_id} 无法找到星球 {planet.object_id} 的可到达位置, 跳过该星球。")
                         continue
 
+                    self.game.log.info(
+                        f"Robot {player.object_id} 考虑前往类型为{planet.world_config.world_id}的星球 {planet.object_id},中心坐标({planet.location}, 当前坐标{player.fleet.location} , 目的坐标{end_location}...")
+
+                    # 获取星球表面的一个可用坐标
+
                     # 尝试寻路
                     start_location = player.fleet.location
                     path = self.game.path_finder.find_path(
                         start_location,
                         end_location,
-                        target_type="world",
-                        target_world_id=planet.object_id
+                        player.fleet.travel_speed
                     )
 
                     if path == []:

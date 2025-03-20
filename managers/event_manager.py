@@ -254,11 +254,8 @@ class EventManager():
                             del self.active_events[target_type][target_id]
 
     def tick(self):
-        """
-        修改后的tick方法，增加tick_counter参数, 并通过tick_interval控制频率
-        """
         now = datetime.datetime.now()
-        if (now- self.last_generate).seconds >= 1:
+        if (now- self.last_generate).seconds >= 60:
             self.generate_events()
             self.last_generate = now
             

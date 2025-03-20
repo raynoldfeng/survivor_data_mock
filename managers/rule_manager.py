@@ -5,6 +5,7 @@ from basic_types.resource import Resource
 from common import *
 from basic_types.enums import *
 from .message_bus import MessageType, Message
+import datetime
 
 
 class RulesManager(BaseObject):
@@ -91,7 +92,6 @@ class RulesManager(BaseObject):
             else:
                 self.game.log.warn(f"玩家 {player.object_id} 尝试亚空间跳跃，但钷素不足")
         else:
-            # TODO: 判断普通航行情况下，下一次坐标是否符合速度要求
             player.fleet.set_path(path)
             pass
 
@@ -103,12 +103,8 @@ class RulesManager(BaseObject):
 
         player.fleet.set_path([])
 
-    def is_valid_move(self, player_id: str, new_location: Vector3) -> bool:
-        """检查移动是否合法 (新位置是否在星球的不可穿透区域内)"""
-        player = self.game.player_manager.get_player_by_id(player_id)
-        if not player:
-            return False
-
+    def is_reachable(self, new_location: Vector3) -> bool:
+        """检查移动是否合法 (新位置是否在星球的不可穿透区域内, 以及是否格子相连)"""
         # 检查新位置是否与其他物体碰撞 (包括星球的不可穿透区域)
         if self.game.world_manager.is_impenetrable(new_location):
             # 停止移动
@@ -147,7 +143,7 @@ class RulesManager(BaseObject):
             if not resource:
                 self.game.log.error(f"无效的资源ID: {resource_id}")
                 continue
-            
+
             # 创建奖励修正
             modifier_config = ModifierConfig(
                 target_type=ObjectType.PLAYER,
@@ -157,7 +153,7 @@ class RulesManager(BaseObject):
                 duration=0,
                 delay=0
             )
-            
+
             # 发送奖励消息
             self.game.message_bus.post_message(
                 MessageType.MODIFIER_APPLY_REQUEST,
@@ -224,36 +220,88 @@ class RulesManager(BaseObject):
             return
 
         fleet = player.fleet
-        if fleet.path and len(fleet.path) > 0:  # 检查 path 是否为空
-            next_location = fleet.path[0]  # 获取下一个目标位置
+        if not fleet.path:
+            return
 
-            # 移动到当前寻路目标 (直接使用 cell 坐标)
-            now = datetime.datetime.now()
-            if self.is_valid_move(player_id, next_location):
-                rounds_needed = fleet.location.distance(next_location) / fleet.travel_speed
-                if player_id not in self.fleet_spacetime:
-                    self.fleet_spacetime[player_id] = (fleet.location, now)
+        now = datetime.datetime.now()
+        current_location = fleet.location
 
-                stayed = self.fleet_spacetime[player_id][1]
-                # 在上个位置停留的时间差是否和速度相乘已经大过距离
-                if rounds_needed <= (now - stayed).seconds:
-                    player.fleet.location = next_location
-                    self.game.player_manager.update_fleet_location(player_id, fleet.location, next_location)
-                    fleet.move_to_next_cell()
-                    # 记录移动日志
-                    self.fleet_spacetime[player_id] = (fleet.location, now)
-                    self.game.log.info(f"玩家 {player_id} 的舰队通过{fleet.travel_method}移动至 {fleet.location}")
-                    # 判断是否到达最终目标 (path 为空)
-                    if not fleet.path:
-                        self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
-                            "player_id": player_id,
-                            "location": fleet.location,
-                            "arrival_type": "coordinate",  # 普通坐标
-                        }, self)
-            else:
-                # 目的地坐标不可到达，停止移动
-                player.fleet.set_path([])
-                # 发送 FLEET_MOVEMENT_INTERRUPTED 消息
+        # 处理不同移动方式
+        move_success = False
+        steps = 0
+        if fleet.travel_method == TravelMethod.SUBSPACEJUMP:
+            # 跃迁移动，仅验证合法性
+            next_location = fleet.path[0]
+            move_success = self._handle_subspace_jump(player, next_location)
+        elif fleet.travel_method == TravelMethod.SLOWTRAVEL:
+            # 慢旅行移动
+            move_success, steps = self._handle_slow_travel(player, now)
+
+        if move_success:
+            self.game.log.info(f"玩家 {player_id} 通过{steps}步, 从{current_location} 移动至 {fleet.location}")
+
+            # 检查是否到达终点
+            if not fleet.path:
+                self.game.message_bus.post_message(MessageType.PLAYER_FLEET_ARRIVE, {
+                    "player_id": player_id,
+                    "location": fleet.location,
+                    "arrival_type": "coordinate",
+                }, self)
+
+    def _handle_subspace_jump(self, player, next_location):
+        """处理亚空间跳跃，仅验证合法性"""
+        # 验证跳跃合法性
+        if not self.is_reachable(next_location):
+            return False
+        return True
+
+    def _handle_slow_travel(self, player, now):
+        """处理慢旅行移动"""
+        fleet = player.fleet
+        current_location = fleet.location
+        player_id = player.object_id
+
+        # 计算时间差
+        if player_id not in self.fleet_spacetime:
+            self.fleet_spacetime[player_id] = (current_location, now)
+        last_move_time = self.fleet_spacetime.get(player_id, (None, now))[1]
+        time_elapsed = (now - last_move_time).seconds
+
+        # 计算可移动的步数
+        steps_possible = int(time_elapsed * fleet.travel_speed)
+        actual_steps = 0
+
+        if steps_possible <= 0:
+            return False, 0
+        
+        for _ in range(steps_possible):
+            actual_steps += 1
+            if not fleet.path:
+                break
+
+            next_location = fleet.path[0]
+            if not self._is_single_step_valid(current_location, next_location):
+                # 移动失败处理
                 self.game.message_bus.post_message(MessageType.PLAYER_FLEET_MOVEMENT_INTERRUPT, {
                     "player_id": player_id,
                 }, self)
+                return False, actual_steps 
+
+            current_location = next_location
+            fleet.move_to_next_cell()
+            self.fleet_spacetime[player_id] = (current_location, now)
+
+        return True, actual_steps
+
+    def _is_single_step_valid(self, loc1: Vector3, loc2: Vector3) -> bool:
+        """检查单步移动是否合法（在接触面且可达）"""
+        return (self.is_reachable(loc2) # 可到达
+                and self.is_contiguous(loc1, loc2) #连续
+                or loc1 == loc2 )# 没动也算
+
+    def is_contiguous(self, loc1: Vector3, loc2: Vector3) -> bool:
+        """检查两个位置是否在接触面（相邻）"""
+        dx = abs(loc1.x - loc2.x)
+        dy = abs(loc1.y - loc2.y)
+        dz = abs(loc1.z - loc2.z)
+        return (dx + dy + dz) == 1

@@ -79,7 +79,6 @@ class MessageBus:
         if msg.type in self.subscribers:
             for callback in self.subscribers[msg.type]:
                 callback(msg)  # 调用回调函数
-                log_msg = f"[MSG-{msg.type.name}]"
         
         # 按类型处理日志输出
         log_msg = f"[MSG-{msg.type.name}]"
