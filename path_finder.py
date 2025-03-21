@@ -7,19 +7,19 @@ import logging
 from common import *
 
 # 配置寻路日志记录器
-pathfinding_logger = logging.getLogger('pathfinding')
-pathfinding_logger.setLevel(logging.DEBUG)
+# pathfinding_logger = logging.getLogger('pathfinding')
+# pathfinding_logger.setLevel(logging.DEBUG)
 
 # 创建文件处理器
-file_handler = logging.FileHandler('pathfinding.log')
-file_handler.setLevel(logging.DEBUG)
+# file_handler = logging.FileHandler('pathfinding.log')
+# file_handler.setLevel(logging.DEBUG)
 
 # 创建格式化器并添加到处理器
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
+# formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+# file_handler.setFormatter(formatter)
 
 # 将处理器添加到记录器
-pathfinding_logger.addHandler(file_handler)
+# pathfinding_logger.addHandler(file_handler)
 
 
 class OctreeNode:
@@ -118,7 +118,7 @@ class Pathfinder:
     def find_path(self, start_location: Vector3, end_location: Vector3, speed: int = 1):
         self.search_counter += 1
         log_header = f"[Search#{self.search_counter}] {start_location}->{end_location}"
-        pathfinding_logger.debug(f"{log_header} Init")
+        # pathfinding_logger.debug(f"{log_header} Init")
 
         # 存储当前搜索的元数据
         self.current_search_meta = {
@@ -128,12 +128,12 @@ class Pathfinder:
         # 缓存检查
         cache_key = (start_location, end_location, speed)
         if cache_key in self._path_cache:
-            pathfinding_logger.debug(f"{log_header} Cache hit")
+            # pathfinding_logger.debug(f"{log_header} Cache hit")
             return self._path_cache[cache_key]
 
         # 立即完成检查
         if self._is_goal(start_location, end_location):
-            pathfinding_logger.debug(f"{log_header} Start meets goal condition")
+            # pathfinding_logger.debug(f"{log_header} Start meets goal condition")
             return [start_location]
 
         # 初始化搜索
@@ -151,13 +151,13 @@ class Pathfinder:
         while open_heap and steps < self.max_search_steps:
             current_f, current_pos, parent, current_g, _ = heapq.heappop(open_heap)
 
-            pathfinding_logger.debug(f"{log_header} Expanding node: {current_pos}, f: {current_f}, g: {current_g}")
+            # pathfinding_logger.debug(f"{log_header} Expanding node: {current_pos}, f: {current_f}, g: {current_g}")
 
             # 目标检查
             if self._is_goal(current_pos, end_location):
                 path = self._reconstruct_path(current_pos)
                 self._path_cache[cache_key] = path
-                pathfinding_logger.debug(f"{log_header} Found path: {len(path)} steps")
+                # pathfinding_logger.debug(f"{log_header} Found path: {len(path)} steps")
                 return path
 
             if current_pos in closed_set:
@@ -166,7 +166,7 @@ class Pathfinder:
 
             # 扩展节点
             neighbors = self._get_jump_points(current_pos, end_location, speed)
-            pathfinding_logger.debug(f"{log_header} Neighbors for {current_pos}: {neighbors}")
+            # pathfinding_logger.debug(f"{log_header} Neighbors for {current_pos}: {neighbors}")
             for neighbor in neighbors:
                 if neighbor in closed_set:
                     continue
@@ -182,11 +182,11 @@ class Pathfinder:
                     new_node = (new_f, neighbor, current_pos, new_g, move_direction)
                     heapq.heappush(open_heap, new_node)
                     self._node_data[neighbor] = (*new_node, self.current_search_meta)
-                    pathfinding_logger.debug(f"{log_header} Adding neighbor {neighbor} to open list, f: {new_f}, g: {new_g}")
+                    # pathfinding_logger.debug(f"{log_header} Adding neighbor {neighbor} to open list, f: {new_f}, g: {new_g}")
 
             steps += 1
 
-        pathfinding_logger.debug(f"{log_header} No path found")
+        # pathfinding_logger.debug(f"{log_header} No path found")
         return None
 
     def _get_jump_points(self, current: Vector3, end: Vector3, speed: int) -> List[Vector3]:

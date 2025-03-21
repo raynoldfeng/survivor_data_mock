@@ -87,8 +87,8 @@ class Game:
                 # 如果达到最大尝试次数，则放弃生成该星球
                 print(f"Warning: Could not generate world after {max_attempts} attempts.")
             
-
     def run(self):
+        last_time = datetime.datetime.now()
         while True:
             self.tick_counter += 1  # 增加总tick计数
             self.event_manager.tick() 
@@ -98,8 +98,12 @@ class Game:
             self.rule_manager.tick()
             self.message_bus.tick()
 
+            now = datetime.datetime.now()
+            elapsed =(now - last_time).seconds
             # 以下是为了管理员查看方便
-            if(self.tick_counter % 100000) == 0:
+            if elapsed >= 15:
+                last_time = now
+                elapsed = 0
                 self.log.info("-------------------------------------------")
                 self.log.info("当前资源：")
                 for resource, amount in self.robot.resources.items():

@@ -99,7 +99,9 @@ class MessageBus:
         elif msg.type == MessageType.PLAYER_SELECT_EVENT_OPTION:
             log_msg += f" 玩家ID:{msg.data['player_id']}, 选择选项:{msg.data['choice']}"
         elif msg.type == MessageType.PLAYER_RESOURCE_CHANGED:
-            log_msg += f" 玩家ID:{msg.data['player_id']}, 资源:{msg.data['resource']}, 变化量:{msg.data['quantity']}"
+            # log_msg += f" 玩家ID:{msg.data['player_id']}, 资源:{msg.data['resource']}, 变化量:{msg.data['quantity']}"
+            # 减少日志量
+            return
         elif msg.type == MessageType.PLAYER_FLEET_MOVE_REQUEST:
             log_msg += f" 玩家ID:{msg.data['player_id']}, 路径长度:{len(msg.data['path'])}, 方式:{msg.data['travel_method'].name}"
         elif msg.type == MessageType.PLAYER_FLEET_LAND_REQUEST:
@@ -123,7 +125,9 @@ class MessageBus:
         elif msg.type == MessageType.BUILDING_UPGRADE_REQUEST:
             log_msg += f" 玩家ID:{msg.data['player_id']}, 建筑ID:{msg.data['building_id']}"
         elif msg.type == MessageType.BUILDING_ATTRIBUTE_CHANGED:
-            log_msg += f" 建筑ID:{msg.data['building_id']}, 属性:{msg.data['attribute']}, 变化量:{msg.data['quantity']}"
+            # log_msg += f" 建筑ID:{msg.data['building_id']}, 属性:{msg.data['attribute']}, 变化量:{msg.data['quantity']}"
+            # 减少日志量
+            return
         elif msg.type == MessageType.MODIFIER_APPLY_REQUEST:
             log_msg += f" 目标ID:{msg.data['target_id']}, 类型:{msg.data['modifier_config'].modifier_type.name}, 数值:{msg.data['modifier_config'].quantity}"
         elif msg.type == MessageType.MODIFIER_RESPONSE:
