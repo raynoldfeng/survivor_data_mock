@@ -76,4 +76,9 @@ class PlayerAction(Enum):
     EXPLORE = "Explore"
     BUILD = 'Build',
     UPGRADE = 'Upgrade',
-    CHOICE = 'Choice'
+    CHOICE = 'Choice',
+    PURCHASE = "Purchase"
+
+class PurchaseType(Enum):
+    RESOURCE = "Resource"
+    ITEM = "Item"  # 预留给未来使用

@@ -1,4 +1,5 @@
 from basic_types.base_object import BaseObject
+from basic_types.modifier import ModifierConfig
 from basic_types.player import Player
 from basic_types.basic_typs import Vector3
 from basic_types.enums import *
@@ -24,8 +25,8 @@ class PlayerManager(BaseObject):
             cls._instance.game.message_bus.subscribe(MessageType.PLAYER_RESOURCE_CHANGED, cls._instance.handle_player_resource_changed)
         return cls._instance
 
-    def create_player(self, resources: Dict[str, Resource], building_configs):
-        player = Player(resources, building_configs)
+    def create_player(self, resources, building_configs, purchase_configs): 
+        player = Player(resources, building_configs, purchase_configs)
         initial_world_id = self.game.world_manager.pick()
         initial_world = self.game.world_manager.get_world_by_id(initial_world_id)
         if initial_world:
@@ -44,13 +45,13 @@ class PlayerManager(BaseObject):
         self.add_player(player)
         return player
 
+    def add_robot(self, player):  # 移除 purchase_configs 参数
+        """添加 Robot"""
+        self.robots[player.object_id] = Robot(player.object_id, self.game)  # 不再传递 purchase_configs
+        return player
+    
     def add_player(self, player: Player):
         self.players[player.object_id] = player
-
-    def add_robot(self, player):
-        """添加 Robot"""
-        self.robots[player.object_id] = Robot(player.object_id, self.game)
-        return player
 
     def remove_player(self, player_id: str):
         if player_id in self.players:
@@ -129,6 +130,7 @@ class PlayerManager(BaseObject):
             self.game.message_bus.post_message(MessageType.BUILDING_UPGRADE_REQUEST, {
                 "player_id": action_data["player_id"],
                 "building_id": action_data["building_id"],
+                "building_config_id": action_data["building_config_id"],
             }, self)
 
         elif action == PlayerAction.CHOICE:
@@ -142,12 +144,21 @@ class PlayerManager(BaseObject):
                 "player_id": action_data["player_id"],
                 "world_id": action_data["world_id"],
             }, self)
+            
+        elif action == PlayerAction.PURCHASE: #修改这里
+            self.game.message_bus.post_message(MessageType.PLAYER_PURCHASE_REQUEST, { #修改这里
+                "player_id": action_data["player_id"],
+                "package_name": action_data["name"],
+                "quantity" : action_data["quantity"]
+            }, self)
+
 
     def handle_player_resource_changed(self, message: Message):
         """
         处理玩家资源变化的消息 (由 ModifierManager 发送)
         """
         pass
+
 
     def allocate_manpower(self, building_instance, count):
         # 1.判断building_instance 是否归属于player

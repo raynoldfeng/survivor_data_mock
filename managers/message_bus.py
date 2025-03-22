@@ -33,7 +33,8 @@ class MessageType(Enum):
     INTERSECTION_EVENT = 28
     WORLD_ADDED = 29
     WORLD_REMOVED = 30
-
+    PLAYER_PURCHASE_REQUEST = 31
+    PURCHASE_SUCCESS = 32
 
 class Message:
     _msg_id_counter = 0
@@ -121,9 +122,9 @@ class MessageBus:
         elif msg.type == MessageType.BUILDING_INSUFFICIENT_RESOURCES:
             log_msg += f" 玩家ID:{msg.data['player_id']}, 建筑ID:{msg.data['building_config'].config_id}"
         elif msg.type == MessageType.BUILDING_REQUEST:
-            log_msg += f" 玩家ID:{msg.data['player_id']}, 星球ID:{msg.data['world_id']}, 建筑ID:{msg.data['building_config_id']}"
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 星球ID:{msg.data['world_id']}, 建筑类型:{msg.data['building_config_id']}"
         elif msg.type == MessageType.BUILDING_UPGRADE_REQUEST:
-            log_msg += f" 玩家ID:{msg.data['player_id']}, 建筑ID:{msg.data['building_id']}"
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 原建筑ID:{msg.data['building_id']}, 建筑类型:{msg.data['building_config_id']}"
         elif msg.type == MessageType.BUILDING_ATTRIBUTE_CHANGED:
             # log_msg += f" 建筑ID:{msg.data['building_id']}, 属性:{msg.data['attribute']}, 变化量:{msg.data['quantity']}"
             # 减少日志量
@@ -134,6 +135,10 @@ class MessageBus:
             log_msg += f" 请求ID:{msg.data['request_id']}, 状态:{msg.data['status']}"
         elif msg.type == MessageType.INTERSECTION_EVENT:
             log_msg += f" 位置:{msg.data['location']}, 对象:{msg.data['objects']}, 坠毁:{msg.data['crash']}"
+        elif msg.type == MessageType.PLAYER_PURCHASE_REQUEST:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 购买项:{msg.data['package_name']}, 数量:{msg.data['quantity']}"
+        elif msg.type == MessageType.PURCHASE_SUCCESS:
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 购买成功: {msg.data['package_name']} x {msg.data['quantity']}"
         else:
             log_msg += f" 数据:{json.dumps(msg.data, indent=None, ensure_ascii=False)[:100]}"  # 截断过长数据
 

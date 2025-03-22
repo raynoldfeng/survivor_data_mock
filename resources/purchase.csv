@@ -1,0 +1,4 @@
+package_name,type,item_id,amount,price
+resource_purchase_package_lvl1,Resource,resource.relics,10,100
+resource_purchase_package_lvl1,Resource,resource.stcfragments,10,100
+resource_purchase_package_lvl1,Resource,resource.noctilith,10,100

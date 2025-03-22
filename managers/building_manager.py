@@ -81,13 +81,14 @@ class BuildingManager(BaseObject):
                             buildings.append(building)
         return buildings
     
-    def get_next_level_config(self, building_config):
+    def get_next_level_configs(self, building_config):
+        next_level_building_configs = []
         for _, config in self.building_configs.items():
             if config.type == building_config.type:
                 if config.subtype == building_config.subtype:
                     if config.level == building_config.level + 1:
-                        return config
-        return None
+                        next_level_building_configs.append(config)
+        return next_level_building_configs
     
     def get_pre_level_config(self, building_config):
         for _, config in self.building_configs.items():
@@ -355,6 +356,7 @@ class BuildingManager(BaseObject):
         data = message.data
         player_id = data["player_id"]
         building_id = data["building_id"]
+        building_config_id = data["building_config_id"]
 
         player = self.game.player_manager.get_player_by_id(player_id)
         building_instance = self.get_building_by_id(building_id)
@@ -363,13 +365,13 @@ class BuildingManager(BaseObject):
             return
 
         # 获取下一级建筑配置
-        next_level_building_config = self.get_next_level_config(building_instance.building_config)
-        if not next_level_building_config:
+        next_level_building_configs = self.get_next_level_configs(building_instance.building_config)
+        if building_config_id not in  next_level_building_configs:
             return
 
         # 检查资源是否足够
         can_afford = True
-        for modifier_config in next_level_building_config.modifier_configs:
+        for modifier_config in building_config_id.modifier_configs:
             if modifier_config.modifier_type == ModifierType.LOSS:
                 resource = modifier_config.data_type
                 quantity = modifier_config.quantity
@@ -389,11 +391,11 @@ class BuildingManager(BaseObject):
         upgrade_params ={
             "action" : PlayerAction.UPGRADE,
             "building_id" : building_instance.object_id,
-            "building_config" : next_level_building_config
+            "building_config" : building_config_id
         }
 
         # 发送修改资源的请求
-        for modifier_config in next_level_building_config.modifier_configs:
+        for modifier_config in building_config_id.modifier_configs:
             # 这里如果直接发送，就会导致建筑还没instance就先生产了
             if modifier_config.modifier_type in(ModifierType.GAIN , ModifierType.LOSS):
                 msg_id = self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {

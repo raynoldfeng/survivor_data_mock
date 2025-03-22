@@ -29,20 +29,30 @@ class Fleet:
             self.location = self.path.pop(0)  # 移除当前单元格
 
 
+# basic_types/player.py
 class Player(BaseObject):
-    def __init__(self, resources: Dict[str, Resource], building_config):
+    def __init__(self, resources, building_configs, purchase_configs):  # 增加 purchase_configs
         super().__init__()
         self.type = ObjectType.PLAYER
         self.resources: Dict[Resource, float] = {resource: 0.0 for resource in resources}
         self.manpower_allocation = {}
         self.avaliable_manpower = 0
         self.fleet = Fleet()
-        self.avaliable_building_config = building_config
+        self.avaliable_building_config = building_configs
+        self.available_purchases = purchase_configs  # 存储可购买项
         self.characters = [{"name": "角色 1", "location": None}]
         self.explored_planets: List[str] = []
         self.action_points = 5
         self.max_action_points = 20
         self.action_points_recovery_per_minute = 0.1
+        self.gold = 1000  # 初始金币
+
+    def add_resource(self, resource_id: str, amount: float):
+        """增加资源 (现在直接修改)"""
+        for resource in self.resources:
+            if resource == resource_id:
+                self.resources[resource] += amount
+                break
 
     def tick(self, game):
         """

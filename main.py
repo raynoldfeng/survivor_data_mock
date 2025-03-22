@@ -2,10 +2,12 @@ from loader.world_configs import load_world_configs
 from loader.resource import load_resources_from_csv
 from loader.building_config import load_building_configs
 from loader.event_config import load_events_from_csv
+from loader.purchase_config import load_purchase_configs
 from loader.locale import Locale
 from managers.building_manager import BuildingManager
 from managers.event_manager import EventManager
 from managers.modifier_manager import ModifierManager
+from managers.purchase_manager import PurchaseManager
 from managers.world_manager import WorldManager
 from managers.player_manager import PlayerManager
 from managers.rule_manager import RulesManager
@@ -36,6 +38,7 @@ def main():
         world_init_structures_file='resources/world_init_structures.csv',
         world_explored_rewards_file='resources/world_explored_rewards.csv'
     )
+    purchase_configs = load_purchase_configs('resources/purchase.csv')
 
     game = Game()
 
@@ -46,6 +49,7 @@ def main():
     world_manager = WorldManager(world_configs, game)
     event_manager = EventManager(event_configs, game)
     building_manager = BuildingManager(building_configs, game)
+    purchase_manager = PurchaseManager(purchase_configs, game)
     player_manager = PlayerManager(game)
     modifier_manager = ModifierManager(game)
     rule_manager = RulesManager(game)
@@ -57,11 +61,12 @@ def main():
     game.world_manager = world_manager
     game.player_manager = player_manager
     game.rule_manager = rule_manager
+    game.purchase_manager = purchase_manager
     game.path_finder = path_finder
-
+    
     game.generate_worlds(100)
     game.path_finder.update_octree()  # 生成星球后更新八叉树
-    game.add_robot(resource_configs, building_configs)
+    game.add_robot(resource_configs, building_configs, purchase_configs)
 
     game.run()
 

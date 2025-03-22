@@ -14,14 +14,15 @@ class Game:
         self.world_manager = None
         self.player_manager = None
         self.rule_manager = None
+        self.purchase_manager = None
         self.message_bus = None
         self.robot = None
         self.tick_counter = 0
         self.log = Log(level=logging.DEBUG, filename="log.txt")
-        self.pathfinder = None
+        self.path_finder = None
 
-    def add_robot(self, resources, building_configs):
-        player = self.player_manager.create_player(resources, building_configs)
+    def add_robot(self, resources, building_configs, purchase_configs):
+        player = self.player_manager.create_player(resources, building_configs, purchase_configs)
         self.robot = self.player_manager.add_robot(player)
 
     def generate_worlds(self, num_worlds: int):

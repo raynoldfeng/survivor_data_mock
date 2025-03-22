@@ -13,7 +13,7 @@ class Robot():
         self.last_think = datetime.datetime.now()
         self.game = game
         self.dest : Dest = None
-    
+
     # 这里要做成一个tick内的判断，rule里也要对应修改
     def can_afford_building_cost(self, player, building_config):
         for modifier_config in building_config.modifier_configs:
@@ -128,26 +128,65 @@ class Robot():
             return None
         
     def calculate_building_upgrade_benefit(self, building_instance):
-        """计算建筑升级的收益 (简化版，仅考虑资源产出)"""
-        next_level_config = self.game.building_manager.get_next_level_config(building_instance.building_config)
-        if not next_level_config:
-            return 0
+        """计算建筑升级的收益 (考虑多种升级路径和资源稀缺度)"""
+        player = self.game.player_manager.get_player_by_id(self.object_id)
+        total_benefit = 0
 
-        current_production = 0
-        next_level_production = 0
+        # 获取所有可能的下一级建筑配置
+        next_level_configs = []
+        for config_id, config in self.game.building_manager.building_configs.items():
+            if (config.type == building_instance.building_config.type and
+                config.subtype == building_instance.building_config.subtype and
+                config.level == building_instance.building_config.level + 1):
+                next_level_configs.append(config)
 
-        # 获取当前等级的产出
-        for modifier in building_instance.building_config.modifier_configs:
-            if modifier.modifier_type == ModifierType.PRODUCTION:
-                current_production += modifier.quantity
+        if not next_level_configs:
+            return 0  # 没有下一级建筑
 
-        # 获取下一等级的产出
-        for modifier in next_level_config.modifier_configs: 
-            if modifier.modifier_type == ModifierType.PRODUCTION:
-                next_level_production += modifier.quantity
+        for next_config in next_level_configs:
+            benefit = 0
 
+            # 计算产出变化
+            for modifier in next_config.modifier_configs:
+                if modifier.modifier_type == ModifierType.PRODUCTION:
+                    resource_id = modifier.data_type
+                    # 获取当前建筑对应资源的产出 (如果没有则为 0)
+                    current_production = 0
+                    for current_modifier in building_instance.building_config.modifier_configs:
+                        if (current_modifier.modifier_type == ModifierType.PRODUCTION and
+                            current_modifier.data_type == resource_id):
+                            current_production = current_modifier.quantity
+                            break
 
-        return next_level_production - current_production
+                    production_change = modifier.quantity - current_production
+
+                    # 计算资源权重 (越稀缺权重越高)
+                    resource_amount = player.resources.get(resource_id, 1)  # 获取资源数量，默认为1避免除以0
+                    resource_weight = 1 / resource_amount if resource_amount>0 else 100 #资源为0的时候给一个极高的权重
+
+                    benefit += production_change * resource_weight
+
+            # 计算消耗变化 (可选，如果您希望考虑升级带来的消耗增加)
+            for modifier in next_config.modifier_configs:
+                if modifier.modifier_type == ModifierType.CONSUME:
+                    resource_id = modifier.data_type
+                    # 获取当前建筑对应资源的消耗
+                    current_consumption = 0
+                    for current_modifier in building_instance.building_config.modifier_configs:
+                        if (current_modifier.modifier_type == ModifierType.CONSUME and
+                            current_modifier.data_type == resource_id):
+                            current_consumption = current_modifier.quantity
+                            break
+
+                    consumption_change = modifier.quantity - current_consumption
+                    resource_amount = player.resources.get(resource_id, 1)
+                    resource_weight = 1 / resource_amount if resource_amount>0 else 100
+
+                    benefit -= consumption_change * resource_weight  # 消耗增加是负收益
+
+            total_benefit += benefit
+
+        return total_benefit
 
     def select_building_to_upgrade(self):
         """选择要升级的建筑 (改进版)"""
@@ -157,12 +196,14 @@ class Robot():
         for planet_id in player.explored_planets:
             for building_instance in self.game.building_manager.get_buildings_on_world(planet_id):
                 # 获取下一级建筑配置
-                next_level_building_config = self.game.building_manager.get_next_level_config(building_instance.building_config)
-                if next_level_building_config:
+                next_level_building_configs = self.game.building_manager.get_next_level_configs(building_instance.building_config)
+                if len(next_level_building_configs) >0 :
                     # 检查资源是否足够
-                    can_afford = self.can_afford_building_cost(player, next_level_building_config)
-                    if can_afford:
-                        upgradeable_buildings.append(building_instance) 
+                    for next_level_building_config in next_level_building_configs:
+                        can_afford = self.can_afford_building_cost(player, next_level_building_config)
+                        if can_afford:
+                            if building_instance not in upgradeable_buildings:
+                                upgradeable_buildings.append(building_instance) 
 
         if not upgradeable_buildings:
             return None
@@ -254,7 +295,27 @@ class Robot():
             }
 
         return None
+    
+    def purchase_rare_resources(self):
+            """尝试购买稀有资源"""
+            player = self.game.player_manager.get_player_by_id(self.object_id)
+            if not player:
+                return None
 
+            # 检查稀有资源是否少于阈值
+            for resource_id, amount in player.resources.items():
+                resource = Resource.get_resource_by_id(resource_id)
+                if resource and resource.type == ResourceType.RARE:
+                    if amount < 5:
+                        self.game.log.info(f"Robot {player.object_id} 发现稀有资源 {resource.name_id} 不足，尝试购买。")
+                        return {
+                            "action": PlayerAction.PURCHASE,
+                            "player_id": player.object_id,
+                            "name": "resource_purchase_package_lvl1",
+                            "quantity": 1,
+                        }
+            return None
+    
     def think(self):
         """模拟玩家思考并返回行动"""
         now = datetime.datetime.now()
@@ -404,6 +465,14 @@ class Robot():
                         "building_config_id": building_config.config_id,
                         "player_id": player.object_id
                     })
+
+        # 尝试购买稀有资源
+        player = self.game.player_manager.get_player_by_id(self.object_id)
+        if player.available_purchases:  # 检查是否有可购买项
+            purchase_action = self.purchase_rare_resources()
+            if purchase_action:
+                self.game.log.info(f"Robot {player.object_id} 决定购买稀有资源。")
+                actions.append(purchase_action)
 
         return actions
 
