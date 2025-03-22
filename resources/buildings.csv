@@ -38,9 +38,9 @@ building.orbital_defense_battery.level3,building.orbital_defense_battery.name,De
 building.energy_shield.level1,building.energy_shield.name,Defense,EnergyShield,1,72,5,50,0.01,building.energy_shield.desc,Energy,8
 building.energy_shield.level2,building.energy_shield.name,Defense,EnergyShield,2,96,10,80,0.01,building.energy_shield.desc,Energy,16,
 building.energy_shield.level3,building.energy_shield.name,Defense,EnergyShield,3,120,15,100,0.01,building.energy_shield.desc,Energy,32,
-building.psychic_barrier.level1,building.psychic_barrier.name,Defense,PsychicBarrier,1,96,10,60,0.0,building.psychic_barrier.desc,Psychic,12
-building.psychic_barrier.level2,building.psychic_barrier.name,Defense,PsychicBarrier,2,120,15,100,0.0,building.psychic_barrier.desc,Psychic,24,
-building.psychic_barrier.level3,building.psychic_barrier.name,Defense,PsychicBarrier,3,144,20,120,0.0,building.psychic_barrier.desc,Psychic,48,
-building.ground_fortress.level1,building.ground_fortress.name,Defense,GroundFortress,1,72,10,60,0.01,building.ground_fortress.desc,Ground,15
-building.ground_fortress.level2,building.ground_fortress.name,Defense,GroundFortress,2,96,15,90,0.01,building.ground_fortress.desc,Ground,30,
-building.ground_fortress.level3,building.ground_fortress.name,Defense,GroundFortress,3,120,20,120,0.01,building.ground_fortress.desc,Ground,60,
+building.psychic_barrier.level1,building.psychic_barrier.name,Defense,PsychicBarrier,1,96,10,60,0.0,building.psychic_barrier.desc,Psychic,8
+building.psychic_barrier.level2,building.psychic_barrier.name,Defense,PsychicBarrier,2,120,15,100,0.0,building.psychic_barrier.desc,Psychic,16,
+building.psychic_barrier.level3,building.psychic_barrier.name,Defense,PsychicBarrier,3,144,20,120,0.0,building.psychic_barrier.desc,Psychic,32,
+building.ground_fortress.level1,building.ground_fortress.name,Defense,GroundFortress,1,72,10,60,0.01,building.ground_fortress.desc,Ground,8
+building.ground_fortress.level2,building.ground_fortress.name,Defense,GroundFortress,2,96,15,90,0.01,building.ground_fortress.desc,Ground,16,
+building.ground_fortress.level3,building.ground_fortress.name,Defense,GroundFortress,3,120,20,120,0.01,building.ground_fortress.desc,Ground,32,

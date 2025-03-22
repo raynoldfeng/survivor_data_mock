@@ -1,28 +1,11 @@
 import heapq
 import math
-# 假设这些类型已经定义
 from basic_types.basic_typs import *
-from managers.message_bus import MessageType
-import logging
 from common import *
-
-# 配置寻路日志记录器
-# pathfinding_logger = logging.getLogger('pathfinding')
-# pathfinding_logger.setLevel(logging.DEBUG)
-
-# 创建文件处理器
-# file_handler = logging.FileHandler('pathfinding.log')
-# file_handler.setLevel(logging.DEBUG)
-
-# 创建格式化器并添加到处理器
-# formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-# file_handler.setFormatter(formatter)
-
-# 将处理器添加到记录器
-# pathfinding_logger.addHandler(file_handler)
-
+from cachetools import LRUCache
 
 class OctreeNode:
+    # ... (OctreeNode 类保持不变, 和之前给出的一样) ...
     def __init__(self, min_x, max_x, min_y, max_y, min_z, max_z, depth=0):
         self.min_x = min_x
         self.max_x = max_x
@@ -93,12 +76,11 @@ class OctreeNode:
             if not self.children[octant].children and not self.children[octant].locations:
                 self.children[octant] = None
 
-
 class Pathfinder:
     def __init__(self, game):
         self.game = game
         self.search_counter = 0
-        self._path_cache = {}
+        self._path_cache = LRUCache(maxsize=1024)  # 使用 LRUCache，设置最大大小
         self._node_data = {}
         self.directions = [
             Vector3(1, 0, 0), Vector3(-1, 0, 0),
@@ -116,78 +98,73 @@ class Pathfinder:
         self._octree = None
 
     def find_path(self, start_location: Vector3, end_location: Vector3, speed: int = 1):
-        self.search_counter += 1
-        log_header = f"[Search#{self.search_counter}] {start_location}->{end_location}"
-        # pathfinding_logger.debug(f"{log_header} Init")
+        self._node_data.clear()  # 确保开始时是空的, 只在开头清除
+        try:
+            self.search_counter += 1
+            log_header = f"[Search#{self.search_counter}] {start_location}->{end_location}"
 
-        # 存储当前搜索的元数据
-        self.current_search_meta = {
-            'original_end': end_location
-        }
+            # 存储当前搜索的元数据
+            self.current_search_meta = {
+                'original_end': end_location
+            }
 
-        # 缓存检查
-        cache_key = (start_location, end_location, speed)
-        if cache_key in self._path_cache:
-            # pathfinding_logger.debug(f"{log_header} Cache hit")
-            return self._path_cache[cache_key]
+            # 缓存检查
+            cache_key = (start_location, end_location, speed)
+            if cache_key in self._path_cache:
+                return self._path_cache[cache_key]
 
-        # 立即完成检查
-        if self._is_goal(start_location, end_location):
-            # pathfinding_logger.debug(f"{log_header} Start meets goal condition")
-            return [start_location]
+            # 立即完成检查
+            if self._is_goal(start_location, end_location):
+                return [start_location]
 
-        # 初始化搜索
-        open_heap = []
-        closed_set = set()
-        self._node_data.clear()
+            # 初始化搜索
+            open_heap = []
+            closed_set = set()
 
-        start_h = self._heuristic_cost(start_location, end_location)
-        # 起点的方向信息初始化为 None
-        start_node = (start_h * self.heuristic_weight, start_location, None, 0.0, None)
-        heapq.heappush(open_heap, start_node)
-        self._node_data[start_location] = (*start_node, self.current_search_meta)
+            start_h = self._heuristic_cost(start_location, end_location)
+            # 起点的方向信息初始化为 None
+            start_node = (start_h * self.heuristic_weight, start_location, None, 0.0, None)
+            heapq.heappush(open_heap, start_node)
+            self._node_data[start_location] = (*start_node, self.current_search_meta)
 
-        steps = 0
-        while open_heap and steps < self.max_search_steps:
-            current_f, current_pos, parent, current_g, _ = heapq.heappop(open_heap)
+            steps = 0
+            while open_heap and steps < self.max_search_steps:
+                # self._node_data.clear()  # 循环内不再清除，只在开头和 finally 中清除
+                current_f, current_pos, parent, current_g, _ = heapq.heappop(open_heap)
 
-            # pathfinding_logger.debug(f"{log_header} Expanding node: {current_pos}, f: {current_f}, g: {current_g}")
+                # 目标检查
+                if self._is_goal(current_pos, end_location):
+                    path = self._reconstruct_path(current_pos)
+                    self._path_cache[cache_key] = path
+                    return path
 
-            # 目标检查
-            if self._is_goal(current_pos, end_location):
-                path = self._reconstruct_path(current_pos)
-                self._path_cache[cache_key] = path
-                # pathfinding_logger.debug(f"{log_header} Found path: {len(path)} steps")
-                return path
-
-            if current_pos in closed_set:
-                continue
-            closed_set.add(current_pos)
-
-            # 扩展节点
-            neighbors = self._get_jump_points(current_pos, end_location, speed)
-            # pathfinding_logger.debug(f"{log_header} Neighbors for {current_pos}: {neighbors}")
-            for neighbor in neighbors:
-                if neighbor in closed_set:
+                if current_pos in closed_set:
                     continue
+                closed_set.add(current_pos)
 
-                move_cost = self._movement_cost(current_pos, neighbor)
-                new_g = current_g + move_cost
-                existing_node = self._node_data.get(neighbor)
-                move_direction = neighbor - current_pos
+                # 扩展节点
+                neighbors = self._get_jump_points(current_pos, end_location, speed)
+                for neighbor in neighbors:
+                    if neighbor in closed_set:
+                        continue
 
-                if not existing_node or new_g < existing_node[3]:
-                    new_h = self._heuristic_cost(neighbor, end_location)
-                    new_f = new_g + new_h * self.heuristic_weight
-                    new_node = (new_f, neighbor, current_pos, new_g, move_direction)
-                    heapq.heappush(open_heap, new_node)
-                    self._node_data[neighbor] = (*new_node, self.current_search_meta)
-                    # pathfinding_logger.debug(f"{log_header} Adding neighbor {neighbor} to open list, f: {new_f}, g: {new_g}")
+                    move_cost = self._movement_cost(current_pos, neighbor)
+                    new_g = current_g + move_cost
+                    existing_node = self._node_data.get(neighbor)
+                    move_direction = neighbor - current_pos
 
-            steps += 1
+                    if not existing_node or new_g < existing_node[3]:
+                        new_h = self._heuristic_cost(neighbor, end_location)
+                        new_f = new_g + new_h * self.heuristic_weight
+                        new_node = (new_f, neighbor, current_pos, new_g, move_direction)
+                        heapq.heappush(open_heap, new_node)
+                        self._node_data[neighbor] = (*new_node, self.current_search_meta)
 
-        # pathfinding_logger.debug(f"{log_header} No path found")
-        return None
+                steps += 1
+
+            return None  # No path found
+        finally:
+            self._node_data.clear()  # 确保即使发生异常也会清空
 
     def _get_jump_points(self, current: Vector3, end: Vector3, speed: int) -> List[Vector3]:
         jump_points = []

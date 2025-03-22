@@ -64,7 +64,7 @@ def parse_log(file_path):
 
                 if in_buildings and "建筑:" in line:
                     # 匹配建筑数据
-                    building_match = re.search(r'建筑: (.+?), 等级:(\d+)(?:\((.*?)\))?', line)
+                    building_match = re.search(r'  - 建筑\d+: (.+?), 等级:(\d+)(?:\((.*?)\))?', line)
                     if building_match:
                         name = building_match.group(1).strip()
                         level = int(building_match.group(2))

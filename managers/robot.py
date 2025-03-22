@@ -145,7 +145,7 @@ class Robot():
 
         for next_config in next_level_configs:
             benefit = 0
-
+            best_choice = (0, next_config)
             # 计算产出变化
             for modifier in next_config.modifier_configs:
                 if modifier.modifier_type == ModifierType.PRODUCTION:
@@ -166,9 +166,8 @@ class Robot():
 
                     benefit += production_change * resource_weight
 
-            # 计算消耗变化 (可选，如果您希望考虑升级带来的消耗增加)
-            for modifier in next_config.modifier_configs:
-                if modifier.modifier_type == ModifierType.CONSUME:
+                # 计算消耗变化 (可选，如果您希望考虑升级带来的消耗增加)
+                elif modifier.modifier_type == ModifierType.CONSUME:
                     resource_id = modifier.data_type
                     # 获取当前建筑对应资源的消耗
                     current_consumption = 0
@@ -185,8 +184,10 @@ class Robot():
                     benefit -= consumption_change * resource_weight  # 消耗增加是负收益
 
             total_benefit += benefit
+        if total_benefit > best_choice[0]:
+            best_choice = (total_benefit, next_config)
 
-        return total_benefit
+        return best_choice
 
     def select_building_to_upgrade(self):
         """选择要升级的建筑 (改进版)"""
@@ -206,19 +207,19 @@ class Robot():
                                 upgradeable_buildings.append(building_instance) 
 
         if not upgradeable_buildings:
-            return None
+            return None, None
 
         # 根据收益选择要升级的建筑
         best_building = None
-        best_benefit = -1
+        best_benefit = (-1, None)
 
         for building_instance in upgradeable_buildings:
             benefit = self.calculate_building_upgrade_benefit(building_instance)
-            if benefit > best_benefit:
+            if benefit[0] > best_benefit[0]:
                 best_benefit = benefit
                 best_building = building_instance
 
-        return best_building # 如果没有值得升级的建筑，则返回 None
+        return best_building, best_benefit[1] # 如果没有值得升级的建筑，则返回 None
 
     def evaluate_planet(self, planet):
         """评估星球的价值"""
@@ -439,13 +440,14 @@ class Robot():
             actions.append(event_action)
 
         # 尝试升级
-        building_instance = self.select_building_to_upgrade()
+        building_instance, next_level_building_config = self.select_building_to_upgrade()
         if building_instance:
-            self.game.log.info(f"Robot {player.object_id} 选择升级建筑: {building_instance.building_config.name_id}")
+            self.game.log.info(f"Robot {player.object_id} 选择升级建筑: {building_instance.building_config.name_id} 为{next_level_building_config.name_id}")
             actions.append({
                 "action": PlayerAction.UPGRADE,
                 "building_id": building_instance.object_id,
-                "player_id": player.object_id
+                "player_id": player.object_id,
+                "building_config_id": next_level_building_config.config_id,
             })
 
         # 尝试建造

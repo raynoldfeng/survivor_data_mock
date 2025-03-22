@@ -16,21 +16,22 @@ class BuildingManager(BaseObject):
             cls._instance.building_instances: Dict[str, BuildingInstance] = {} # type: ignore
             cls._instance.game = game
             cls._instance.game.building_manager = cls._instance
-            cls._instance.tick_interval = 5 
+            cls._instance.tick_interval = 5
             cls._instance.world_buildings = {}
+            cls._instance.PENDING_TIMEOUT = 60  # 超时时间 (秒)
 
-            # 管理玩家尝试进行的建筑（发送了扣资源消息等待回应） ———— 这里要补充超时删除的逻辑，避免等待队列堆积
-            cls._instance.pending_modifier_msg = {}
-            cls._instance.pending_buildings = {}
+            # 管理玩家尝试进行的建筑（发送了扣资源消息等待回应）
+            cls._instance.pending_modifier_msg = {}  # {msg_id: key}
+            cls._instance.pending_buildings = {}  # {key: [(msg_id, timestamp), ...]}
 
             # 订阅消息
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_REQUEST, cls._instance.handle_building_request)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_UPGRADE_REQUEST, cls._instance.handle_upgrade_request)
             cls._instance.game.message_bus.subscribe(MessageType.BUILDING_ATTRIBUTE_CHANGED, cls._instance.handle_building_attribute_changed)
             cls._instance.game.message_bus.subscribe(MessageType.MODIFIER_RESPONSE, cls._instance.handle_modifier_response)
-            
+
         return cls._instance
-    
+
     def pick(self):
         if self.building_instances:
             return random.choice(list(self.building_instances.keys()))
@@ -39,7 +40,7 @@ class BuildingManager(BaseObject):
     def get_building_by_id(self, building_id: str) -> Optional[BuildingInstance]:
         """根据 ID 获取建筑实例"""
         return self.building_instances.get(building_id)
-    
+
     def add_world_slots(self, world_id: str, building_slots: Dict):
         """添加星球的初始建筑槽位信息"""
         self.world_buildings[world_id] = {}
@@ -57,9 +58,9 @@ class BuildingManager(BaseObject):
             building_config = self.get_building_config_by_id(config_id)
             if building_config:
                 building_instance = BuildingInstance(building_config, world_id)
-                # self._add_building_instance(world_id ...  )
+                # self._add_building_instance(world_id ...  )  # TODO: 初始建筑的添加逻辑
         pass
-    
+
     def get_buildings_on_world(self, world_id: str) -> List[BuildingInstance]:
         """获取星球上的所有建筑实例"""
         buildings = []
@@ -75,12 +76,12 @@ class BuildingManager(BaseObject):
                                     buildings.append(building)
                 else:
                     # 对于 general 和 defense 类型，直接遍历
-                    for building_id in slots: # 修正：直接使用 slots
+                    for building_id in slots:
                         building = self.get_building_by_id(building_id)
                         if building:
                             buildings.append(building)
         return buildings
-    
+
     def get_next_level_configs(self, building_config):
         next_level_building_configs = []
         for _, config in self.building_configs.items():
@@ -89,7 +90,7 @@ class BuildingManager(BaseObject):
                     if config.level == building_config.level + 1:
                         next_level_building_configs.append(config)
         return next_level_building_configs
-    
+
     def get_pre_level_config(self, building_config):
         for _, config in self.building_configs.items():
             if config.type == building_config.type:
@@ -97,7 +98,7 @@ class BuildingManager(BaseObject):
                     if config.level == building_config.level - 1:
                         return config
         return None
-    
+
     def get_building_config_by_id(self, config_id):
         for _, config in self.building_configs.items():
             if config.config_id == config_id:
@@ -111,7 +112,7 @@ class BuildingManager(BaseObject):
         if slot_type == BuildingType.RESOURCE:
             self.world_buildings[world_id][slot_type][subtype][slot_index] = building_instance.object_id
         else:
-            self.world_buildings[world_id][slot_type][slot_index] = building_instance.object_id # 直接通过 slot_type 访问
+            self.world_buildings[world_id][slot_type][slot_index] = building_instance.object_id
 
 
     def _remove_building_instance(self, building_instance, world_id):
@@ -124,12 +125,33 @@ class BuildingManager(BaseObject):
             for slot_type, slots in self.world_buildings[world_id].items():
                 if slot_type == BuildingType.RESOURCE:
                     for subtype, sub_slots in slots.items():
-                        sub_slots[sub_slots.index(building_instance.object_id)] = None # 设置为None
+                        try:
+                            sub_slots[sub_slots.index(building_instance.object_id)] = None
+                        except ValueError:  # 使用 ValueError 捕获
+                            pass  # 如果不在列表中，忽略
                 else:
-                    index = self.world_buildings[world_id][slot_type].index(building_instance.object_id)
-                    if index:
-                        self.world_buildings[world_id][slot_type][index] = None
-                        return  # 找到并移除后，直接返回
+                    try:
+                        index = self.world_buildings[world_id][slot_type].index(building_instance.object_id)
+                        if index is not None: # 这里index可能是0
+                            self.world_buildings[world_id][slot_type][index] = None
+                    except ValueError: # 使用 ValueError 捕获
+                        pass
+
+
+        # 发送移除 Modifier 的请求 (更优雅的方式)
+        self.game.message_bus.post_message(MessageType.MODIFIER_REMOVE_REQUEST, {
+            "target_id": building_instance.object_id,
+            "owner_type": ObjectType.BUILDING,
+            "owner_id": building_instance.object_id,
+            "modifier_type": ModifierType.PRODUCTION  # 只移除 PRODUCTION 和 CONSUME
+        }, self)
+
+        self.game.message_bus.post_message(MessageType.MODIFIER_REMOVE_REQUEST, {
+            "target_id": building_instance.object_id,
+            "owner_type": ObjectType.BUILDING,
+            "owner_id": building_instance.object_id,
+            "modifier_type": ModifierType.CONSUME  # 只移除 PRODUCTION 和 CONSUME
+        }, self)
 
 
     def _has_prerequisite_building(self, building_config, world_id) -> bool:
@@ -137,8 +159,11 @@ class BuildingManager(BaseObject):
         if building_config.level == 1:
             return True  # 1 级建筑没有前置
 
-        # 构建前置建筑的 config
-        prerequisite_id = self.get_pre_level_config(building_config)
+        # 构建前置建筑的 config_id
+        prerequisite_config = self.get_pre_level_config(building_config)
+        if not prerequisite_config:
+            return False
+        prerequisite_id = prerequisite_config.config_id
 
         # 检查前置建筑是否存在
         for building_instance in self.get_buildings_on_world(world_id):
@@ -146,7 +171,7 @@ class BuildingManager(BaseObject):
                 return True
 
         return False
-    
+
     def handle_building_attribute_changed(self, message:Message):
         building = self.get_building_by_id(message.data["building_id"])
         attribute = message.data["attribute"]
@@ -177,14 +202,19 @@ class BuildingManager(BaseObject):
                 return None  # 如果是 resource 类型，必须提供 subtype
             if subtype not in self.world_buildings[world_id][slot_type]:
                 return None  # 该星球没有这种 subtype 的 resource 槽位
-            return self.world_buildings[world_id][slot_type][subtype].index(None) if None in self.world_buildings[world_id][slot_type][subtype] else None
+            try:
+                return self.world_buildings[world_id][slot_type][subtype].index(None)
+            except ValueError:
+                return None
 
         else:
             # 对于 general 和 defense 类型，直接在列表中查找空闲槽位
-            return self.world_buildings[world_id][slot_type].index(None) if None in self.world_buildings[world_id][slot_type] else None
-        
+            try:
+                return self.world_buildings[world_id][slot_type].index(None)
+            except ValueError:
+                return None
 
-    def tick(self, tick_counter):
+    def tick(self):
         # 移除被摧毁的建筑
         for building_id, building_instance in list(self.building_instances.items()):
             if building_instance.get_destroyed():
@@ -194,6 +224,44 @@ class BuildingManager(BaseObject):
                 self.game.message_bus.post_message(MessageType.BUILDING_DESTROYED, {
                     "building_id": building_id,
                 }, self)
+
+        # 处理 pending_buildings 超时 和 确认建造/升级
+        keys_to_delete = []
+        for key, data_list in self.pending_buildings.items():  # 遍历 key 和 列表
+            new_data_list = []  # 用于存储未超时的请求
+            all_succeeded = True  # 标记是否所有 MODIFIER_APPLY_REQUEST 都成功了
+            for data in data_list: # 遍历列表
+                msg_id, timestamp = data  # 正确解包元组
+
+                # 检查是否超时
+                time_elapsed = datetime.datetime.now() - timestamp
+                if time_elapsed.total_seconds() > self.PENDING_TIMEOUT:
+                    self.game.log.warn(f"建造/升级请求的子消息超时，已取消。 key: {key}, msg_id: {msg_id}")
+                    # 从 pending_modifier_msg 中移除超时的 msg_id
+                    if msg_id in self.pending_modifier_msg:
+                        del self.pending_modifier_msg[msg_id]
+                    all_succeeded = False  # 超时也视为失败
+                else:
+                    # 未超时，保留
+                    new_data_list.append(data)
+
+            # 更新 pending_buildings[key] 或删除 key
+            if new_data_list:
+                self.pending_buildings[key] = new_data_list
+            else:
+                # 列表为空（所有请求都超时或完成）
+                if all_succeeded:
+                    # 所有请求都成功了，可以开始建造/升级
+                    params = deserialize_object(key)
+                    if params['action'] == PlayerAction.BUILD:
+                        self.place_new_building(**params)
+                    elif params['action'] == PlayerAction.UPGRADE:
+                        self.upgrade_building(**params)
+                # 无论成功与否，只要列表为空，都添加到待删除列表
+                keys_to_delete.append(key)
+
+        for key in keys_to_delete:
+            del self.pending_buildings[key]
 
 
     def place_new_building(self, **kwargs):
@@ -211,9 +279,9 @@ class BuildingManager(BaseObject):
             "building_id": building_instance.object_id,
             "world_id": world_id
         }, self)
-        
+
         modifier_config =  ModifierConfig(
-            data_type = "remaining_secs", 
+            data_type = "remaining_secs",
             modifier_type = ModifierType.LOSS,
             quantity = 1,
             target_type = ObjectType.BUILDING,
@@ -228,21 +296,34 @@ class BuildingManager(BaseObject):
 
     def upgrade_building(self, **kwargs):
         building_id = kwargs['building_id']
-        next_level_building_config = kwargs['building_config']
+        next_level_building_config_id = kwargs['building_config']
         building_instance = self.get_building_by_id(building_id)
-        building_id = building_instance.object_id
         world_id = building_instance.build_on
+        next_level_building_config = self.get_building_config_by_id(next_level_building_config_id)
 
-        # 要先把原来的MODIFIER去掉
+        # 发送移除 Modifier 的请求 (更优雅的方式)
+        self.game.message_bus.post_message(MessageType.MODIFIER_REMOVE_REQUEST, {
+            "target_id": building_instance.object_id,
+            "owner_type": ObjectType.BUILDING,
+            "owner_id": building_instance.object_id,
+            "modifier_type": ModifierType.PRODUCTION  # 只移除 PRODUCTION 和 CONSUME
+        }, self)
 
-        # 替换实例的coinfig，升级了
+        self.game.message_bus.post_message(MessageType.MODIFIER_REMOVE_REQUEST, {
+            "target_id": building_instance.object_id,
+            "owner_type": ObjectType.BUILDING,
+            "owner_id": building_instance.object_id,
+            "modifier_type": ModifierType.CONSUME
+        }, self)
+
+        # 替换实例的config，升级了
         building_instance.building_config = next_level_building_config
         building_instance.remaining_secs = next_level_building_config.build_period
         building_instance.durability = next_level_building_config.durability
 
         # 发送建筑开始升级消息(其实就是start消息)
         self.game.message_bus.post_message(MessageType.BUILDING_START, {
-            "building_id": building_id, 
+            "building_id": building_id,
             "world_id": world_id
         }, self)
 
@@ -281,7 +362,6 @@ class BuildingManager(BaseObject):
 
         # 检查资源是否足够
         can_afford = True
-
         for modifier_config in building_config.modifier_configs:
             if modifier_config.modifier_type == ModifierType.LOSS:
                 resource = modifier_config.data_type
@@ -290,15 +370,11 @@ class BuildingManager(BaseObject):
                     can_afford = False
                     break
 
-        # manpower 是单独处理的
-        manpower = building_config.manpower
-        
-
         if not can_afford:
             # 发送资源不足消息
             self.game.message_bus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
                 "player_id": player_id,
-                "building_config": building_config,
+                "building_config_id": building_config_id,
             }, self)
             return
 
@@ -324,16 +400,15 @@ class BuildingManager(BaseObject):
         one_shot_modifiers = 0
         building_params = {
             "action" : PlayerAction.BUILD,
-            "building_config" : building_config, 
-            "world_id" : world_id, 
-            "slot_type" : slot_type, 
-            "slot_index" : slot_index, 
+            "building_config" : building_config,
+            "world_id" : world_id,
+            "slot_type" : slot_type,
+            "slot_index" : slot_index,
             "subtype" :subtype
         }
-        
+
         # 发送修改资源的请求
         for modifier_config in building_config.modifier_configs:
-            # 这里如果直接发送，就会导致建筑还没instance就先生产了
             if modifier_config.modifier_type in(ModifierType.GAIN , ModifierType.LOSS):
                 msg_id = self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
                 "target_id": player_id,
@@ -345,12 +420,12 @@ class BuildingManager(BaseObject):
                 if key not in self.pending_buildings:
                     self.pending_buildings[key] = []
 
-                self.pending_buildings[key].append(msg_id)
+                self.pending_buildings[key].append((msg_id, datetime.datetime.now()))
                 one_shot_modifiers += 1
-       
+
         if one_shot_modifiers == 0:
             self.place_new_building(**building_params)
-        
+
     def handle_upgrade_request(self, message: Message):
         """处理升级请求"""
         data = message.data
@@ -360,18 +435,18 @@ class BuildingManager(BaseObject):
 
         player = self.game.player_manager.get_player_by_id(player_id)
         building_instance = self.get_building_by_id(building_id)
-
+        next_level_config = self.get_building_config_by_id(building_config_id)
         if not player or not building_instance:
             return
 
         # 获取下一级建筑配置
         next_level_building_configs = self.get_next_level_configs(building_instance.building_config)
-        if building_config_id not in  next_level_building_configs:
+        if not any(building_config_id == config.config_id for config in next_level_building_configs):
             return
 
         # 检查资源是否足够
         can_afford = True
-        for modifier_config in building_config_id.modifier_configs:
+        for modifier_config in next_level_config.modifier_configs:
             if modifier_config.modifier_type == ModifierType.LOSS:
                 resource = modifier_config.data_type
                 quantity = modifier_config.quantity
@@ -383,7 +458,7 @@ class BuildingManager(BaseObject):
             # 发送资源不足消息
             self.game.message_bus.post_message(MessageType.BUILDING_INSUFFICIENT_RESOURCES, {
                 "player_id": player_id,
-                "building_id": building_id,
+                "building_config_id": building_config_id,
             }, self)
             return
 
@@ -395,20 +470,19 @@ class BuildingManager(BaseObject):
         }
 
         # 发送修改资源的请求
-        for modifier_config in building_config_id.modifier_configs:
-            # 这里如果直接发送，就会导致建筑还没instance就先生产了
+        for modifier_config in next_level_config.modifier_configs:
             if modifier_config.modifier_type in(ModifierType.GAIN , ModifierType.LOSS):
                 msg_id = self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
                 "target_id": player_id,
                 "modifier_config" : modifier_config
                 },self)
 
-                key = serialize_object(upgrade_params) 
+                key = serialize_object(upgrade_params)
                 self.pending_modifier_msg[msg_id] = key
                 if key not in self.pending_buildings:
                     self.pending_buildings[key] = []
 
-                self.pending_buildings[key].append(msg_id)
+                self.pending_buildings[key].append((msg_id, datetime.datetime.now()))
                 one_shot_modifiers += 1
 
         if one_shot_modifiers == 0:
@@ -421,26 +495,16 @@ class BuildingManager(BaseObject):
             key = self.pending_modifier_msg[index]
             del self.pending_modifier_msg[index]
             if not succ:
-                # 失败了，直接去掉后续流程
+                # 失败了，直接去掉后续流程, 从 pending_buildings 中移除 key
                 if key in self.pending_buildings:
                     del self.pending_buildings[key]
             else:
+                # 成功了，从 pending_buildings[key] 中移除对应的 (msg_id, timestamp)
                 if key in self.pending_buildings:
-                    self.pending_buildings[key].remove(index)
-
-    def tick(self):
-        keys_to_delete = []
-        # 遍历字典，收集需要删除的键
-        for key, pending_msg in self.pending_buildings.items():
-            if len(pending_msg) == 0:
-                param = deserialize_object(key)
-                if param['action'] == PlayerAction.BUILD:
-                    self.place_new_building(**param)
-                elif param['action'] == PlayerAction.UPGRADE:
-                    self.upgrade_building(**param)
-                # 记录需要删除的键
-                keys_to_delete.append(key)
-
-        # 统一删除记录的键
-        for key in keys_to_delete:
-            del self.pending_buildings[key]
+                    new_data_list = []
+                    for data in self.pending_buildings[key]:
+                        msg_id, timestamp = data
+                        if msg_id != index:  # 保留不是 index 的
+                            new_data_list.append(data)
+                    # 不要在这里删除 key！
+                    self.pending_buildings[key] = new_data_list

@@ -23,6 +23,8 @@ class Game:
 
     def add_robot(self, resources, building_configs, purchase_configs):
         player = self.player_manager.create_player(resources, building_configs, purchase_configs)
+        for resource in player.resources:
+            player.resources[resource] = 10
         self.robot = self.player_manager.add_robot(player)
 
     def generate_worlds(self, num_worlds: int):
@@ -114,13 +116,23 @@ class Game:
                 for planet_id in self.robot.explored_planets:
                     planet = self.world_manager.get_world_by_id(planet_id)
                     planet_name = Locale.get_text(planet.world_config.world_id)
-                    self.log.info(f"星球: {planet_name} ({planet.location})")
+                    self.log.info(f"星球{planet_id}: {planet_name} ({planet.location})")
                     for building_instance in self.building_manager.get_buildings_on_world(planet_id):
                         building_name = Locale.get_text(building_instance.building_config.name_id)
                         building_level = building_instance.building_config.level
                         if building_instance.remaining_secs > 0:
-                            self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}" + "(建造/升级中)")
+                            self.log.info(f"  - 建筑{building_instance.object_id}: {building_name}, 等级:{building_level}" + "(建造/升级中)")
                         else:
-                            self.log.info(f"  - 建筑: {building_name}, 等级:{building_level}")
+                            self.log.info(f"  - 建筑{building_instance.object_id}: {building_name}, 等级:{building_level}")
                 self.log.info("-------------------------------------------")
 
+                # 打印管理器状态
+                self.log.info("############################################")
+                self.log.info(f"  WorldManager: 管理星球数量 = {len(self.world_manager.world_instances)}")
+                self.log.info(f"  BuildingManager: 管理建筑数量 = {len(self.building_manager.building_instances)}")
+                self.log.info(f"  PlayerManager: 管理玩家数量 = {len(self.player_manager.players)}, 管理机器人数量: {len(self.player_manager.robots)}")
+                self.log.info(f"  EventManager: 活跃事件数量 = {sum(len(events) for events in self.event_manager.active_events.values())}")
+                self.log.info(f"  ModifierManager: 活跃 Modifier 数量 = {len(self.modifier_manager.modifiers)}")
+                self.log.info(f"  MessageBus: 消息队列长度 = {len(self.message_bus.messages)}, 待处理消息数量 = {len(self.message_bus.pending_messages)}")
+                self.log.info(f"  Pathfinder: 缓存路径数量: {len(self.path_finder._path_cache)}")
+                self.log.info("############################################")    

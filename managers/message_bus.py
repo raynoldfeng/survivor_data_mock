@@ -12,7 +12,7 @@ class MessageType(Enum):
     PLAYER_SUBSPACE_JUMP = 7
     PLAYER_FLEET_MOVE_REQUEST = 8
     PLAYER_FLEET_MOVE = 9
-    PLAYER_FLEET_LAND_REQUEST = 10 
+    PLAYER_FLEET_LAND_REQUEST = 10
     PLAYER_FLEET_TAKEOFF_REQUEST = 11
     PLAYER_FLEET_MOVEMENT_INTERRUPT = 12
     PLAYER_FLEET_ARRIVE = 13
@@ -35,12 +35,13 @@ class MessageType(Enum):
     WORLD_REMOVED = 30
     PLAYER_PURCHASE_REQUEST = 31
     PURCHASE_SUCCESS = 32
+    MODIFIER_REMOVE_REQUEST = 33
 
 class Message:
     _msg_id_counter = 0
     def __init__(self, type: MessageType, data: Dict[str, Any], sender: Any, delay: int = 0):
         Message._msg_id_counter += 1
-        self.id = Message._msg_id_counter  
+        self.id = Message._msg_id_counter
         self.type: MessageType = type
         self.data: Dict[str, Any] = data
         self.sender: Any = sender
@@ -55,6 +56,7 @@ class MessageBus:
         self.pending_messages: List[Message] = []  # 未成功处理的消息队列
         self.subscribers: Dict[MessageType, List[Callable[[Message], None]]] = {}  # 订阅者字典
         self.MAX_RETRIES = 3  # 最大重试次数
+        self.MAX_DELAY = 600 #最大延迟
 
     def subscribe(self, message_type: MessageType, callback: Callable[[Message], None]):
         """订阅消息"""
@@ -68,6 +70,8 @@ class MessageBus:
             self.subscribers[message_type].remove(callback)
 
     def post_message(self, type: MessageType, data: Dict[str, Any], sender: Any, delay: int = 0):
+        if delay > self.MAX_DELAY:
+            self.game.log.warn(f"消息延迟时间过长 ({delay} > {self.MAX_DELAY})，可能被丢弃: {type.name}")
         msg = Message(type, data, sender, delay)
         if delay > 0:
             self.messages.append(msg)  # 延迟消息添加到 messages 列表
@@ -80,7 +84,7 @@ class MessageBus:
         if msg.type in self.subscribers:
             for callback in self.subscribers[msg.type]:
                 callback(msg)  # 调用回调函数
-        
+
         # 按类型处理日志输出
         log_msg = f"[MSG-{msg.type.name}]"
         if msg.type == MessageType.WORLD_ADDED:
@@ -88,7 +92,7 @@ class MessageBus:
             log_msg += f" 星球ID:{world.object_id}, 类型:{world.world_config.world_id}, 位置:{world.location}"
         elif msg.type == MessageType.WORLD_REMOVED:
             world = msg.data.get("world")
-            log_msg += f" 移除星球ID:{world.object_id}, 类型:{world.world_config.world_id}"    
+            log_msg += f" 移除星球ID:{world.object_id}, 类型:{world.world_config.world_id}"
         elif msg.type == MessageType.EVENT_BEGIN:
             log_msg += f" 目标类型:{msg.data['target_type'].name}, 目标ID:{msg.data['target_id']}, 事件ID:{msg.data['event_id']}, 文本ID:{msg.data['text_id']}"
         elif msg.type == MessageType.EVENT_PHASE_CHANGE:
@@ -120,7 +124,7 @@ class MessageBus:
         elif msg.type == MessageType.BUILDING_DESTROYED:
             log_msg += f" 建筑ID:{msg.data['building_id']}, 所在星球:{self.game.building_manager.get_building_by_id(msg.data['building_id']).build_on if msg.data['building_id'] in self.game.building_manager.building_instances else '未知'}"
         elif msg.type == MessageType.BUILDING_INSUFFICIENT_RESOURCES:
-            log_msg += f" 玩家ID:{msg.data['player_id']}, 建筑ID:{msg.data['building_config'].config_id}"
+            log_msg += f" 玩家ID:{msg.data['player_id']}, 建筑ID:{msg.data['building_config_id']}"
         elif msg.type == MessageType.BUILDING_REQUEST:
             log_msg += f" 玩家ID:{msg.data['player_id']}, 星球ID:{msg.data['world_id']}, 建筑类型:{msg.data['building_config_id']}"
         elif msg.type == MessageType.BUILDING_UPGRADE_REQUEST:
@@ -139,6 +143,8 @@ class MessageBus:
             log_msg += f" 玩家ID:{msg.data['player_id']}, 购买项:{msg.data['package_name']}, 数量:{msg.data['quantity']}"
         elif msg.type == MessageType.PURCHASE_SUCCESS:
             log_msg += f" 玩家ID:{msg.data['player_id']}, 购买成功: {msg.data['package_name']} x {msg.data['quantity']}"
+        elif msg.type == MessageType.MODIFIER_REMOVE_REQUEST:
+            log_msg += f" Type: {msg.data['modifier_type']} ,目标:{msg.data['target_id']}, 施加者类型: {msg.data['owner_type']} , 施加者ID {msg.data['owner_id']}"
         else:
             log_msg += f" 数据:{json.dumps(msg.data, indent=None, ensure_ascii=False)[:100]}"  # 截断过长数据
 
@@ -166,4 +172,6 @@ class MessageBus:
                 temp_pending_messages.append(msg) #放到临时列表里
             else:
                 self.game.log.error(f"消息 {msg.id} ({msg.type.name}) 超过最大重试次数，已丢弃")
+                #从队列中删除
+                continue
         self.pending_messages = temp_pending_messages
