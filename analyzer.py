@@ -14,7 +14,6 @@ def parse_log(file_path):
     in_resources = False
     in_buildings = False
 
-    item_count = 0
     with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
@@ -26,22 +25,16 @@ def parse_log(file_path):
 
             # 检测分隔符
             if "-------------------------------------------" in line:
-                if in_snapshot:
-                    item_count += 1
+                if in_snapshot and timestamp:
                     # 结束当前快照
                     snapshots.append({
                         'timestamp': timestamp,
                         'resources': dict(current_resources),
                         'buildings': dict(current_buildings)
                     })
-                    in_snapshot = False
-                    in_resources = False
-                    in_buildings = False
-                else:
-                    # 开始新的快照
-                    in_snapshot = True
                     current_resources = {}
                     current_buildings = defaultdict(lambda: defaultdict(lambda: {'complete': 0, 'under_construction': 0}))
+                in_snapshot = not in_snapshot
                 continue
 
             if in_snapshot:
@@ -62,7 +55,7 @@ def parse_log(file_path):
                         value = float(res_match.group(2))
                         current_resources[name] = value
 
-                if in_buildings and "建筑:" in line:
+                if in_buildings and "建筑" in line:
                     # 匹配建筑数据
                     building_match = re.search(r'  - 建筑\d+: (.+?), 等级:(\d+)(?:\((.*?)\))?', line)
                     if building_match:
@@ -85,31 +78,18 @@ def generate_charts(snapshots):
         resources_data.append(row)
 
     df_res = pd.DataFrame(resources_data)
-
-    # 直接使用原始时间戳，不再分片
     df_res.set_index('timestamp', inplace=True)
+    df_res = df_res.resample('3T').last().ffill()  # 3分钟切片，取最后一个值并填充
 
-    # 生成完整的时间范围（3分钟粒度）
-    full_time_range = pd.date_range(
-        start=df_res.index.min(),
-        end=df_res.index.max(),
-        freq='3T'
-    )
-
-    # 重新索引并前向填充
-    df_res = df_res.reindex(full_time_range).ffill().reset_index()
-    df_res.rename(columns={'index': 'timestamp'}, inplace=True)
-
-    # 生成资源图表（X轴为timestamp，Y轴为资源值）
+    # 生成资源图表
     fig_res = go.Figure()
-    for col in df_res.columns[1:]:  # 排除timestamp列
+    for col in df_res.columns:
         fig_res.add_trace(go.Scatter(
-            x=df_res['timestamp'],
+            x=df_res.index,
             y=df_res[col],
             name=col,
             mode='lines+markers'
         ))
-
     fig_res.update_layout(
         title='资源变化曲线（3分钟粒度）',
         xaxis_title='时间',
@@ -128,35 +108,30 @@ def generate_charts(snapshots):
         buildings_data.append(row)
 
     df_bld = pd.DataFrame(buildings_data)
-
-    # 直接使用原始时间戳，不再分片
     df_bld.set_index('timestamp', inplace=True)
+    df_bld = df_bld.resample('3T').last().ffill()  # 3分钟切片，取最后一个值并填充
 
-    # 重新索引并前向填充
-    df_bld = df_bld.reindex(full_time_range).ffill().reset_index()
-    df_bld.rename(columns={'index': 'timestamp'}, inplace=True)
-
-    # 生成建筑图表（X轴为timestamp，Y轴为建筑值）
+    # 生成建筑图表
     fig_bld = go.Figure()
-    building_level_names = set([col for col in df_bld.columns if '_complete' in col or '_under_construction' in col])
-    for building_level in building_level_names:
-        total = df_bld[building_level]
+    building_levels = [col for col in df_bld.columns if '_complete' in col or '_under_construction' in col]
+    for level in building_levels:
         fig_bld.add_trace(go.Bar(
-            x=df_bld['timestamp'],
-            y=total,
-            name=building_level
+            x=df_bld.index,
+            y=df_bld[level],
+            name=level,
+            legendgroup='one'  # 修改为 legendgroup
         ))
-
     fig_bld.update_layout(
-        title='建筑曲线（3分钟粒度）',
+        title='建筑变化曲线（3分钟粒度）',
         xaxis_title='时间',
         yaxis_title='数量',
         height=600,
         barmode='stack'
     )
-    df_res.to_csv('resources.csv', index=False)
-    df_bld.to_csv('buildings.csv', index=False)
-    
+
+    df_res.to_csv('resources.csv', index=True)
+    df_bld.to_csv('buildings.csv', index=True)
+
     return fig_res, fig_bld
 
 
