@@ -1,7 +1,6 @@
 from basic_types.base_object import BaseObject
 from basic_types.enums import *
 from basic_types.modifier import ModifierConfig, ModifierInstance
-from basic_types.player import Player
 from .message_bus import Message, MessageType
 
 class ModifierManager(BaseObject):
@@ -23,8 +22,8 @@ class ModifierManager(BaseObject):
 
     def tick(self):
         now = datetime.datetime.now()
-        if (now - self.last_tick).seconds <= 1:
-            return
+        #if (now - self.last_tick).seconds <= 1:
+        #    return
 
         self.last_tick = now
         """更新修饰符状态"""
@@ -97,14 +96,27 @@ class ModifierManager(BaseObject):
                     if config.target_type == ObjectType.PLAYER:
                         player = self.game.player_manager.get_player_by_id(modifier.target_id)
                         resource = config.data_type
-                        player.resources[resource] += quantity
+                        if modifier.owner_type == ObjectType.BUILDING:
+                            building_instance = self.game.building_manager.get_building_by_id(modifier.owner_id)
+                            # 是由building发送给Player的
+                            if building_instance.building_config.manpower != 0:
+                                # Habitation 类型建筑不需要manpower, 反而产出population
+                                quantity = quantity * building_instance.manpower / building_instance.building_config.manpower
+                        
+                        expected_value = player.resources[resource] + quantity
+                        if  expected_value >= 0:
+                            player.resources[resource] = expected_value
+                            self.game.message_bus.post_message(
+                                MessageType.PLAYER_RESOURCE_CHANGED, {
+                                "player_id": modifier.target_id,
+                                "resource": config.data_type,
+                                "quantity": quantity
+                            }, self)
+                        else:
+                            # TODO 大概率是不够CONSUME了，需要进行处理
+                            self.game.log.warn(f"Modifier 作用失败. player_id{modifier.target_id}，resource {config.data_type}, quantity:{quantity}")
+                            pass
 
-                        self.game.message_bus.post_message(
-                            MessageType.PLAYER_RESOURCE_CHANGED, {
-                            "player_id": modifier.target_id,
-                            "resource": config.data_type,
-                            "quantity": quantity
-                        }, self)
 
                     elif config.target_type == ObjectType.BUILDING:
                         building = self.game.building_manager.get_building_by_id(modifier.target_id)
@@ -133,7 +145,7 @@ class ModifierManager(BaseObject):
             target_id = message.data["target_id"],
             config = modifier_config,
             request_id = message.id,  # 记录消息 ID
-            owner_type = message.sender.object_type, # 记录创建者类型
+            owner_type = message.sender.type, # 记录创建者类型
             owner_id = message.sender.object_id      # 记录创建者 ID
             )
 

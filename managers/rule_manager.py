@@ -38,6 +38,8 @@ class RulesManager(BaseObject):
         for player_id, player in self.game.player_manager.players.items():
             self.move_fleet(player_id)
 
+        # 3. 处理当人口超限（建筑损毁、消耗不足等）导致的manpower被动分配
+
     def check_collisions(self):
         """检查所有玩家舰队与星球的碰撞 (包括不可穿透区域)，以及舰队之间的碰撞"""
         for player_id, player in self.game.player_manager.players.items():
@@ -268,7 +270,8 @@ class RulesManager(BaseObject):
         time_elapsed = (now - last_move_time).seconds
 
         # 计算可移动的步数
-        steps_possible = int(time_elapsed * fleet.travel_speed)
+        # steps_possible = int(time_elapsed * fleet.travel_speed)
+        steps_possible = int(1 * fleet.travel_speed)
         actual_steps = 0
 
         if steps_possible <= 0:

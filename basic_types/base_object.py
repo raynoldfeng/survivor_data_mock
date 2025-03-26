@@ -6,7 +6,7 @@ class BaseObject:
 
     def __init__(self, *kwargs):
         self.object_id = BaseObject._object_id_counter
-        self.object_type = ObjectType.SYSTEM
+        self.type = ObjectType.SYSTEM
         BaseObject._object_id_counter += 1
         BaseObject._objects[self.object_id] = self
 

@@ -79,22 +79,6 @@ class PlayerManager(BaseObject):
             self.fleet_locations[new_location] = []
         self.fleet_locations[new_location].append(player_id)
 
-    def tick(self):
-        for player_id, player in self.players.items():
-            player.action_points += player.action_points_recovery_per_minute
-            player.action_points = min(player.action_points, player.max_action_points)
-
-            actions = player.tick(self.game)
-            if actions is not None:
-                for action in actions:
-                    self.process_action_data(action)
-
-        for robot_id, robot in self.robots.items():
-            actions = robot.tick(self.game)
-            if actions is not None:
-                for action in actions:
-                    self.process_action_data(action)
-
     def process_action_data(self, action_data):
         """处理操作数据，发送消息"""
         action = action_data['action']
@@ -152,6 +136,8 @@ class PlayerManager(BaseObject):
                 "quantity" : action_data["quantity"]
             }, self)
 
+        elif action == PlayerAction.ALLOCATE_MANPOWER:
+            self.allocate_manpower(action_data["player_id"], action_data["building_id"], action_data["amount"])
 
     def handle_player_resource_changed(self, message: Message):
         """
@@ -160,15 +146,47 @@ class PlayerManager(BaseObject):
         pass
 
 
-    def allocate_manpower(self, building_instance, count):
-        # 1.判断building_instance 是否归属于player
+    def allocate_manpower(self,player_id, building_id: str, amount: int):
+        """
+        向指定建筑分配人力。
+        """
+        building = self.game.building_manager.get_building_by_id(building_id)
+        if not building:
+            return
 
-        # 2.根据当前行为增/减 该building_instance的人员配置数量
+        world_id = building.build_on
+        if world_id not in self.players[player_id].manpower_allocation:
+            self.players[player_id].manpower_allocation[world_id] = {}
 
-        # 3.调整剩余人员数量avaliable_manpower (根据resource:population 和 当前已经分配的所有manpower来计算余量)
-        pass
+        # 更新 Player 的 manpower_allocation
+        self.players[player_id].manpower_allocation[world_id][building_id] = \
+            self.players[player_id].manpower_allocation.get(world_id, {}).get(building_id, 0) + amount
+
+        # 发送 BUILDING_ATTRIBUTE_CHANGED 消息
+        self.game.message_bus.post_message(MessageType.BUILDING_ATTRIBUTE_CHANGED, {
+            "building_id": building_id,
+            "attribute": "manpower",
+            "quantity": amount,  # 正数表示增加，负数表示减少
+        }, self)
 
     def pick(self):
         if self.players:
             return random.choice(list(self.players.keys()))
         return None
+    
+    def tick(self):
+        for player_id, player in self.players.items():
+            player.calculate_available_manpower()
+            player.action_points += player.action_points_recovery_per_minute
+            player.action_points = min(player.action_points, player.max_action_points)
+
+            actions = player.tick(self.game)
+            if actions is not None:
+                for action in actions:
+                    self.process_action_data(action)
+
+        for robot_id, robot in self.robots.items():
+            actions = robot.tick(self.game)
+            if actions is not None:
+                for action in actions:
+                    self.process_action_data(action)

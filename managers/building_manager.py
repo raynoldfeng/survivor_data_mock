@@ -16,7 +16,6 @@ class BuildingManager(BaseObject):
             cls._instance.building_instances: Dict[str, BuildingInstance] = {} # type: ignore
             cls._instance.game = game
             cls._instance.game.building_manager = cls._instance
-            cls._instance.tick_interval = 5
             cls._instance.world_buildings = {}
             cls._instance.PENDING_TIMEOUT = 60  # 超时时间 (秒)
 
@@ -53,13 +52,39 @@ class BuildingManager(BaseObject):
                 # GENERAL, DEFENSE 类型没有二级分类
                 self.world_buildings[world_id][slot_type] = [None] * slots
 
-    def add_world_buildings(self, world_id: str, building_configs: []):
+    def add_world_buildings(self, world_id: str, building_configs: List[str]):
+        """添加星球的初始建筑"""
         for config_id in building_configs:
             building_config = self.get_building_config_by_id(config_id)
-            if building_config:
-                building_instance = BuildingInstance(building_config, world_id)
-                # self._add_building_instance(world_id ...  )  # TODO: 初始建筑的添加逻辑
-        pass
+            if not building_config:
+                self.game.log.warn(f"未知建筑配置 ID: {config_id}，无法添加到星球 {world_id}。")
+                continue
+
+            # 确定槽位类型和子类型
+            if building_config.type == BuildingType.RESOURCE:
+                slot_type = building_config.type
+                subtype = building_config.subtype
+            elif building_config.type == BuildingType.GENERAL:
+                slot_type = building_config.type
+                subtype = None
+            elif building_config.type == BuildingType.DEFENSE:
+                slot_type = building_config.type
+                subtype = None
+            else:
+                self.game.log.warn(f"未知建筑类型: {building_config.type}，无法添加到星球 {world_id}。")
+                continue
+
+            # 查找可用槽位
+            slot_index = self.get_available_slot(world_id, slot_type, subtype)
+            if slot_index is None:
+                self.game.log.warn(f"星球 {world_id} 上没有 {slot_type} (subtype: {subtype}) 的可用槽位，无法添加建筑 {config_id}。")
+                continue
+
+            # 创建并添加建筑实例
+            building_instance = BuildingInstance(building_config, world_id)
+            self._add_building_instance(building_instance, world_id, slot_type, slot_index, subtype)
+            self.game.log.info(f"已将建筑 {building_config.name_id} 添加到星球 {world_id} 的 {slot_type} 槽位 {slot_index}。")
+
 
     def get_buildings_on_world(self, world_id: str) -> List[BuildingInstance]:
         """获取星球上的所有建筑实例"""
@@ -138,7 +163,7 @@ class BuildingManager(BaseObject):
                         pass
 
 
-        # 发送移除 Modifier 的请求 (更优雅的方式)
+        # 发送移除 Modifier 的请求
         self.game.message_bus.post_message(MessageType.MODIFIER_REMOVE_REQUEST, {
             "target_id": building_instance.object_id,
             "owner_type": ObjectType.BUILDING,
@@ -176,6 +201,8 @@ class BuildingManager(BaseObject):
         building = self.get_building_by_id(message.data["building_id"])
         attribute = message.data["attribute"]
         quantity = message.data["quantity"]
+        if not building:
+            return
         player_id = self.game.world_manager.get_world_by_id(building.build_on).owner
         if attribute == "remaining_secs":
             if building.remaining_secs <=0 and building.remaining_secs - quantity >0:
@@ -185,8 +212,10 @@ class BuildingManager(BaseObject):
                         msg_id = self.game.message_bus.post_message(MessageType.MODIFIER_APPLY_REQUEST, {
                         "target_id": player_id,
                         "modifier_config" : modifier_config
-                        },self)
+                        },building)
 
+        elif attribute == "manpower":
+            building.manpower += quantity
 
     def get_available_slot(self, world_id: str, slot_type: str, subtype: Optional[str] = None) -> Optional[int]:
         """获取指定星球、类型和子类型 (可选) 的可用槽位索引"""

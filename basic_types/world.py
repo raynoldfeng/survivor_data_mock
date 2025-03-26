@@ -59,7 +59,7 @@ class WorldInstance(BaseObject):
         for dx in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
             for dy in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
                 for dz in range(-self.impenetrable_half_extent, self.impenetrable_half_extent + 1):
-                    locations.add((self.location.x + dx, self.location.y + dy, self.location.z + dz))
+                    locations.add(Vector3(self.location.x + dx, self.location.y + dy, self.location.z + dz))
         return locations
 
     def get_spawn_location(self) -> Vector3:

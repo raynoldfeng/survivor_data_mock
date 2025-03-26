@@ -120,10 +120,14 @@ class Game:
                     for building_instance in self.building_manager.get_buildings_on_world(planet_id):
                         building_name = Locale.get_text(building_instance.building_config.name_id)
                         building_level = building_instance.building_config.level
+                        allocated_manpower = building_instance.manpower
+                        max_manpower = building_instance.building_config.manpower
+                        durability = building_instance.durability
+                        max_durability = building_instance.building_config.durability
                         if building_instance.remaining_secs > 0:
-                            self.log.info(f"  - 建筑{building_instance.object_id}: {building_name}, 等级:{building_level}" + "(建造/升级中)")
+                            self.log.info(f"  - 建筑{building_instance.object_id}: {building_name}, 等级:{building_level}, 耐久度{durability}/{max_durability}, 人力{allocated_manpower}/{max_manpower} (建造/升级中)")
                         else:
-                            self.log.info(f"  - 建筑{building_instance.object_id}: {building_name}, 等级:{building_level}")
+                            self.log.info(f"  - 建筑{building_instance.object_id}: {building_name}, 等级:{building_level}, 耐久度{durability}/{max_durability}, 人力{allocated_manpower}/{max_manpower}")
                 self.log.info("-------------------------------------------")
 
                 # 打印管理器状态

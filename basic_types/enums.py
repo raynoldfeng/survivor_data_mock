@@ -78,7 +78,8 @@ class PlayerAction(Enum):
     UPGRADE = 'Upgrade',
     CHOICE = 'Choice',
     PURCHASE = "Purchase"
-
+    ALLOCATE_MANPOWER = "AllocateManpower"
+    
 class PurchaseType(Enum):
     RESOURCE = "Resource"
     ITEM = "Item"  # 预留给未来使用

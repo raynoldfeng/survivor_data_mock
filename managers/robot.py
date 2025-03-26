@@ -1,6 +1,7 @@
 from basic_types.enums import *
 from basic_types.resource import Resource
 from common import *
+import heapq
 
 class Dest():
     def __init__(self, type, value):
@@ -75,7 +76,7 @@ class Robot():
         return True
 
     def select_building_to_build(self, planet):
-        """选择要在指定星球上建造的建筑"""
+        """选择要在指定星球上建造的建筑 (改进版)"""
         player = self.game.player_manager.get_player_by_id(self.object_id)
         available_buildings = []
 
@@ -88,44 +89,59 @@ class Robot():
 
         # 优先选择 1 级建筑
         level_1_buildings = [b for b in available_buildings if b.level == 1]
-        if level_1_buildings:
-            # 在 1 级建筑中，按照之前的逻辑选择（关键资源 > 其他资源 > 人口 > 随机）
-            key_resource_buildings = [
-                b for b in level_1_buildings
-                if any(
-                    modifier_config.data_type in (Resource.get_resource_by_id("resource.promethium"), Resource.get_resource_by_id("resource.energy"))
-                    for modifier_config in b.modifier_configs
-                    if modifier_config.modifier_type == ModifierType.PRODUCTION
-                )
-            ]
-            if key_resource_buildings:
-                return random.choice(key_resource_buildings)
+        if not level_1_buildings:
+            return None  # 没有 1 级建筑，无法建造
 
-            resource_buildings = [
-                b for b in level_1_buildings
-                if any(
-                    modifier.modifier_type == ModifierType.PRODUCTION
-                    for modifier in b.modifier_configs
-                )
-            ]
-            if resource_buildings:
-                return random.choice(resource_buildings)
+        # --- 资源建筑优先级 ---
+        key_resource_buildings = [
+            b for b in level_1_buildings
+            if any(
+                modifier_config.data_type in ("resource.promethium")  # 关键资源
+                for modifier_config in b.modifier_configs
+                if modifier_config.modifier_type == ModifierType.PRODUCTION
+            )
+        ]
+        if key_resource_buildings:
+            return random.choice(key_resource_buildings)
 
-            population_buildings = [
-                b for b in level_1_buildings
-                if any(
-                    modifier.data_type == Resource.get_resource_by_id("resource.population")
-                    for modifier in b.modifier_configs
-                    if modifier.modifier_type == ModifierType.PRODUCTION
-                )
-            ]
-            if population_buildings:
-                return random.choice(population_buildings)
+        resource_buildings = [
+            b for b in level_1_buildings
+            if b.type == BuildingType.RESOURCE and not any(
+                modifier_config.data_type in ("resource.promethium")
+                for modifier_config in b.modifier_configs
+                if modifier_config.modifier_type == ModifierType.PRODUCTION
+            )
+        ]
+        if resource_buildings:
+            return random.choice(resource_buildings)
 
-            return random.choice(level_1_buildings)
-        else:
-            # 如果没有 1 级建筑，则不建造 (理论上不应该出现这种情况)
-            return None
+        # --- General 建筑选择 ---
+        general_buildings = [b for b in level_1_buildings if b.type == BuildingType.GENERAL]
+        if general_buildings:
+            # 人口阈值 (示例：75%)
+            population_threshold = 0.75 * player.resources.get(Resource.get_resource_by_id("resource.population"), 0)
+
+            if player.available_manpower < population_threshold:
+                # 人口不足，优先人口建筑
+                population_buildings = [
+                    b for b in general_buildings
+                    if any(modifier.data_type == "resource.population"
+                           for modifier in b.modifier_configs
+                           if modifier.modifier_type == ModifierType.PRODUCTION)
+                ]
+                if population_buildings:
+                    return random.choice(population_buildings)
+
+            # 达到人口阈值，或没有可用的人口建筑，考虑配额
+            # (简化实现：只在人口充足时才建造其他 General 建筑)
+            if player.available_manpower >= population_threshold:
+                # 随机选择 (TODO: 未来可以根据配额更智能地选择)
+                return random.choice(general_buildings)
+            else:
+                return None
+
+        # --- 其他情况 ---
+        return random.choice(level_1_buildings)  # 兜底
         
     def calculate_building_upgrade_benefit(self, building_instance):
         """计算建筑升级的收益 (考虑多种升级路径和资源稀缺度)"""
@@ -317,11 +333,73 @@ class Robot():
                         }
             return None
     
+    def calculate_building_priority(self, building_instance, player):
+        """计算建筑的优先级"""
+        priority = 0
+
+        # 建筑类型
+        if building_instance.building_config.type == BuildingType.RESOURCE:
+            priority += 100
+        elif building_instance.building_config.type == BuildingType.GENERAL:
+            priority += 50
+
+        # 建筑等级
+        priority += building_instance.building_config.level * 10
+
+        # 人力比例 (当前人力/最大人力，比例越低，优先级越高)
+        manpower_ratio = building_instance.manpower / building_instance.building_config.manpower if building_instance.building_config.manpower >0 else 0
+        priority += (1 - manpower_ratio) * 20  # 转换为优先级，所以用 1 减
+
+        # (可选) 资源稀缺度
+        # for modifier in building_instance.building_config.modifier_configs:
+        #     if modifier.modifier_type == ModifierType.PRODUCTION:
+        #         resource_amount = player.resources.get(modifier.data_type, 1)
+        #         resource_weight = 1 / resource_amount  # 简化计算
+        #         priority += resource_weight * 5
+
+        return priority
+
+    def allocate_manpower(self):
+        """分配人力 (全局视角)"""
+        player = self.game.player_manager.get_player_by_id(self.object_id)
+        if player.available_manpower <= 0:
+            return None
+
+        building_queue = []  # 优先级队列 (-priority, building_id, building_instance)
+
+        for world_id in player.explored_planets:
+            world = self.game.world_manager.get_world_by_id(world_id)
+            if not world:
+                continue
+
+            for building_instance in self.game.building_manager.get_buildings_on_world(world_id):
+                if building_instance.manpower < building_instance.building_config.manpower:
+                    priority = self.calculate_building_priority(building_instance, player)
+                    heapq.heappush(building_queue, (-priority, building_instance.object_id, building_instance))
+
+        actions = []
+        available_manpower = player.available_manpower  # 创建本地副本
+
+        while building_queue and available_manpower > 0:  # 使用本地副本
+            _, _, building_instance = heapq.heappop(building_queue)  # 取出时忽略 building_id
+            delta = building_instance.building_config.manpower - building_instance.manpower
+            allocate_count = min(available_manpower, delta)  # 使用本地副本
+
+            actions.append({
+                "action": PlayerAction.ALLOCATE_MANPOWER,
+                "player_id": player.object_id,
+                "building_id": building_instance.object_id,
+                "amount": allocate_count,
+            })
+            available_manpower -= allocate_count  # 更新本地副本
+
+        return actions if actions else None
+
     def think(self):
         """模拟玩家思考并返回行动"""
         now = datetime.datetime.now()
-        if (now - self.last_think).seconds <=1 :
-            return
+        #if (now - self.last_think).seconds <=1 :
+        #    return
         
         self.last_think = now
         actions = []
@@ -467,6 +545,10 @@ class Robot():
                         "building_config_id": building_config.config_id,
                         "player_id": player.object_id
                     })
+        # 尝试分配人力
+        manpower_action = self.allocate_manpower()
+        if manpower_action:
+            actions.extend(manpower_action)
 
         # 尝试购买稀有资源
         player = self.game.player_manager.get_player_by_id(self.object_id)

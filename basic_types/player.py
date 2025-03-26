@@ -29,7 +29,6 @@ class Fleet:
             self.location = self.path.pop(0)  # 移除当前单元格
 
 
-# basic_types/player.py
 class Player(BaseObject):
     def __init__(self, resources, building_configs, purchase_configs):  # 增加 purchase_configs
         super().__init__()
@@ -53,6 +52,14 @@ class Player(BaseObject):
             if resource == resource_id:
                 self.resources[resource] += amount
                 break
+
+    def calculate_available_manpower(self):
+        total_population = self.resources.get("resource.population", 0)
+        allocated_manpower = 0
+        for world_allocations in self.manpower_allocation.values():
+            for building_id, manpower in world_allocations.items():
+                allocated_manpower += manpower
+        self.available_manpower = int(total_population - allocated_manpower)
 
     def tick(self, game):
         """
